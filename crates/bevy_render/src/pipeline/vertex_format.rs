@@ -98,7 +98,6 @@ impl VertexFormat {
     }
 }
 
-
 pub trait AsVertexFormats {
     fn as_vertex_formats() -> &'static [VertexFormat];
 }

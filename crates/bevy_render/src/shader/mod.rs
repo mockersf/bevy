@@ -4,6 +4,8 @@ mod shader_defs;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod shader_reflect;
+#[cfg(feature = "naga-reflect")]
+mod shader_reflect_naga;
 
 pub use shader::*;
 pub use shader_defs::*;
