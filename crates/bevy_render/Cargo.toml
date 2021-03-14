@@ -41,28 +41,18 @@ hex = "0.4.2"
 hexasphere = "3.2"
 parking_lot = "0.11.0"
 
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-spirv-reflect = "0.2.3"
-
 [target.'cfg(all(not(target_os = "ios"), not(target_arch = "wasm32"), not(all(target_arch = "aarch64", target_os = "macos"))))'.dependencies]
-bevy-glsl-to-spirv = "0.2.0"
+naga = { version = "0.3", features = ["glsl-in", "spv-in", "spv-out"] }
 
 [target.'cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))'.dependencies]
 shaderc = "0.7.0"
 
-[dependencies.naga]
-# Temporarily git, either get kvark to publish a new version, or mirror
-git = "https://github.com/gfx-rs/naga.git"
-rev = "7f780e8efcdfe475d8bd57d9d77edeedab8ecc39"
-optional = true
-features = ["glsl-new", "spirv"]
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"
 
 [features]
-# default = ["bevy-glsl-to-spirv", "spirv-reflect"]
-default = ["naga-glsl", "naga-reflect"]
+default = []
 png = ["image/png"]
 hdr = ["image/hdr"]
 dds = ["image/dds"]

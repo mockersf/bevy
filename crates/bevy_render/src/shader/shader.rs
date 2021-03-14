@@ -23,9 +23,17 @@ pub enum ShaderStage {
 /// An error that occurs during shader handling.
 #[derive(Error, Debug)]
 pub enum ShaderError {
+    /// Shader parsing error.
+    #[error("Shader parsing error: {0}")]
+    GlslParsing(naga::front::glsl::ParseError),
+
+    /// Shader parsing error.
+    #[error("Shader parsing error: {0}")]
+    SpvParsing(String),
+
     /// Shader compilation error.
     #[error("Shader compilation error: {0}")]
-    Compilation(String),
+    Compilation(naga::back::spv::Error),
 
     #[cfg(any(target_os = "ios", all(target_arch = "aarch64", target_os = "macos")))]
     /// shaderc error.
@@ -46,12 +54,12 @@ pub enum ShaderError {
     not(target_arch = "wasm32"),
     not(all(target_arch = "aarch64", target_os = "macos"))
 ))]
-impl From<ShaderStage> for bevy_glsl_to_spirv::ShaderType {
-    fn from(s: ShaderStage) -> bevy_glsl_to_spirv::ShaderType {
+impl From<ShaderStage> for naga::ShaderStage {
+    fn from(s: ShaderStage) -> naga::ShaderStage {
         match s {
-            ShaderStage::Vertex => bevy_glsl_to_spirv::ShaderType::Vertex,
-            ShaderStage::Fragment => bevy_glsl_to_spirv::ShaderType::Fragment,
-            ShaderStage::Compute => bevy_glsl_to_spirv::ShaderType::Compute,
+            ShaderStage::Vertex => naga::ShaderStage::Vertex,
+            ShaderStage::Fragment => naga::ShaderStage::Fragment,
+            ShaderStage::Compute => naga::ShaderStage::Compute,
         }
     }
 }
@@ -66,7 +74,17 @@ pub fn glsl_to_spirv(
     stage: ShaderStage,
     shader_defs: Option<&[String]>,
 ) -> Result<Vec<u32>, ShaderError> {
-    bevy_glsl_to_spirv::compile(glsl_source, stage.into(), shader_defs)
+    let module = naga::front::glsl::parse_str(
+        glsl_source,
+        "main",
+        stage.into(),
+        naga::FastHashMap::default(),
+    )
+    .map_err(ShaderError::GlslParsing)?;
+
+    let mut capabilities = naga::FastHashSet::default();
+    capabilities.insert(naga::back::spv::Capability::Shader);
+    naga::back::spv::write_vec(&module, naga::back::spv::WriterFlags::NONE, capabilities)
         .map_err(ShaderError::Compilation)
 }
 
@@ -147,15 +165,28 @@ impl Shader {
 
     #[cfg(not(target_arch = "wasm32"))]
     pub fn from_spirv(spirv: &[u8]) -> Result<Shader, ShaderError> {
-        use spirv_reflect::{types::ReflectShaderStageFlags, ShaderModule};
-
-        let module = ShaderModule::load_u8_data(spirv)
-            .map_err(|msg| ShaderError::Compilation(msg.to_string()))?;
-        let stage = match module.get_shader_stage() {
-            ReflectShaderStageFlags::VERTEX => ShaderStage::Vertex,
-            ReflectShaderStageFlags::FRAGMENT => ShaderStage::Fragment,
-            other => panic!("cannot load {:?} shader", other),
-        };
+        let module = naga::front::spv::parse_u8_slice(
+            spirv,
+            &naga::front::spv::Options {
+                flow_graph_dump_prefix: None,
+            },
+        )
+        .map_err(|e| ShaderError::SpvParsing(format!("{:?}", e)))?;
+        let stage = match module
+            .entry_points
+            .iter()
+            .next()
+            .ok_or_else(|| ShaderError::SpvParsing("No entrypoint found".to_string()))?
+            .0
+             .0
+        {
+            naga::ShaderStage::Vertex => Ok(ShaderStage::Vertex),
+            naga::ShaderStage::Fragment => Ok(ShaderStage::Fragment),
+            stage => Err(ShaderError::SpvParsing(format!(
+                "invalid stage: {:?}",
+                stage,
+            ))),
+        }?;
 
         Ok(Shader {
             source: ShaderSource::spirv_from_bytes(spirv),

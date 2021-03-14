@@ -1,14 +1,10 @@
 #[allow(clippy::module_inception)]
-
-#[cfg(feature = "naga-glsl")]
 mod preprocessor;
 mod shader;
 mod shader_defs;
 
 #[cfg(not(target_arch = "wasm32"))]
 mod shader_reflect;
-#[cfg(feature = "naga-reflect")]
-mod shader_reflect_naga;
 
 pub use shader::*;
 pub use shader_defs::*;
@@ -16,8 +12,8 @@ pub use shader_defs::*;
 #[cfg(not(target_arch = "wasm32"))]
 pub use shader_reflect::*;
 pub struct ShaderLayout {
-    pub bind_groups: Vec<BindGroupDescriptor>,
-    pub vertex_buffer_layout: Vec<VertexBufferLayout>,
+    pub bind_groups: Vec<crate::pipeline::BindGroupDescriptor>,
+    pub vertex_buffer_layout: Vec<crate::pipeline::VertexBufferLayout>,
     pub entry_point: String,
 }
 
