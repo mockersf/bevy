@@ -3,19 +3,17 @@ use bevy_app::prelude::*;
 use bevy_core::{Time, Timer};
 use bevy_ecs::system::{IntoSystem, Res, ResMut};
 use bevy_log::{debug, info};
-use bevy_utils::Duration;
+use bevy_utils::{Duration, HashSet};
 
 /// An App Plugin that logs diagnostics to the console
 pub struct LogDiagnosticsPlugin {
     pub debug: bool,
     pub wait_duration: Duration,
-    pub filter: Option<Vec<DiagnosticId>>,
 }
 
 /// State used by the [LogDiagnosticsPlugin]
 struct LogDiagnosticsState {
     timer: Timer,
-    filter: Option<Vec<DiagnosticId>>,
 }
 
 impl Default for LogDiagnosticsPlugin {
@@ -23,7 +21,6 @@ impl Default for LogDiagnosticsPlugin {
         LogDiagnosticsPlugin {
             debug: false,
             wait_duration: Duration::from_secs(1),
-            filter: None,
         }
     }
 }
@@ -36,7 +33,6 @@ impl Plugin for LogDiagnosticsPlugin {
     fn build(&self, app: &mut bevy_app::AppBuilder) {
         app.insert_resource(LogDiagnosticsState {
             timer: Timer::new(self.wait_duration, true),
-            filter: self.filter.clone(),
         });
 
         if self.debug {
@@ -51,13 +47,6 @@ impl Plugin for LogDiagnosticsPlugin {
 }
 
 impl LogDiagnosticsPlugin {
-    pub fn filtered(filter: Vec<DiagnosticId>) -> Self {
-        LogDiagnosticsPlugin {
-            filter: Some(filter),
-            ..Default::default()
-        }
-    }
-
     fn log_diagnostic(diagnostic: &Diagnostic) {
         if let Some(value) = diagnostic.value() {
             if let Some(average) = diagnostic.average() {
@@ -89,15 +78,31 @@ impl LogDiagnosticsPlugin {
         mut state: ResMut<LogDiagnosticsState>,
         time: Res<Time>,
         diagnostics: Res<Diagnostics>,
+        log_diagnostics_config: Res<LogDiagnosticsConfig>,
     ) {
         if state.timer.tick(time.delta()).finished() {
-            if let Some(ref filter) = state.filter {
-                for diagnostic in filter.iter().map(|id| diagnostics.get(*id).unwrap()) {
-                    Self::log_diagnostic(diagnostic);
+            eprintln!("{:?}", *log_diagnostics_config);
+            if !log_diagnostics_config.enabled {
+                return;
+            }
+            match log_diagnostics_config.filter.as_ref() {
+                Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                    for diagnostic in filter.iter().map(|id| diagnostics.get(*id).unwrap()) {
+                        Self::log_diagnostic(diagnostic);
+                    }
                 }
-            } else {
-                for diagnostic in diagnostics.iter() {
-                    Self::log_diagnostic(diagnostic);
+                Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                    for diagnostic in diagnostics
+                        .iter()
+                        .filter(|diagnostic| !filter.contains(&diagnostic.id))
+                    {
+                        Self::log_diagnostic(diagnostic);
+                    }
+                }
+                None => {
+                    for diagnostic in diagnostics.iter() {
+                        Self::log_diagnostic(diagnostic);
+                    }
                 }
             }
         }
@@ -107,17 +112,205 @@ impl LogDiagnosticsPlugin {
         mut state: ResMut<LogDiagnosticsState>,
         time: Res<Time>,
         diagnostics: Res<Diagnostics>,
+        log_diagnostics_config: Res<LogDiagnosticsConfig>,
     ) {
         if state.timer.tick(time.delta()).finished() {
-            if let Some(ref filter) = state.filter {
-                for diagnostic in filter.iter().map(|id| diagnostics.get(*id).unwrap()) {
-                    debug!("{:#?}\n", diagnostic);
+            if !log_diagnostics_config.enabled {
+                return;
+            }
+            match log_diagnostics_config.filter.as_ref() {
+                Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                    for diagnostic in filter.iter().map(|id| diagnostics.get(*id).unwrap()) {
+                        debug!("{:#?}\n", diagnostic);
+                    }
                 }
-            } else {
-                for diagnostic in diagnostics.iter() {
-                    debug!("{:#?}\n", diagnostic);
+                Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                    for diagnostic in diagnostics
+                        .iter()
+                        .filter(|diagnostic| !filter.contains(&diagnostic.id))
+                    {
+                        debug!("{:#?}\n", diagnostic);
+                    }
+                }
+                None => {
+                    for diagnostic in diagnostics.iter() {
+                        debug!("{:#?}\n", diagnostic);
+                    }
                 }
             }
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct LogDiagnosticsConfig {
+    enabled: bool,
+    filter: Option<LogDiagnosticsFilter>,
+}
+
+impl Default for LogDiagnosticsConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            filter: None,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+enum LogDiagnosticsFilter {
+    Displayed(HashSet<DiagnosticId>),
+    Hidden(HashSet<DiagnosticId>),
+}
+
+// methods in this impl are to use as a builder at setup
+impl LogDiagnosticsConfig {
+    /// Create a new `LogDiagnosticsConfig` that will display all diagnostics
+    pub fn new() -> Self {
+        Self {
+            enabled: true,
+            filter: None,
+        }
+    }
+
+    ///
+    pub fn disabled(&mut self) -> &mut Self {
+        *self = Self {
+            enabled: false,
+            filter: self.filter.clone(),
+        };
+        self
+    }
+
+    pub fn displaying(&mut self, diagnostic_id: DiagnosticId) -> &mut Self {
+        let filter = match self.filter.as_ref() {
+            None => {
+                let mut filter = HashSet::default();
+                filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Displayed(filter))
+            }
+            Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Displayed(new_filter))
+            }
+            Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.remove(&diagnostic_id);
+                Some(LogDiagnosticsFilter::Hidden(new_filter))
+            }
+        };
+        *self = Self {
+            enabled: self.enabled,
+            filter,
+        };
+        self
+    }
+
+    pub fn hiding(&mut self, diagnostic_id: DiagnosticId) -> &mut Self {
+        let filter = match self.filter.as_ref() {
+            None => {
+                let mut filter = HashSet::default();
+                filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Hidden(filter))
+            }
+            Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.remove(&diagnostic_id);
+                Some(LogDiagnosticsFilter::Displayed(new_filter))
+            }
+            Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Hidden(new_filter))
+            }
+        };
+        *self = Self {
+            enabled: self.enabled,
+            filter,
+        };
+        self
+    }
+}
+
+// methods to modify the config during run
+impl LogDiagnosticsConfig {
+    pub fn disable(&mut self) {
+        self.enabled = false;
+    }
+
+    pub fn enable(&mut self) {
+        self.enabled = true;
+    }
+
+    pub fn toggle(&mut self) {
+        self.enabled = !self.enabled;
+    }
+
+    pub fn display(&mut self, diagnostic_id: DiagnosticId) {
+        let filter = match self.filter.as_ref() {
+            None => None,
+            Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Displayed(new_filter))
+            }
+            Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.remove(&diagnostic_id);
+                Some(LogDiagnosticsFilter::Hidden(new_filter))
+            }
+        };
+        *self = Self {
+            enabled: self.enabled,
+            filter,
+        };
+    }
+
+    pub fn display_only(&mut self, diagnostic_id: DiagnosticId) {
+        let mut filter = HashSet::default();
+        filter.insert(diagnostic_id);
+
+        *self = Self {
+            enabled: self.enabled,
+            filter: Some(LogDiagnosticsFilter::Displayed(filter)),
+        };
+    }
+
+    pub fn hide(&mut self, diagnostic_id: DiagnosticId) {
+        let filter = match self.filter.as_ref() {
+            None => None,
+            Some(LogDiagnosticsFilter::Displayed(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.remove(&diagnostic_id);
+                Some(LogDiagnosticsFilter::Displayed(new_filter))
+            }
+            Some(LogDiagnosticsFilter::Hidden(filter)) => {
+                let mut new_filter = filter.clone();
+                new_filter.insert(diagnostic_id);
+                Some(LogDiagnosticsFilter::Hidden(new_filter))
+            }
+        };
+        *self = Self {
+            enabled: self.enabled,
+            filter,
+        };
+    }
+
+    pub fn hide_only(&mut self, diagnostic_id: DiagnosticId) {
+        let mut filter = HashSet::default();
+        filter.insert(diagnostic_id);
+
+        *self = Self {
+            enabled: self.enabled,
+            filter: Some(LogDiagnosticsFilter::Hidden(filter)),
+        };
+    }
+
+    pub fn clear_filter(&mut self) {
+        *self = Self {
+            enabled: self.enabled,
+            filter: None,
+        };
     }
 }
