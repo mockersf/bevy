@@ -108,42 +108,45 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Build all examples
-        run: cargo build --examples --features "bevy_debug"
+      # - name: Build all examples
+      #   run: cargo build --examples --features "bevy_debug"
 
       - name: Setup debug configuration
         run: |
           echo '(exit_after: Some(300))' > debug_config.ron
 
-      - name: Run all examples
-        run: |
-          for file in target/release/examples/*; do
-              if [[ -x "$file" ]]; then
-                  if [[ -f "$file" ]]; then
-                      if [ -z "${file##*wasm*}" ]; then
-                          echo "ignore $file, wasm";
-                          continue
-                      fi
-                      if [ -z "${file##*android*}" ]; then
-                          echo "ignore $file, android";
-                          continue
-                      fi
-                      if [ -z "${file##*ios*}" ]; then
-                          echo "ignore $file, ios";
-                          continue
-                      fi
-                      if [ "$file" = "target/debug/examples/custom_loop" ]; then
-                          echo "ignore $file, doesn't end";
-                          continue
-                      fi
-                      example=`basename $file`
-                      cargo run --example $example --features "bevy_debug"
-                      ret=$?;
-                      if [ $ret -ne 0 ]; then
-                          return $ref;
-                      fi;
-                      sleep 2
-                  fi;
-              fi;
-          done
+      - name: Run one example
+        run: cargo run --example load_gltf --features "bevy_debug"
+
+      # - name: Run all examples
+      #   run: |
+      #     for file in target/release/examples/*; do
+      #         if [[ -x "$file" ]]; then
+      #             if [[ -f "$file" ]]; then
+      #                 if [ -z "${file##*wasm*}" ]; then
+      #                     echo "ignore $file, wasm";
+      #                     continue
+      #                 fi
+      #                 if [ -z "${file##*android*}" ]; then
+      #                     echo "ignore $file, android";
+      #                     continue
+      #                 fi
+      #                 if [ -z "${file##*ios*}" ]; then
+      #                     echo "ignore $file, ios";
+      #                     continue
+      #                 fi
+      #                 if [ "$file" = "target/debug/examples/custom_loop" ]; then
+      #                     echo "ignore $file, doesn't end";
+      #                     continue
+      #                 fi
+      #                 example=`basename $file`
+      #                 cargo run --example $example --features "bevy_debug"
+      #                 ret=$?;
+      #                 if [ $ret -ne 0 ]; then
+      #                     return $ref;
+      #                 fi;
+      #                 sleep 2
+      #             fi;
+      #         fi;
+      #     done
 
