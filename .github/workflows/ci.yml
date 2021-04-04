@@ -116,7 +116,7 @@ jobs:
           sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json
 
       - name: Build all examples
-        run: cargo build --examples --release --feature bevy_debug
+        run: cargo build --examples --release --features bevy_debug
 
       - name: Setup debug configuration
         run: |
