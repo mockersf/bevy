@@ -144,7 +144,7 @@ jobs:
                           continue
                       fi
                       example=`basename $file`
-                      cargo run --example $example
+                      VK_ICD_FILENAMES=./vk_swiftshader_icd.json cargo run --example $example --release --features bevy_debug
                       ret=$?;
                       if [ $ret -ne 0 ]; then
                           return $ref;
