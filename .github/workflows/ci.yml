@@ -95,28 +95,21 @@ jobs:
 
   run-examples:
     runs-on: ubuntu-latest
+    container:
+      image: utensils/opengl:stable
+
     steps:
+      - name: Install alsa, udev and shaderc dependencies
+        run: sudo apk add curl alsa-lib-dev eudev-dev build-base cmake git python3 && apk upgrade
+
       - uses: actions/checkout@v2
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: Install alsa and udev
-        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
-        if: runner.os == 'linux'
-
-      # Download, unzip and setup SwiftShader library
-      - name: Download SwiftShader
-        run: |
-          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip
-          unzip swiftshader.zip
-          rm swiftshader.zip
-          curr="$(pwd)/libvk_swiftshader.so"
-          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json
-
       - name: Build all examples
-        run: VK_ICD_FILENAMES=./vk_swiftshader_icd.json cargo build --examples --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,mp3,x11,bevy_debug"
+        run: cargo build --examples --features "bevy_debug"
 
       - name: Setup debug configuration
         run: |
@@ -144,7 +137,7 @@ jobs:
                           continue
                       fi
                       example=`basename $file`
-                      VK_ICD_FILENAMES=./vk_swiftshader_icd.json cargo run --example $example --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,mp3,x11,bevy_debug"
+                      cargo run --example $example --features "bevy_debug"
                       ret=$?;
                       if [ $ret -ne 0 ]; then
                           return $ref;
