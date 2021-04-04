@@ -100,7 +100,7 @@ jobs:
 
     steps:
       - name: Install alsa, udev and shaderc dependencies
-        run: sudo apk add curl alsa-lib-dev eudev-dev build-base cmake git python3 && apk upgrade
+        run: apk add curl alsa-lib-dev eudev-dev build-base cmake git python3 && apk upgrade
 
       - uses: actions/checkout@v2
 
