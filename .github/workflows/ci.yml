@@ -119,7 +119,6 @@ jobs:
 
       - name: Setup debug configuration
         run: |
-          echo '(exit_after: Some(300))' > debug_config.ron;
           wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
           unzip swiftshader.zip;
           curr="$(pwd)/libvk_swiftshader.so";
@@ -135,7 +134,11 @@ jobs:
             example=${example//\"}
             if [ ! -f .github/example-run/ignore/$example ]; then
               echo "running $example"
-              VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example $example --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug"
+              debug_config=".github/example-run/config/default-debug-config.ron"
+              if [ -f .github/example-run/config/$example.ron ]; then
+                debug_config=".github/example-run/config/$example.ron"
+              fi
+              DEBUG_CONFIG=$debug_config VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example $example --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug"
               sleep 30
             fi
           done
