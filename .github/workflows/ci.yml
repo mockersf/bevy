@@ -100,7 +100,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update;
-          LLVM_VERSION=9 DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -yq \
+          LLVM_VERSION=9 DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
             autoconf \
             automake \
             binutils \
@@ -155,7 +155,7 @@ jobs:
             libxcb-present-dev;
 
       - name: Update CA
-        run: DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -yq ca-certificates && update-ca-certificates;
+        run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq ca-certificates && sudo update-ca-certificates;
 
       - name: Build Mesa
         run: |
