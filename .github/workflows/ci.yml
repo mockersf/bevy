@@ -159,6 +159,7 @@ jobs:
 
       - name: Build Mesa
         run: |
+          set +xe
           mkdir -p /var/tmp/build;
           cd /var/tmp/build/;
           git clone --depth=1 --branch=mesa-20.0.6 https://gitlab.freedesktop.org/mesa/mesa.git;
@@ -170,33 +171,33 @@ jobs:
           else
               galium_drivers=swrast,swr;
           fi ;
-          meson
-              --buildtype=release
-              --prefix=/usr/local
-              --sysconfdir=/etc
-              -D b_ndebug=true
-              -D egl=true
-              -D gallium-nine=false
-              -D gallium-xvmc=false
-              -D gbm=true
-              -D gles1=false
-              -D gles2=true
-              -D opengl=true
-              -D dri-drivers-path=/usr/local/lib/xorg/modules/dri
-              -D dri-drivers=
-              -D dri3=true
-              -D egl=false
-              -D gallium-drivers="$galium_drivers"
-              -D gbm=false
-              -D glx=dri
-              -D llvm=true
-              -D lmsensors=false
-              -D optimization=3
-              -D osmesa=gallium
-              -D platforms=drm,x11,wayland
-              -D shared-glapi=true
-              -D shared-llvm=true
-              -D vulkan-drivers=
+          meson \
+              --buildtype=release \
+              --prefix=/usr/local \
+              --sysconfdir=/etc \
+              -D b_ndebug=true \
+              -D egl=true \
+              -D gallium-nine=false \
+              -D gallium-xvmc=false \
+              -D gbm=true \
+              -D gles1=false \
+              -D gles2=true \
+              -D opengl=true \
+              -D dri-drivers-path=/usr/local/lib/xorg/modules/dri \
+              -D dri-drivers= \
+              -D dri3=true \
+              -D egl=false \
+              -D gallium-drivers="$galium_drivers" \
+              -D gbm=false \
+              -D glx=dri \
+              -D llvm=true \
+              -D lmsensors=false \
+              -D optimization=3 \
+              -D osmesa=gallium \
+              -D platforms=drm,x11,wayland \
+              -D shared-glapi=true \
+              -D shared-llvm=true \
+              -D vulkan-drivers= \
               build/;
           ninja -C build/ -j $(getconf _NPROCESSORS_ONLN);
           ninja -C build/ install;
