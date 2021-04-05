@@ -216,10 +216,11 @@ jobs:
 
       - name: Setup debug configuration
         run: |
-          echo '(exit_after: Some(300))' > debug_config.ron
-          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip
-          curr="$(pwd)/libvk_swiftshader.so"
-          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json
+          echo '(exit_after: Some(300))' > debug_config.ron;
+          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
+          unzip swiftshader.zip;
+          curr="$(pwd)/libvk_swiftshader.so";
+          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
 
       - name: Run one example
         run: |
