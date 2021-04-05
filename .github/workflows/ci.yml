@@ -100,7 +100,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update;
-          LLVM_VERSION=9 DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
             autoconf \
             automake \
             binutils \
@@ -126,8 +126,8 @@ jobs:
             libxt-dev \
             libxvmc-dev \
             libxxf86vm-dev \
-            llvm-${LLVM_VERSION} \
-            llvm-${LLVM_VERSION}-dev \
+            llvm-9 \
+            llvm-9-dev \
             lxrandr \
             meson \
             ninja-build \
