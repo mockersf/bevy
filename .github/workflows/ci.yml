@@ -117,7 +117,7 @@ jobs:
       - name: Install toml cli
         run: cargo install toml-cli
 
-      - name: Setup debug configuration
+      - name: Setup swiftshader
         run: |
           wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
           unzip swiftshader.zip;
