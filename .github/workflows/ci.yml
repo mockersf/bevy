@@ -217,6 +217,17 @@ jobs:
           echo '(exit_after: Some(300))' > debug_config.ron
 
       - name: Run one example
+        env:
+          DISPLAY: ":99"
+          GALLIUM_DRIVER: "llvmpipe"
+          LD_LIBRARY_PATH: "/usr/local/lib:$LD_LIBRARY_PATH"
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          LP_DEBUG: ""
+          LP_NO_RAST: "false"
+          LP_NUM_THREADS: ""
+          LP_PERF: ""
+          MESA_VERSION: "20.0.6"
+          XVFB_WHD: "1920x1080x2"
         run: cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug"
 
       # - name: Run all examples
