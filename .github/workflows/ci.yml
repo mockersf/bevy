@@ -101,118 +101,17 @@ jobs:
         run: |
           sudo apt-get update;
           DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
-            autoconf \
-            automake \
-            binutils \
-            bison \
-            build-essential \
-            cmake \
-            elfutils \
-            expat \
-            flex \
-            gettext \
-            git \
-            x11proto-gl-dev \
-            libdrm-dev \
-            libtool \
-            libva-dev \
-            libx11-dev \
-            libxcb-glx0-dev \
-            libxdamage-dev \
-            libxext-dev \
-            libxfixes-dev \
-            libxrandr-dev \
-            libxshmfence-dev \
-            libxt-dev \
-            libxvmc-dev \
-            libxxf86vm-dev \
-            llvm-9 \
-            llvm-9-dev \
-            lxrandr \
-            meson \
-            ninja-build \
-            python-mako \
-            python3-libxml2 \
-            python3-mako \
-            python3 \
-            python3-dev \
-            libtalloc-dev \
-            libwayland-dev \
-            wayland-protocols \
-            xorg-dev \
-            xorg-server-source \
-            x11proto-dev \
-            xutils-dev \
             xvfb \
-            zlib1g-dev \
-            libzstd-dev \
-            libzstd1 \
             libasound2-dev \
             libudev-dev \
-            libx11-xcb-dev \
-            libxcb-dri2-0-dev \
-            libxcb-dri3-dev \
-            libxcb-present-dev \
             wget \
             unzip;
-
-      - name: Update CA
-        run: DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq ca-certificates && sudo update-ca-certificates;
-
-      # - name: Build Mesa
-      #   run: |
-      #     set +xe
-      #     mkdir -p /var/tmp/build;
-      #     cd /var/tmp/build/;
-      #     git clone --depth=1 --branch=mesa-20.0.6 https://gitlab.freedesktop.org/mesa/mesa.git;
-      #     cd mesa;
-      #     libtoolize;
-      #     if [ "$(uname -m)" ==  "aarch64" ] || [ "$(uname -m)" == "armv7l" ];
-      #     then
-      #         galium_drivers=swrast;
-      #     else
-      #         galium_drivers=swrast,swr;
-      #     fi ;
-      #     meson \
-      #         --buildtype=release \
-      #         --prefix=/usr/local \
-      #         --sysconfdir=/etc \
-      #         -D b_ndebug=true \
-      #         -D egl=true \
-      #         -D gallium-nine=false \
-      #         -D gallium-xvmc=false \
-      #         -D gbm=true \
-      #         -D gles1=false \
-      #         -D gles2=true \
-      #         -D opengl=true \
-      #         -D dri-drivers-path=/usr/local/lib/xorg/modules/dri \
-      #         -D dri-drivers= \
-      #         -D dri3=true \
-      #         -D egl=false \
-      #         -D gallium-drivers="$galium_drivers" \
-      #         -D gbm=false \
-      #         -D glx=dri \
-      #         -D llvm=true \
-      #         -D lmsensors=false \
-      #         -D optimization=3 \
-      #         -D osmesa=gallium \
-      #         -D platforms=drm,x11,wayland \
-      #         -D shared-glapi=true \
-      #         -D shared-llvm=true \
-      #         -D vulkan-drivers= \
-      #         build/;
-      #     ninja -C build/ -j $(getconf _NPROCESSORS_ONLN);
-      #     ninja -C build/ install;
-      #     ninja -C build/ xmlpool-pot xmlpool-update-po xmlpool-gmo;
 
       - uses: actions/checkout@v2
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-
-      # - name: Build all examples
-      #   run: cargo build --examples --features "bevy_debug"
 
       - name: Setup debug configuration
         run: |
@@ -225,52 +124,3 @@ jobs:
       - name: Run one example
         run: |
           VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug";
-
-      # - name: Run one example
-      #   env:
-      #     DISPLAY: ":99"
-      #     GALLIUM_DRIVER: "llvmpipe"
-      #     LD_LIBRARY_PATH: "/usr/local/lib:$LD_LIBRARY_PATH"
-      #     LIBGL_ALWAYS_SOFTWARE: "1"
-      #     LP_DEBUG: ""
-      #     LP_NO_RAST: "false"
-      #     LP_NUM_THREADS: ""
-      #     LP_PERF: ""
-      #     MESA_VERSION: "20.0.6"
-      #     XVFB_WHD: "1920x1080x24"
-      #   run: |
-      #     Xvfb :99 -ac -screen 0 "$XVFB_WHD" -nolisten tcp +extension GLX +render -noreset &
-      #     cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug";
-
-      # - name: Run all examples
-      #   run: |
-      #     for file in target/release/examples/*; do
-      #         if [[ -x "$file" ]]; then
-      #             if [[ -f "$file" ]]; then
-      #                 if [ -z "${file##*wasm*}" ]; then
-      #                     echo "ignore $file, wasm";
-      #                     continue
-      #                 fi
-      #                 if [ -z "${file##*android*}" ]; then
-      #                     echo "ignore $file, android";
-      #                     continue
-      #                 fi
-      #                 if [ -z "${file##*ios*}" ]; then
-      #                     echo "ignore $file, ios";
-      #                     continue
-      #                 fi
-      #                 if [ "$file" = "target/debug/examples/custom_loop" ]; then
-      #                     echo "ignore $file, doesn't end";
-      #                     continue
-      #                 fi
-      #                 example=`basename $file`
-      #                 cargo run --example $example --features "bevy_debug"
-      #                 ret=$?;
-      #                 if [ $ret -ne 0 ]; then
-      #                     return $ref;
-      #                 fi;
-      #                 sleep 2
-      #             fi;
-      #         fi;
-      #     done
-
