@@ -124,21 +124,17 @@ jobs:
           curr="$(pwd)/libvk_swiftshader.so";
           sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
 
-      # - name: Run one example
-      #   run: |
-      #     VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug";
-
       - name: Run all examples
         run: |
           for example in `toml get Cargo.toml example| jq '.[] | .name'`; do
             example=${example//\"}
             if [ ! -f .github/example-run/ignore/$example ]; then
-              echo "running $example"
+              echo "running $example - "`date`
               debug_config=".github/example-run/config/default-debug-config.ron"
               if [ -f .github/example-run/config/$example.ron ]; then
                 debug_config=".github/example-run/config/$example.ron"
               fi
-              DEBUG_CONFIG=$debug_config VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example $example --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug"
+              time DEBUG_CONFIG=$debug_config VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example $example --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_debug"
               sleep 10
             fi
           done
