@@ -77,45 +77,38 @@ layout(set = 3,
 
 #ifndef STANDARDMATERIAL_UNLIT
 
-layout(set = 3, binding = 3) uniform StandardMaterial_roughness {
-    float perceptual_roughness;
-};
-
-layout(set = 3, binding = 4) uniform StandardMaterial_metallic {
-    float metallic;
-};
-
 #    ifdef STANDARDMATERIAL_METALLIC_ROUGHNESS_TEXTURE
-layout(set = 3, binding = 5) uniform texture2D StandardMaterial_metallic_roughness_texture;
+layout(set = 3, binding = 3) uniform texture2D StandardMaterial_metallic_roughness_texture;
 layout(set = 3,
-       binding = 6) uniform sampler StandardMaterial_metallic_roughness_texture_sampler;
+       binding = 4) uniform sampler StandardMaterial_metallic_roughness_texture_sampler;
 #    endif
 
-layout(set = 3, binding = 7) uniform StandardMaterial_reflectance {
-    float reflectance;
-};
-
 #    ifdef STANDARDMATERIAL_NORMAL_MAP
-layout(set = 3, binding = 8) uniform texture2D StandardMaterial_normal_map;
+layout(set = 3, binding = 5) uniform texture2D StandardMaterial_normal_map;
 layout(set = 3,
-       binding = 9) uniform sampler StandardMaterial_normal_map_sampler;
+       binding = 6) uniform sampler StandardMaterial_normal_map_sampler;
 #    endif
 
 #    if defined(STANDARDMATERIAL_OCCLUSION_TEXTURE)
-layout(set = 3, binding = 10) uniform texture2D StandardMaterial_occlusion_texture;
+layout(set = 3, binding = 7) uniform texture2D StandardMaterial_occlusion_texture;
 layout(set = 3,
-       binding = 11) uniform sampler StandardMaterial_occlusion_texture_sampler;
+       binding = 8) uniform sampler StandardMaterial_occlusion_texture_sampler;
 #    endif
 
-layout(set = 3, binding = 12) uniform StandardMaterial_emissive {
+layout(set = 3, binding = 9) uniform StandardMaterial_emissive {
     vec4 emissive;
 };
 
 #    if defined(STANDARDMATERIAL_EMISSIVE_TEXTURE)
-layout(set = 3, binding = 13) uniform texture2D StandardMaterial_emissive_texture;
+layout(set = 3, binding = 10) uniform texture2D StandardMaterial_emissive_texture;
 layout(set = 3,
-       binding = 14) uniform sampler StandardMaterial_emissive_texture_sampler;
+       binding = 11) uniform sampler StandardMaterial_emissive_texture_sampler;
 #    endif
+
+layout(std140, set = 3, binding = 12) uniform StandardMaterial_properties {
+    vec4 properties;
+};
+
 
 #    define saturate(x) clamp(x, 0.0, 1.0)
 const float PI = 3.141592653589793;
@@ -290,8 +283,8 @@ void main() {
 #    ifdef STANDARDMATERIAL_METALLIC_ROUGHNESS_TEXTURE
     vec4 metallic_roughness = texture(sampler2D(StandardMaterial_metallic_roughness_texture, StandardMaterial_metallic_roughness_texture_sampler), v_Uv);
     // Sampling from GLTF standard channels for now
-    float metallic = metallic * metallic_roughness.b;
-    float perceptual_roughness = perceptual_roughness * metallic_roughness.g;
+    float metallic = properties.y * metallic_roughness.b;
+    float perceptual_roughness = properties.x * metallic_roughness.g;
 #    endif
 
     float roughness = perceptualRoughnessToRoughness(perceptual_roughness);
@@ -334,7 +327,7 @@ void main() {
 
     // Remapping [0,1] reflectance to F0
     // See https://google.github.io/filament/Filament.html#materialsystem/parameterization/remapping
-    vec3 F0 = 0.16 * reflectance * reflectance * (1.0 - metallic) + output_color.rgb * metallic;
+    vec3 F0 = 0.16 * properties.z * properties.z * (1.0 - metallic) + output_color.rgb * metallic;
 
     // Diffuse strength inversely related to metallicity
     vec3 diffuseColor = output_color.rgb * (1.0 - metallic);

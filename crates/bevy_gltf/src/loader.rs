@@ -385,8 +385,6 @@ fn load_material(material: &Material, load_context: &mut LoadContext) -> Handle<
         LoadedAsset::new(StandardMaterial {
             base_color: Color::rgba(color[0], color[1], color[2], color[3]),
             base_color_texture,
-            roughness: pbr.roughness_factor(),
-            metallic: pbr.metallic_factor(),
             metallic_roughness_texture,
             normal_map,
             double_sided: material.double_sided(),
@@ -394,6 +392,7 @@ fn load_material(material: &Material, load_context: &mut LoadContext) -> Handle<
             emissive: Color::rgba(emissive[0], emissive[1], emissive[2], 1.0),
             emissive_texture,
             unlit: material.unlit(),
+            properties: Color::rgba(pbr.roughness_factor(), pbr.metallic_factor(), 0.5, 0.0),
             ..Default::default()
         }),
     )

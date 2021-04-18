@@ -29,8 +29,7 @@ fn setup(
                 material: materials.add(StandardMaterial {
                     base_color: Color::hex("ffd891").unwrap(),
                     // vary key PBR parameters on a grid of spheres to show the effect
-                    metallic: y01,
-                    roughness: x01,
+                    properties: Color::rgba(x01, y01, 0.5, 0.0),
                     ..Default::default()
                 }),
                 transform: Transform::from_xyz(x as f32, y as f32, 0.0),
