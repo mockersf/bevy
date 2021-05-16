@@ -1,0 +1,134 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+
+  leak-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update;
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+            libasound2-dev libudev-dev wget unzip xvfb;
+
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Setup swiftshader
+        run: |
+          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
+          unzip swiftshader.zip;
+          curr="$(pwd)/libvk_swiftshader.so";
+          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
+
+      - name: Build bevy
+        run: |
+          cargo build --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+      - name: Run load_gltf example
+        run: |
+          RUSTFLAGS="-Z sanitizer=leak" CI_TESTING_CONFIG=".github/example-run/load_gltf.ron" VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+  thread-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update;
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+            libasound2-dev libudev-dev wget unzip xvfb;
+
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Setup swiftshader
+        run: |
+          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
+          unzip swiftshader.zip;
+          curr="$(pwd)/libvk_swiftshader.so";
+          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
+
+      - name: Build bevy
+        run: |
+          cargo build --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+      - name: Run load_gltf example
+        run: |
+          RUSTFLAGS="-Z sanitizer=thread" CI_TESTING_CONFIG=".github/example-run/load_gltf.ron" VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+  address-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update;
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+            libasound2-dev libudev-dev wget unzip xvfb;
+
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Setup swiftshader
+        run: |
+          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
+          unzip swiftshader.zip;
+          curr="$(pwd)/libvk_swiftshader.so";
+          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
+
+      - name: Build bevy
+        run: |
+          cargo build --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+      - name: Run load_gltf example
+        run: |
+          RUSTFLAGS="-Z sanitizer=address" CI_TESTING_CONFIG=".github/example-run/load_gltf.ron" VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+  memory-sanitizer:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update;
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install --no-install-recommends -yq \
+            libasound2-dev libudev-dev wget unzip xvfb;
+
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+
+      - name: Setup swiftshader
+        run: |
+          wget https://github.com/qarmin/gtk_library_store/releases/download/3.24.0/swiftshader.zip;
+          unzip swiftshader.zip;
+          curr="$(pwd)/libvk_swiftshader.so";
+          sed -i "s|PATH_TO_CHANGE|$curr|" vk_swiftshader_icd.json;
+
+      - name: Build bevy
+        run: |
+          cargo build --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
+
+      - name: Run load_gltf example
+        run: |
+          RUSTFLAGS="-Z sanitizer=memory" CI_TESTING_CONFIG=".github/example-run/load_gltf.ron" VK_ICD_FILENAMES=$(pwd)/vk_swiftshader_icd.json DRI_PRIME=0 xvfb-run cargo run --example load_gltf --no-default-features --features "bevy_dynamic_plugin,bevy_gilrs,bevy_gltf,bevy_wgpu,bevy_winit,render,png,hdr,x11,bevy_ci_testing"
