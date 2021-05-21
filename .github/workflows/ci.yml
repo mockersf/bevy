@@ -8,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-and-test:
     strategy:
       matrix:
         toolchain: [stable, nightly]
@@ -40,16 +40,38 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
         if: runner.os == 'linux'
 
-      - name: Check the format
-        # See tools/ci/src/main.rs for the commands this runs
-        run: cargo run -p ci
-        if: runner.os == 'linux' && matrix.toolchain == 'stable'
-
       - name: Build & run tests
         run: cargo test --workspace
         env:
           CARGO_INCREMENTAL: 0
           RUSTFLAGS: "-C debuginfo=0 -D warnings"
+
+  ci-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-stable-clippy-${{ hashFiles('**/Cargo.toml') }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install alsa and udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        if: runner.os == 'linux'
+
+      - name: CI checks (format & clippy)
+        # See tools/ci/src/main.rs for the commands this runs
+        run: cargo run -p ci
+        if: runner.os == 'linux' && matrix.toolchain == 'stable'
 
   build-wasm:
     strategy:
