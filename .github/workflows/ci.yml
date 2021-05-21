@@ -66,12 +66,10 @@ jobs:
 
       - name: Install alsa and udev
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
-        if: runner.os == 'linux'
 
       - name: CI checks (format & clippy)
         # See tools/ci/src/main.rs for the commands this runs
         run: cargo run -p ci
-        if: runner.os == 'linux' && matrix.toolchain == 'stable'
 
   build-wasm:
     strategy:
