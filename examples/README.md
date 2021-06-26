@@ -72,23 +72,23 @@ git checkout v0.4.0
 <!-- markdownlint-disable-next-line MD026 -->
 ## Hello, World!
 
-Example | Description
---- | ---
-[`hello_world`](./hello_world.rs) | Runs a minimal example that outputs "hello world"
+Example | Description | Keywords
+--- | --- | ---
+[`hello_world`](./hello_world.rs) | Runs a minimal example that outputs "hello world" | `minimal` `system`
 
 # Cross-Platform Examples
 
 ## 2D Rendering
 
-Example | Description
---- | ---
-[`contributors`](./2d/contributors.rs) | Displays each contributor as a bouncy bevy-ball!
-[`many_sprites`](./2d/many_sprites.rs) | Displays many sprites in a grid arragement! Used for performance testing.
-[`mesh`](./2d/mesh.rs) | Renders a custom mesh
-[`sprite`](./2d/sprite.rs) | Renders a sprite
-[`sprite_sheet`](./2d/sprite_sheet.rs) | Renders an animated sprite
-[`text2d`](./2d/text2d.rs) | Generates text in 2d
-[`sprite_flipping`](./2d/sprite_flipping.rs) | Renders a sprite flipped along an axis
+Example | Description | Keywords
+--- | --- | ---
+[`contributors`](./2d/contributors.rs) | Displays each contributor as a bouncy bevy-ball! | `asset` `color` `sprite` `text` `timer` `transform`
+[`many_sprites`](./2d/many_sprites.rs) | Displays many sprites in a grid arragement! Used for performance testing. | `camera` `sprite` `timer` `transform`
+[`mesh`](./2d/mesh.rs) | Renders a custom mesh | `mesh` `shape` `shader`
+[`sprite`](./2d/sprite.rs) | Renders a sprite | `sprite`
+[`sprite_sheet`](./2d/sprite_sheet.rs) | Renders an animated sprite | `animation` `spritesheet` `timer`
+[`text2d`](./2d/text2d.rs) | Generates text in 2d | `text` `timedelta` `transform`
+[`sprite_flipping`](./2d/sprite_flipping.rs) | Renders a sprite flipped along an axis | `sprite`
 [`texture_atlas`](./2d/texture_atlas.rs) | Generates a texture atlas (sprite sheet) from individual sprites
 
 ## 3D Rendering
