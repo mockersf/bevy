@@ -23,7 +23,7 @@ jobs:
           # $SDKMANAGER --uninstall "build-tools;31.0.0"
           # $SDKMANAGER --install "build-tools;30.0.3"
           # $SDKMANAGER --uninstall "ndk;21.4.7075529"
-          # $SDKMANAGER --install "ndk;22.1.7171670"
+          $SDKMANAGER --install "ndk;22.1.7171670"
           $SDKMANAGER --list
           ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/
           echo "========"
@@ -37,4 +37,4 @@ jobs:
       - name: Build APK
         run: cargo apk build --example android
         env:
-          ANDROID_NDK_ROOT: /usr/local/lib/android/sdk/ndk/22.1.7171670
+          ANDROID_NDK_ROOT: $ANDROID_NDK_LATEST_HOME
