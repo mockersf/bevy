@@ -26,7 +26,6 @@ jobs:
           # $SDKMANAGER --install "build-tools;30.0.3"
           $SDKMANAGER --list
           ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/
-          ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux
       - name: Install Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi
       - name: Install Cargo APK
