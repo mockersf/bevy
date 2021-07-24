@@ -17,6 +17,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: wuut
         run: |
+          echo $ANDROID_HOME
+          echo $ANDROID_SDK_ROOT
           ANDROID_HOME=$ANDROID_SDK_ROOT
           SDKMANAGER=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager
           # $SDKMANAGER --uninstall "build-tools;31.0.0"
