@@ -75,8 +75,9 @@ jobs:
         run: |
           ANDROID_HOME=$ANDROID_SDK_ROOT
           SDKMANAGER=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager
-          $SDKMANAGER --uninstall "build-tools;31.0.0"
-          $SDKMANAGER --install "build-tools;30.0.3"
+          # $SDKMANAGER --uninstall "build-tools;31.0.0"
+          # $SDKMANAGER --install "build-tools;30.0.3"
+          $SDKMANAGER --install "ndk;21.4.7075529"
       - name: Install Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi
       - name: Install Cargo APK
