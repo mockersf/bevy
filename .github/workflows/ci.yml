@@ -25,6 +25,9 @@ jobs:
           # $SDKMANAGER --uninstall "ndk;21.4.7075529"
           # $SDKMANAGER --install "ndk;22.1.7171670"
           $SDKMANAGER --list
+          ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/
+          echo "========"
+          ls /usr/local/lib/android/sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/bin/
       - name: Install Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi
       - name: Install Cargo APK
