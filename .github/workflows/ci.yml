@@ -27,8 +27,7 @@ jobs:
           # $SDKMANAGER --install "ndk;22.1.7171670"
           $SDKMANAGER --list
           ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/
-          echo "========"
-          ls /usr/local/lib/android/sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/bin/
+          ls $ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux
       - name: Install Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi
       - name: Install Cargo APK
@@ -37,5 +36,5 @@ jobs:
           cargo quickinstall cargo-apk
       - name: Build APK
         run: cargo apk build --example android
-        env:
-          ANDROID_NDK_ROOT: $ANDROID_NDK_LATEST_HOME
+        # env:
+        #   ANDROID_NDK_ROOT: $ANDROID_NDK_LATEST_HOME
