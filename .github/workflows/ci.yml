@@ -25,7 +25,6 @@ jobs:
           $SDKMANAGER --uninstall "ndk;21.4.7075529"
           $SDKMANAGER --install "ndk;22.1.7171670"
           $SDKMANAGER --list
-          ln -s $ANDROID_HOME/ndk/22.1.7171670 $ANDROID_HOME/ndk-bundle
       - name: Install Android targets
         run: rustup target add aarch64-linux-android armv7-linux-androideabi
       - name: Install Cargo APK
@@ -34,3 +33,5 @@ jobs:
           cargo quickinstall cargo-apk
       - name: Build APK
         run: cargo apk build --example android
+        env:
+          ANDROID_NDK_PATH: /usr/local/lib/android/sdk/ndk/22.1.7171670
