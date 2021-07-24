@@ -492,3 +492,4 @@ icon = "@mipmap/ic_launcher"
 build_targets = ["armv7-linux-androideabi"]
 min_sdk_version = 16
 target_sdk_version = 29
+max_sdk_version = 30
