@@ -79,7 +79,7 @@ fn generate_bodies(
                 },
                 mesh: mesh.clone(),
                 material: materials.add(
-                    Color::rgb_linear(
+                    Color::rgb(
                         rng.gen_range(color_range.clone()),
                         rng.gen_range(color_range.clone()),
                         rng.gen_range(color_range.clone()),
