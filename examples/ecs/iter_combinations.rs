@@ -1,4 +1,4 @@
-use bevy::{core::FixedTimestep, prelude::*, render::camera::Camera};
+use bevy::{core::FixedTimestep, pbr::AmbientLight, prelude::*, render::camera::Camera};
 use rand::{thread_rng, Rng};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -10,6 +10,10 @@ fn main() {
     App::new()
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
+        .insert_resource(AmbientLight {
+            brightness: 0.015,
+            ..Default::default()
+        })
         .add_startup_system(generate_bodies)
         .add_stage_after(
             CoreStage::Update,
@@ -114,7 +118,11 @@ fn generate_bodies(
                     radius: 1.0,
                     subdivisions: 5,
                 })),
-                material: materials.add((Color::ORANGE_RED * 10.0).into()),
+                material: materials.add(StandardMaterial {
+                    base_color: Color::ORANGE_RED,
+                    emissive: (Color::ORANGE_RED * 2.),
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
             mass: Mass(1000.0),
