@@ -102,13 +102,11 @@ fn generate_bodies(
     }
 
     // add bigger "star" body in the center
+    let star_radius = 1.;
     commands
         .spawn_bundle(BodyBundle {
             pbr: PbrBundle {
-                transform: Transform {
-                    scale: Vec3::splat(0.5),
-                    ..Default::default()
-                },
+                transform: Transform::from_scale(Vec3::splat(star_radius)),
                 mesh: meshes.add(Mesh::from(shape::Icosphere {
                     radius: 1.0,
                     subdivisions: 5,
@@ -120,9 +118,11 @@ fn generate_bodies(
             ..Default::default()
         })
         .insert(PointLight {
-            color: Color::ORANGE_RED,
-            ..Default::default()
-        });
+            color: Color::WHITE,
+            intensity: 400.,
+            range: 100.,
+            radius: star_radius,
+        })
     commands.spawn_bundle(PerspectiveCameraBundle {
         transform: Transform::from_xyz(0.0, 10.5, -20.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
