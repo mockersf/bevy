@@ -19,6 +19,7 @@ fn main() {
                 .with_system(interact_bodies)
                 .with_system(integrate),
         )
+        .insert_resource(ClearColor(Color::BLACK))
         .run();
 }
 
