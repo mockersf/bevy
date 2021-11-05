@@ -1,4 +1,4 @@
-use bevy::{core::FixedTimestep, prelude::*};
+use bevy::{core::FixedTimestep, prelude::*, render::camera::Camera};
 use rand::{thread_rng, Rng};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, StageLabel)]
@@ -19,6 +19,7 @@ fn main() {
                 .with_system(interact_bodies)
                 .with_system(integrate),
         )
+        .add_system(look_at_star)
         .insert_resource(ClearColor(Color::BLACK))
         .run();
 }
@@ -33,6 +34,8 @@ struct Mass(f32);
 struct Acceleration(Vec3);
 #[derive(Component, Default)]
 struct LastPos(Vec3);
+#[derive(Component)]
+struct Star;
 
 #[derive(Bundle, Default)]
 struct BodyBundle {
@@ -123,6 +126,7 @@ fn generate_bodies(
             range: 100.,
             radius: star_radius,
         })
+        .insert(Star);
     commands.spawn_bundle(PerspectiveCameraBundle {
         transform: Transform::from_xyz(0.0, 10.5, -20.0).looking_at(Vec3::ZERO, Vec3::Y),
         ..Default::default()
@@ -156,4 +160,18 @@ fn integrate(mut query: Query<(&mut Acceleration, &mut Transform, &mut LastPos)>
         last_pos.0 = transform.translation;
         transform.translation = new_pos;
     }
+}
+
+fn look_at_star(
+    mut camera: Query<&mut Transform, (With<Camera>, Without<Star>)>,
+    star: Query<&Transform, With<Star>>,
+) {
+    let mut camera = camera.single_mut();
+    let star = star.single();
+    let new_transform = camera
+        .clone()
+        .looking_at(star.translation, Vec3::Y)
+        .rotation
+        .lerp(camera.rotation, 0.1);
+    camera.rotation = new_transform;
 }
