@@ -11,7 +11,7 @@ fn main() {
         .insert_resource(Msaa { samples: 4 })
         .add_plugins(DefaultPlugins)
         .insert_resource(AmbientLight {
-            brightness: 0.015,
+            brightness: 0.03,
             ..Default::default()
         })
         .add_startup_system(generate_bodies)
