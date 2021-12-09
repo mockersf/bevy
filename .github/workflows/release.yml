@@ -17,9 +17,13 @@ jobs:
         run: echo BRANCH_NAME=release-$(date +%s) >> $GITHUB_ENV
       - name: Setup release
         run: |
-          # git checkout -b ${{ env.BRANCH_NAME }}
-          cargo release minor --workspace --no-publish --execute --no-tag
+          git checkout -b ${{ env.BRANCH_NAME }}
+          cargo release minor --workspace --no-publish --execute --no-tag --no-confirm
           # git push
       - name: Create PR
         uses: peter-evans/create-pull-request@v3
+        with:
+          source_branch: ${{ env.BRANCH_NAME }}
+          destination_branch: "main"
+          pr_title: "Preparing Release"
 
