@@ -10,4 +10,4 @@ keywords = ["bevy"]
 
 [dependencies]
 glam = { version = "0.20.0", features = ["serde", "bytemuck"] }
-bevy_reflect = { path = "../bevy_reflect", version = "^0.6.0", features = ["bevy"] }
+bevy_reflect = { path = "../bevy_reflect", version = "^0.7.0", features = ["bevy"] }
