@@ -16,7 +16,7 @@ trace = ["wgpu/trace"]
 # bevy
 bevy_app = { path = "../bevy_app", version = "^0.6.0"}
 bevy_asset = { path = "../bevy_asset", version = "^0.6.0"}
-bevy_core = { path = "../bevy_core", version = "^0.6.0"}
+bevy_core = { path = "../bevy_core", version = "^0.7.0"}
 bevy_diagnostic = { path = "../bevy_diagnostic", version = "^0.6.0"}
 bevy_ecs = { path = "../bevy_ecs", version = "^0.7.0"}
 bevy_render = { path = "../bevy_render", version = "^0.6.0"}
