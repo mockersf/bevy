@@ -71,7 +71,7 @@ bevy_pbr2 = { path = "../../pipelined/bevy_pbr2", optional = true, version = "^0
 bevy_render = { path = "../bevy_render", optional = true, version = "^0.8.0"}
 bevy_render2 = { path = "../../pipelined/bevy_render2", optional = true, version = "^0.8.0"}
 bevy_dynamic_plugin = { path = "../bevy_dynamic_plugin", optional = true, version = "^0.8.0"}
-bevy_sprite = { path = "../bevy_sprite", optional = true, version = "^0.7.0"}
+bevy_sprite = { path = "../bevy_sprite", optional = true, version = "^0.8.0"}
 bevy_sprite2 = { path = "../../pipelined/bevy_sprite2", optional = true, version = "^0.7.0"}
 bevy_text = { path = "../bevy_text", optional = true, version = "^0.7.0"}
 bevy_ui = { path = "../bevy_ui", optional = true, version = "^0.7.0"}
