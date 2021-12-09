@@ -15,19 +15,19 @@ jobs:
         run: |
           cargo install cargo-quickinstall
           cargo quickinstall cargo-release
-      - name: Setup unique branch name
-        run: echo BRANCH_NAME=release-$(date +%s) >> $GITHUB_ENV
+      # - name: Setup unique branch name
+      #   run: echo BRANCH_NAME=release-$(date +%s) >> $GITHUB_ENV
       - name: Setup release
         run: |
           git config user.name 'Bevy Auto Releaser'
           git config user.email 'bevy@users.noreply.github.com'
-          git checkout -b ${{ env.BRANCH_NAME }}
-          cargo release minor --workspace --no-publish --execute --no-tag --no-confirm
+          # git checkout -b ${{ env.BRANCH_NAME }}
+          cargo release minor --workspace --no-publish --execute --no-tag --no-confirm --no-push
           # git push
       - name: Create PR
         uses: peter-evans/create-pull-request@v3
         with:
-          branch: ${{ env.BRANCH_NAME }}
+          # branch: ${{ env.BRANCH_NAME }}
           delete-branch: true
           base: "main"
           title: "Preparing Release"
