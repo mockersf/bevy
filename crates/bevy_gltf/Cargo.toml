@@ -1,6 +1,6 @@
 [package]
 name = "bevy_gltf"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 description = "Bevy Engine GLTF loading"
 homepage = "https://bevyengine.org"
