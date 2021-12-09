@@ -27,7 +27,8 @@ jobs:
       - name: Create PR
         uses: peter-evans/create-pull-request@v3
         with:
-          source_branch: ${{ env.BRANCH_NAME }}
-          destination_branch: "main"
-          pr_title: "Preparing Release"
+          branch: ${{ env.BRANCH_NAME }}
+          delete-branch: true
+          base: "main"
+          title: "Preparing Release"
 
