@@ -255,7 +255,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: traces
-          path: *.json
+          path: "*.json"
 
   check-doc:
     runs-on: ubuntu-latest
