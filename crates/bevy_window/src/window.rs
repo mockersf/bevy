@@ -62,6 +62,7 @@ impl Default for WindowResizeConstraints {
 }
 
 impl WindowResizeConstraints {
+    #[must_use]
     pub fn check_constraints(&self) -> WindowResizeConstraints {
         let WindowResizeConstraints {
             mut min_width,

@@ -84,6 +84,7 @@ impl FixedTimestep {
         }
     }
 
+    #[must_use]
     pub fn with_label(mut self, label: &str) -> Self {
         self.state.label = Some(label.to_string());
         self

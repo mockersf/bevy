@@ -100,6 +100,7 @@ impl GlobalTransform {
 
     #[doc(hidden)]
     #[inline]
+    #[must_use]
     pub fn looking_at(mut self, target: Vec3, up: Vec3) -> Self {
         self.look_at(target, up);
         self
@@ -107,6 +108,7 @@ impl GlobalTransform {
 
     #[doc(hidden)]
     #[inline]
+    #[must_use]
     pub fn with_translation(mut self, translation: Vec3) -> Self {
         self.translation = translation;
         self
@@ -114,6 +116,7 @@ impl GlobalTransform {
 
     #[doc(hidden)]
     #[inline]
+    #[must_use]
     pub fn with_rotation(mut self, rotation: Quat) -> Self {
         self.rotation = rotation;
         self
@@ -121,6 +124,7 @@ impl GlobalTransform {
 
     #[doc(hidden)]
     #[inline]
+    #[must_use]
     pub fn with_scale(mut self, scale: Vec3) -> Self {
         self.scale = scale;
         self
@@ -196,6 +200,7 @@ impl GlobalTransform {
     /// Multiplies `self` with `transform` component by component, returning the
     /// resulting [`GlobalTransform`]
     #[inline]
+    #[must_use]
     pub fn mul_transform(&self, transform: Transform) -> GlobalTransform {
         let translation = self.mul_vec3(transform.translation);
         let rotation = self.rotation * transform.rotation;

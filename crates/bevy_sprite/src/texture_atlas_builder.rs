@@ -55,24 +55,28 @@ pub type TextureAtlasBuilderResult<T> = Result<T, TextureAtlasBuilderError>;
 
 impl TextureAtlasBuilder {
     /// Sets the initial size of the atlas in pixels.
+    #[must_use]
     pub fn initial_size(mut self, size: Vec2) -> Self {
         self.initial_size = size;
         self
     }
 
     /// Sets the max size of the atlas in pixels.
+    #[must_use]
     pub fn max_size(mut self, size: Vec2) -> Self {
         self.max_size = size;
         self
     }
 
     /// Sets the texture format for textures in the atlas.
+    #[must_use]
     pub fn format(mut self, format: TextureFormat) -> Self {
         self.format = format;
         self
     }
 
     /// Control whether the added texture should be converted to the atlas format, if different.
+    #[must_use]
     pub fn auto_format_conversion(mut self, auto_format_conversion: bool) -> Self {
         self.auto_format_conversion = auto_format_conversion;
         self

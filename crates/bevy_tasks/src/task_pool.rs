@@ -31,12 +31,14 @@ impl TaskPoolBuilder {
 
     /// Override the number of threads created for the pool. If unset, we default to the number
     /// of logical cores of the system
+    #[must_use]
     pub fn num_threads(mut self, num_threads: usize) -> Self {
         self.num_threads = Some(num_threads);
         self
     }
 
     /// Override the stack size of the threads created for the pool
+    #[must_use]
     pub fn stack_size(mut self, stack_size: usize) -> Self {
         self.stack_size = Some(stack_size);
         self
@@ -44,6 +46,7 @@ impl TaskPoolBuilder {
 
     /// Override the name of the threads created for the pool. If set, threads will
     /// be named <thread_name> (<thread_index>), i.e. "MyThreadPool (2)"
+    #[must_use]
     pub fn thread_name(mut self, thread_name: String) -> Self {
         self.thread_name = Some(thread_name);
         self
