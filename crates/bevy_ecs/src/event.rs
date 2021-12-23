@@ -225,28 +225,28 @@ fn internal_event_reader<'a, T>(
         State::A => events
             .events_b
             .get(b_index..)
-            .unwrap_or_else(|| &[])
+            .unwrap_or(&[])
             .iter()
             .map(map_instance_event_with_id)
             .chain(
                 events
                     .events_a
                     .get(a_index..)
-                    .unwrap_or_else(|| &[])
+                    .unwrap_or(&[])
                     .iter()
                     .map(map_instance_event_with_id),
             ),
         State::B => events
             .events_a
             .get(a_index..)
-            .unwrap_or_else(|| &[])
+            .unwrap_or(&[])
             .iter()
             .map(map_instance_event_with_id)
             .chain(
                 events
                     .events_b
                     .get(b_index..)
-                    .unwrap_or_else(|| &[])
+                    .unwrap_or(&[])
                     .iter()
                     .map(map_instance_event_with_id),
             ),
