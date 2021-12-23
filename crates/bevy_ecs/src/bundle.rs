@@ -489,6 +489,7 @@ impl<'a, 'b> BundleInserter<'a, 'b> {
                     {
                         &mut *self.archetype
                     } else if new_archetype.id() == swapped_location.archetype_id {
+                        #[allow(clippy::needless_borrow)]
                         &mut *new_archetype
                     } else {
                         // SAFE: the only two borrowed archetypes are above and we just did collision checks
