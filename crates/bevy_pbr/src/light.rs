@@ -120,6 +120,26 @@ impl PointLight {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct PointLightRange {
+    pub minimum_illuminance: Option<f32>,
+}
+
+// NOTE: Run this before assign_lights_to_clusters as it updates the light ranges!
+pub fn update_point_light_ranges(
+    point_light_range: Res<PointLightRange>,
+    mut point_lights: Query<&mut PointLight>,
+) {
+    if point_light_range.is_changed() {
+        if let Some(minimum_illuminance) = point_light_range.minimum_illuminance {
+            for mut point_light in point_lights.iter_mut() {
+                point_light.range =
+                    PointLight::calculate_range(point_light.intensity, minimum_illuminance);
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct PointLightShadowMap {
     pub size: usize,
@@ -238,6 +258,7 @@ pub struct NotShadowReceiver;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum SimulationLightSystems {
+    UpdatePointLightRanges,
     AddClusters,
     UpdateClusters,
     AssignLightsToClusters,
