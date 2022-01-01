@@ -176,15 +176,15 @@ fn night_and_day(
                         light.intensity = 0.0;
                     }
                     for (_, mut light) in ple.iter_mut() {
-                        light.intensity = 7450.0;
+                        light.intensity = 1000.0;
                     }
                 }
                 LightState::Night => {
                     for (_, mut light) in pli.iter_mut() {
-                        light.intensity = 10000.0;
+                        light.intensity = 1200.0;
                     }
                     for (_, mut light) in ple.iter_mut() {
-                        light.intensity = 7540.0;
+                        light.intensity = 1000.0;
                     }
                 }
             }
