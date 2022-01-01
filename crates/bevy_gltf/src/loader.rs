@@ -605,7 +605,7 @@ fn load_node(
                             // candela (lm/sr) which is luminous intensity and we need luminous power.
                             // For a point light, luminous power = 4 * pi * luminous intensity
                             intensity: light.intensity() * std::f32::consts::PI * 4.0,
-                            range: light.range().unwrap_or(20.0),
+                            range: light.range(),
                             radius: light.range().unwrap_or(0.0),
                             ..Default::default()
                         },
