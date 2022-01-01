@@ -393,7 +393,7 @@ fn load_material(material: &Material, load_context: &mut LoadContext) -> Handle<
     .contains(&material.name().unwrap_or(""))
     {
         if color[3] == 1.0 {
-            color[3] = 0.9;
+            color[3] = 0.2;
         }
     }
     let base_color_texture = if let Some(info) = pbr.base_color_texture() {
