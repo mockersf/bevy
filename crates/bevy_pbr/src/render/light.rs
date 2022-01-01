@@ -1,7 +1,7 @@
 use crate::{
     AmbientLight, Clusters, CubemapVisibleEntities, DirectionalLight, DirectionalLightShadowMap,
-    DrawMesh, MeshPipeline, NotShadowCaster, PointLight, PointLightShadowMap, SetMeshBindGroup,
-    VisiblePointLights, SHADOW_SHADER_HANDLE,
+    DrawMesh, MeshPipeline, NotShadowCaster, PointLight, PointLightRange, PointLightShadowMap,
+    SetMeshBindGroup, VisiblePointLights, SHADOW_SHADER_HANDLE,
 };
 use bevy_asset::Handle;
 use bevy_core::FloatOrd;
@@ -379,6 +379,7 @@ pub fn extract_clusters(mut commands: Commands, views: Query<(Entity, &Clusters)
 pub fn extract_lights(
     mut commands: Commands,
     ambient_light: Res<AmbientLight>,
+    point_light_range: Res<PointLightRange>,
     point_light_shadow_map: Res<PointLightShadowMap>,
     directional_light_shadow_map: Res<DirectionalLightShadowMap>,
     global_point_lights: Res<VisiblePointLights>,
@@ -420,7 +421,12 @@ pub fn extract_lights(
                     // for a point light. See https://google.github.io/filament/Filament.html#mjx-eqn-pointLightLuminousPower
                     // for details.
                     intensity: point_light.intensity / (4.0 * std::f32::consts::PI),
-                    range: point_light.range,
+                    range: point_light.range.unwrap_or_else(|| {
+                        PointLight::calculate_range(
+                            point_light.intensity,
+                            point_light_range.minimum_illuminance,
+                        )
+                    }),
                     radius: point_light.radius,
                     transform: *transform,
                     shadows_enabled: point_light.shadows_enabled,

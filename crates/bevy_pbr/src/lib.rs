@@ -80,12 +80,6 @@ impl Plugin for PbrPlugin {
             .init_resource::<VisiblePointLights>()
             .add_system_to_stage(
                 CoreStage::PostUpdate,
-                update_point_light_ranges
-                    .label(SimulationLightSystems::UpdatePointLightRanges)
-                    .before(SimulationLightSystems::AssignLightsToClusters),
-            )
-            .add_system_to_stage(
-                CoreStage::PostUpdate,
                 // NOTE: Clusters need to have been added before update_clusters is run so
                 // add as an exclusive system
                 add_clusters

@@ -41,8 +41,10 @@ pub struct PointLight {
     /// Luminous power in lumens
     /// (= 4 * pi * luminous intensity in lumens / steradian, for a point light)
     pub intensity: f32,
-    /// The distance from the light at which the intensity becomes 0.
-    pub range: f32,
+    /// The distance from the light at which the intensity becomes 0. If not specified,
+    /// it is automatically calculated based on the minimum illuminance threshold from
+    /// the `PointLightRange` resource.
+    pub range: Option<f32>,
     /// The radius of the light source itself. 0.0 means this is a point light. > 0.0 means this is a
     /// spherical light where the light source itself has a size and is not just a point.
     pub radius: f32,
@@ -62,7 +64,7 @@ impl Default for PointLight {
         PointLight {
             color: Color::rgb(1.0, 1.0, 1.0),
             intensity: luminous_power,
-            range: PointLight::calculate_range(luminous_power, Self::MINIMUM_ILLUMINANCE),
+            range: None,
             radius: 0.0,
             shadows_enabled: false,
             shadow_depth_bias: Self::DEFAULT_SHADOW_DEPTH_BIAS,
@@ -74,39 +76,6 @@ impl Default for PointLight {
 impl PointLight {
     pub const DEFAULT_SHADOW_DEPTH_BIAS: f32 = 0.02;
     pub const DEFAULT_SHADOW_NORMAL_BIAS: f32 = 0.6;
-    /// Illuminance (in lumens / meter^2) threshold used to calculate the effective
-    /// range of a `PointLight` based on its luminous power (in lumens).
-    /// NOTE: This was empirically evaluated by removing the attenuation factor
-    /// from the pbr.wgsl intensity falloff calculation resulting in only an
-    /// inverse square falloff with distance. A range of dim and bright light
-    /// sources were tested to find a safe minimum illuminance value that
-    /// produced ranges working for all reasonable intensities.
-    pub const MINIMUM_ILLUMINANCE: f32 = 0.1;
-
-    /// Create a new `PointLight`
-    ///
-    /// `color` defines the color of the light source
-    /// `luminous_power` is the luminous power of the light source in lumens.
-    /// Note that luminous power = 4 * pi * luminous intensity for a point light
-    /// where luminous intensity is in lumens / steradian
-    pub fn new(color: Color, luminous_power: f32) -> Self {
-        Self {
-            color,
-            ..Self::from_luminous_power(luminous_power)
-        }
-    }
-
-    /// Create a new `PointLight` based on its luminous power (lumens)
-    ///
-    /// The range of the light is automatically calculated based on the inverse square
-    /// falloff and `PointLight::MINIMUM_ILLUMINANCE`.
-    pub fn from_luminous_power(luminous_power: f32) -> Self {
-        Self {
-            intensity: luminous_power,
-            range: PointLight::calculate_range(luminous_power, Self::MINIMUM_ILLUMINANCE),
-            ..Default::default()
-        }
-    }
 
     /// Calculate the range of a point light based on `luminous_power` (lumens)
     /// and minimum illuminance (lumens / meter^2) using the inverse square
@@ -120,22 +89,22 @@ impl PointLight {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct PointLightRange {
-    pub minimum_illuminance: Option<f32>,
+    /// Illuminance (in lumens / meter^2) threshold used to calculate the effective
+    /// range of a `PointLight` based on its luminous power (in lumens).
+    pub minimum_illuminance: f32,
 }
 
-// NOTE: Run this before assign_lights_to_clusters as it updates the light ranges!
-pub fn update_point_light_ranges(
-    point_light_range: Res<PointLightRange>,
-    mut point_lights: Query<&mut PointLight>,
-) {
-    if point_light_range.is_changed() {
-        if let Some(minimum_illuminance) = point_light_range.minimum_illuminance {
-            for mut point_light in point_lights.iter_mut() {
-                point_light.range =
-                    PointLight::calculate_range(point_light.intensity, minimum_illuminance);
-            }
+impl Default for PointLightRange {
+    fn default() -> Self {
+        Self {
+            /// NOTE: This was empirically evaluated by removing the attenuation factor
+            /// from the pbr.wgsl intensity falloff calculation resulting in only an
+            /// inverse square falloff with distance. A range of dim and bright light
+            /// sources were tested to find a safe minimum illuminance value that
+            /// produced ranges working for all reasonable intensities.
+            minimum_illuminance: 0.1,
         }
     }
 }
@@ -258,7 +227,6 @@ pub struct NotShadowReceiver;
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, SystemLabel)]
 pub enum SimulationLightSystems {
-    UpdatePointLightRanges,
     AddClusters,
     UpdateClusters,
     AssignLightsToClusters,
@@ -556,6 +524,7 @@ fn cluster_to_index(cluster_dimensions: UVec3, cluster: UVec3) -> usize {
 pub fn assign_lights_to_clusters(
     mut commands: Commands,
     mut global_lights: ResMut<VisiblePointLights>,
+    point_light_range: Res<PointLightRange>,
     mut views: Query<(Entity, &GlobalTransform, &Camera, &Frustum, &mut Clusters)>,
     lights: Query<(Entity, &GlobalTransform, &PointLight)>,
 ) {
@@ -581,7 +550,12 @@ pub fn assign_lights_to_clusters(
         for (light_entity, light_transform, light) in lights.iter() {
             let light_sphere = Sphere {
                 center: light_transform.translation,
-                radius: light.range,
+                radius: light.range.unwrap_or_else(|| {
+                    PointLight::calculate_range(
+                        light.intensity,
+                        point_light_range.minimum_illuminance,
+                    )
+                }),
             };
 
             // Check if the light is within the view frustum
@@ -713,6 +687,7 @@ pub fn update_directional_light_frusta(
 // NOTE: Run this after assign_lights_to_clusters!
 pub fn update_point_light_frusta(
     global_lights: Res<VisiblePointLights>,
+    point_light_range: Res<PointLightRange>,
     mut views: Query<(Entity, &GlobalTransform, &PointLight, &mut CubemapFrusta)>,
 ) {
     let projection =
@@ -751,13 +726,19 @@ pub fn update_point_light_frusta(
                 &view_projection,
                 &transform.translation,
                 &view_backward,
-                point_light.range,
+                point_light.range.unwrap_or_else(|| {
+                    PointLight::calculate_range(
+                        point_light.intensity,
+                        point_light_range.minimum_illuminance,
+                    )
+                }),
             );
         }
     }
 }
 
 pub fn check_light_mesh_visibility(
+    point_light_range: Res<PointLightRange>,
     // NOTE: VisiblePointLights is an alias for VisibleEntities so the Without<DirectionalLight>
     // is needed to avoid an unnecessary QuerySet
     visible_point_lights: Query<&VisiblePointLights, Without<DirectionalLight>>,
@@ -855,7 +836,12 @@ pub fn check_light_mesh_visibility(
                 let view_mask = maybe_view_mask.copied().unwrap_or_default();
                 let light_sphere = Sphere {
                     center: transform.translation,
-                    radius: point_light.range,
+                    radius: point_light.range.unwrap_or_else(|| {
+                        PointLight::calculate_range(
+                            point_light.intensity,
+                            point_light_range.minimum_illuminance,
+                        )
+                    }),
                 };
 
                 for (
