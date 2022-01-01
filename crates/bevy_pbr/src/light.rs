@@ -38,8 +38,13 @@ use crate::{
 #[reflect(Component)]
 pub struct PointLight {
     pub color: Color,
+    /// Luminous power in lumens
+    /// (= 4 * pi * luminous intensity in lumens / steradian, for a point light)
     pub intensity: f32,
+    /// The distance from the light at which the intensity becomes 0.
     pub range: f32,
+    /// The radius of the light source itself. 0.0 means this is a point light. > 0.0 means this is a
+    /// spherical light where the light source itself has a size and is not just a point.
     pub radius: f32,
     pub shadows_enabled: bool,
     pub shadow_depth_bias: f32,
@@ -51,11 +56,13 @@ pub struct PointLight {
 
 impl Default for PointLight {
     fn default() -> Self {
+        // Luminous power in lumens. 800 lumens is roughly a 60W non-halogen incandescent
+        // bulb
+        let luminous_power = 800.0;
         PointLight {
             color: Color::rgb(1.0, 1.0, 1.0),
-            /// Luminous power in lumens
-            intensity: 800.0, // Roughly a 60W non-halogen incandescent bulb
-            range: 20.0,
+            intensity: luminous_power,
+            range: PointLight::calculate_range(luminous_power, Self::MINIMUM_ILLUMINANCE),
             radius: 0.0,
             shadows_enabled: false,
             shadow_depth_bias: Self::DEFAULT_SHADOW_DEPTH_BIAS,
@@ -67,6 +74,50 @@ impl Default for PointLight {
 impl PointLight {
     pub const DEFAULT_SHADOW_DEPTH_BIAS: f32 = 0.02;
     pub const DEFAULT_SHADOW_NORMAL_BIAS: f32 = 0.6;
+    /// Illuminance (in lumens / meter^2) threshold used to calculate the effective
+    /// range of a `PointLight` based on its luminous power (in lumens).
+    /// NOTE: This was empirically evaluated by removing the attenuation factor
+    /// from the pbr.wgsl intensity falloff calculation resulting in only an
+    /// inverse square falloff with distance. A range of dim and bright light
+    /// sources were tested to find a safe minimum illuminance value that
+    /// produced ranges working for all reasonable intensities.
+    pub const MINIMUM_ILLUMINANCE: f32 = 0.1;
+
+    /// Create a new `PointLight`
+    ///
+    /// `color` defines the color of the light source
+    /// `luminous_power` is the luminous power of the light source in lumens.
+    /// Note that luminous power = 4 * pi * luminous intensity for a point light
+    /// where luminous intensity is in lumens / steradian
+    pub fn new(color: Color, luminous_power: f32) -> Self {
+        Self {
+            color,
+            ..Self::from_luminous_power(luminous_power)
+        }
+    }
+
+    /// Create a new `PointLight` based on its luminous power (lumens)
+    ///
+    /// The range of the light is automatically calculated based on the inverse square
+    /// falloff and `PointLight::MINIMUM_ILLUMINANCE`.
+    pub fn from_luminous_power(luminous_power: f32) -> Self {
+        Self {
+            intensity: luminous_power,
+            range: PointLight::calculate_range(luminous_power, Self::MINIMUM_ILLUMINANCE),
+            ..Default::default()
+        }
+    }
+
+    /// Calculate the range of a point light based on `luminous_power` (lumens)
+    /// and minimum illuminance (lumens / meter^2) using the inverse square
+    /// falloff equation as per:
+    /// https://google.github.io/filament/Filament.html#lighting/directlighting/punctuallights/attenuationfunction
+    pub fn calculate_range(luminous_power: f32, minimum_illuminance: f32) -> f32 {
+        let luminous_intensity = luminous_power / (4.0 * std::f32::consts::PI);
+        // NOTE: This is from solving the light falloff equation for the range. The equation
+        // is used in pbr.wgsl which is from the filament documentation
+        (luminous_intensity / minimum_illuminance).sqrt()
+    }
 }
 
 #[derive(Clone, Debug)]
