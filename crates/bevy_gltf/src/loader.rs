@@ -7,8 +7,8 @@ use bevy_ecs::world::World;
 use bevy_log::warn;
 use bevy_math::{Mat4, Vec3};
 use bevy_pbr::{
-    AlphaMode, DirectionalLight, DirectionalLightBundle, PbrBundle, PointLight, PointLightBundle,
-    StandardMaterial,
+    AlphaMode, DirectionalLight, DirectionalLightBundle, NotShadowCaster, PbrBundle, PointLight,
+    PointLightBundle, StandardMaterial,
 };
 use bevy_render::{
     camera::{
@@ -382,7 +382,20 @@ fn load_material(material: &Material, load_context: &mut LoadContext) -> Handle<
 
     let pbr = material.pbr_metallic_roughness();
 
-    let color = pbr.base_color_factor();
+    let mut color = pbr.base_color_factor();
+    if [
+        "MASTER_Frosted_Glass",
+        "MASTER_Glass_Exterior",
+        "MASTER_Glass_Dirty",
+        "TransparentGlass",
+        "Emissive_StreetLight",
+    ]
+    .contains(&material.name().unwrap_or(""))
+    {
+        if color[3] == 1.0 {
+            color[3] = 0.9;
+        }
+    }
     let base_color_texture = if let Some(info) = pbr.base_color_texture() {
         // TODO: handle info.tex_coord() (the *set* index for the right texcoords)
         let label = texture_label(&info.texture());
@@ -544,16 +557,26 @@ fn load_node(
                     AssetPath::new_ref(load_context.path(), Some(&material_label));
 
                 let bounds = primitive.bounding_box();
-                parent
-                    .spawn_bundle(PbrBundle {
-                        mesh: load_context.get_handle(mesh_asset_path),
-                        material: load_context.get_handle(material_asset_path),
-                        ..Default::default()
-                    })
-                    .insert(Aabb::from_min_max(
-                        Vec3::from_slice(&bounds.min),
-                        Vec3::from_slice(&bounds.max),
-                    ));
+                let mut mesh = parent.spawn_bundle(PbrBundle {
+                    mesh: load_context.get_handle(mesh_asset_path),
+                    material: load_context.get_handle(material_asset_path),
+                    ..Default::default()
+                });
+                mesh.insert(Aabb::from_min_max(
+                    Vec3::from_slice(&bounds.min),
+                    Vec3::from_slice(&bounds.max),
+                ));
+                if [
+                    "MASTER_Frosted_Glass",
+                    "MASTER_Glass_Exterior",
+                    "MASTER_Glass_Dirty",
+                    "TransparentGlass",
+                    "Emissive_StreetLight",
+                ]
+                .contains(&material.name().unwrap_or(""))
+                {
+                    mesh.insert(NotShadowCaster);
+                }
             }
         }
 
@@ -715,6 +738,18 @@ fn get_primitive_topology(mode: Mode) -> Result<PrimitiveTopology, GltfError> {
 }
 
 fn alpha_mode(material: &Material) -> AlphaMode {
+    if [
+        "MASTER_Frosted_Glass",
+        "MASTER_Glass_Exterior",
+        "MASTER_Glass_Dirty",
+        "TransparentGlass",
+        "Emissive_StreetLight",
+    ]
+    .contains(&material.name().unwrap_or(""))
+    {
+        return AlphaMode::Blend;
+    }
+
     match material.alpha_mode() {
         gltf::material::AlphaMode::Opaque => AlphaMode::Opaque,
         gltf::material::AlphaMode::Mask => AlphaMode::Mask(material.alpha_cutoff().unwrap_or(0.5)),
