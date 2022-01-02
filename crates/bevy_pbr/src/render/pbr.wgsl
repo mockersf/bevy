@@ -513,7 +513,10 @@ fn fragment(in: FragmentInput) -> [[location(0)]] vec4<f32> {
 #ifdef VERTEX_TANGENTS
 #ifdef STANDARDMATERIAL_NORMAL_MAP
         let TBN = mat3x3<f32>(T, B, N);
-        N = TBN * normalize(textureSample(normal_map_texture, normal_map_sampler, in.uv).rgb * 2.0 - 1.0);
+//        N = TBN * normalize(textureSample(normal_map_texture, normal_map_sampler, in.uv).rgb * 2.0 - 1.0);
+        let rg = textureSample(normal_map_texture, normal_map_sampler, in.uv).rg * 2.0 - 1.0;
+        let b = sqrt(1.0 - dot(rg, rg));
+        N = TBN * normalize(vec3<f32>(rg.x, -rg.y, b));
 #endif
 #endif
 
