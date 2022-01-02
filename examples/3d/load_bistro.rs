@@ -1,6 +1,6 @@
 use bevy::{
     // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    pbr::{DirectionalLightShadowMap, PointLightShadowMap},
+    pbr::{DirectionalLightShadowMap, PointLightRange, PointLightShadowMap},
     prelude::*,
     scene::InstanceId,
 };
@@ -16,6 +16,9 @@ fn main() {
         })
         .insert_resource(DirectionalLightShadowMap {
             size: 2_usize.pow(13),
+        })
+        .insert_resource(PointLightRange {
+            minimum_illuminance: 0.12,
         })
         .insert_resource(Scenes {
             interior: None,
@@ -136,9 +139,9 @@ fn night_and_day(
                     light.intensity = 0.0;
                 } else {
                     if i < nb_interior {
-                        light.intensity = 10000.0;
+                        light.intensity = 1200.0;
                     } else {
-                        light.intensity = 7540.0;
+                        light.intensity = 1000.0;
                     }
                 }
             }
