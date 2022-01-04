@@ -12,13 +12,13 @@ fn main() {
             brightness: 1.0 / 50.0f32,
         })
         .insert_resource(PointLightShadowMap {
-            size: 2_usize.pow(10),
+            size: 2_usize.pow(13),
         })
         .insert_resource(DirectionalLightShadowMap {
             size: 2_usize.pow(13),
         })
         .insert_resource(PointLightRange {
-            minimum_illuminance: 0.35,
+            minimum_illuminance: 0.20,
         })
         .insert_resource(Scenes {
             interior: None,
