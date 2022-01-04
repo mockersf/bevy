@@ -24,6 +24,10 @@ fn main() {
             interior: None,
             exterior: None,
         })
+        .insert_resource(WindowDescriptor {
+            decorations: false,
+            ..Default::default()
+        })
         .add_plugins(DefaultPlugins)
         // .add_plugin(FrameTimeDiagnosticsPlugin::default())
         // .add_plugin(LogDiagnosticsPlugin::default())
