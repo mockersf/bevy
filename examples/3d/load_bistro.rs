@@ -43,8 +43,8 @@ fn setup(
     asset_server: Res<AssetServer>,
     mut scene_spawner: ResMut<SceneSpawner>,
 ) {
-    let exterior = scene_spawner.spawn(asset_server.load("models/exterior.glb#Scene0"));
-    let interior = scene_spawner.spawn(asset_server.load("models/interior.glb#Scene0"));
+    let exterior = scene_spawner.spawn(asset_server.load("models/exterior/exterior.gltf#Scene0"));
+    let interior = scene_spawner.spawn(asset_server.load("models/interior/interior.gltf#Scene0"));
 
     commands.spawn_bundle(PerspectiveCameraBundle {
         transform: Transform::from_xyz(-16., 6., 1.0).looking_at(Vec3::new(0.0, 1., 0.0), Vec3::Y),
