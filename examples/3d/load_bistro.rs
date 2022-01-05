@@ -1,8 +1,14 @@
+use std::f32::consts::PI;
+
 use bevy::{
     // diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
-    pbr::{DirectionalLightShadowMap, PointLightRange, PointLightShadowMap},
+    pbr::{
+        DirectionalLightShadowMap, NotShadowCaster, NotShadowReceiver, PointLightRange,
+        PointLightShadowMap,
+    },
     prelude::*,
     scene::InstanceId,
+    transform::hierarchy::BuildChildren,
 };
 
 fn main() {
@@ -84,13 +90,17 @@ fn scene_update(
     mut commands: Commands,
     scene_spawner: Res<SceneSpawner>,
     mut scene_instance: ResMut<Scenes>,
-    mut lights: Query<&mut PointLight>,
+    mut lights: Query<(&mut PointLight, &Name)>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     if let Some(instance_id) = scene_instance.interior {
         if let Some(entity_iter) = scene_spawner.iter_instance_entities(instance_id) {
             entity_iter.for_each(|entity| {
                 commands.entity(entity).insert(Interior);
-                if let Ok(mut light) = lights.get_mut(entity) {
+                if let Ok((mut light, name)) = lights.get_mut(entity) {
+                    info!("found {:?} at intensity {:?}", name, light.intensity);
+                    info!("will cast shadows!");
                     light.shadows_enabled = true;
                 }
             });
@@ -98,11 +108,39 @@ fn scene_update(
         }
     }
     if let Some(instance_id) = scene_instance.exterior {
+        let sphere = meshes.add(Mesh::from(shape::UVSphere {
+            radius: 0.05,
+            ..Default::default()
+        }));
+        let material = materials.add(StandardMaterial {
+            base_color: Color::YELLOW,
+            ..Default::default()
+        });
         if let Some(entity_iter) = scene_spawner.iter_instance_entities(instance_id) {
             entity_iter.for_each(|entity| {
                 commands.entity(entity).insert(Exterior);
-                if let Ok(mut light) = lights.get_mut(entity) {
-                    light.shadows_enabled = true;
+                if let Ok((mut light, name)) = lights.get_mut(entity) {
+                    info!("found {:?} at intensity {:?}", name, light.intensity);
+                    if name.contains("streetlight") {
+                        info!("will cast shadows!");
+                        light.shadows_enabled = true;
+                    }
+                    if name.contains("smallbulb") && !name.contains("-no") {
+                        info!("will cast shadows!");
+                        light.shadows_enabled = true;
+                    }
+                    if name.contains("smallbulb") {
+                        commands
+                            .entity(entity)
+                            .with_children(|p| {
+                                p.spawn_bundle(PbrBundle {
+                                    mesh: sphere.clone(),
+                                    material: material.clone(),
+                                    ..Default::default()
+                                });
+                            })
+                            .insert_bundle((NotShadowCaster, NotShadowReceiver));
+                    }
                 }
             });
             scene_instance.exterior = None;
@@ -114,8 +152,8 @@ fn night_and_day(
     input: Res<Input<KeyCode>>,
     mut ambient: ResMut<AmbientLight>,
     mut dl: Query<(&mut Transform, &mut DirectionalLight), With<Sun>>,
-    mut pli: Query<(&GlobalTransform, &mut PointLight), (With<Interior>, Without<Exterior>)>,
-    mut ple: Query<(&GlobalTransform, &mut PointLight), (With<Exterior>, Without<Interior>)>,
+    mut pli: Query<(&GlobalTransform, &mut PointLight, &Name), (With<Interior>, Without<Exterior>)>,
+    mut ple: Query<(&GlobalTransform, &mut PointLight, &Name), (With<Exterior>, Without<Interior>)>,
     mut time_stopped: Local<bool>,
     mut light_state: Local<LightState>,
 ) {
@@ -130,6 +168,8 @@ fn night_and_day(
         KeyCode::H,
         KeyCode::I,
         KeyCode::J,
+        KeyCode::K,
+        KeyCode::L,
     ]
     .iter()
     .enumerate()
@@ -137,8 +177,8 @@ fn night_and_day(
         if input.just_pressed(*k) {
             info!("pressed {:?}", k);
             let nb_interior = pli.iter().count();
-            if let Some((_, mut light)) = pli.iter_mut().chain(ple.iter_mut()).nth(i) {
-                info!("changing a light");
+            if let Some((_, mut light, name)) = pli.iter_mut().chain(ple.iter_mut()).nth(i) {
+                info!("changing a light {:?}", name);
                 if light.intensity > 0.0 {
                     light.intensity = 0.0;
                 } else {
@@ -171,27 +211,35 @@ fn night_and_day(
         if !*time_stopped {
             match current_state {
                 LightState::Day => {
-                    for (_, mut light) in pli.iter_mut() {
+                    for (_, mut light, _) in pli.iter_mut() {
                         light.intensity = 0.0;
                     }
-                    for (_, mut light) in ple.iter_mut() {
+                    for (_, mut light, _) in ple.iter_mut() {
                         light.intensity = 0.0;
                     }
                 }
                 LightState::Twilight => {
-                    for (_, mut light) in pli.iter_mut() {
+                    for (_, mut light, _) in pli.iter_mut() {
                         light.intensity = 0.0;
                     }
-                    for (_, mut light) in ple.iter_mut() {
-                        light.intensity = 1000.0;
+                    for (_, mut light, name) in ple.iter_mut() {
+                        if name.contains("street") {
+                            light.intensity = 1000.0;
+                        } else if name.contains("smallbulb") {
+                            light.intensity = 0.0;
+                        }
                     }
                 }
                 LightState::Night => {
-                    for (_, mut light) in pli.iter_mut() {
+                    for (_, mut light, _) in pli.iter_mut() {
                         light.intensity = 1200.0;
                     }
-                    for (_, mut light) in ple.iter_mut() {
-                        light.intensity = 1000.0;
+                    for (_, mut light, name) in ple.iter_mut() {
+                        if name.contains("street") {
+                            light.intensity = 1000.0;
+                        } else if name.contains("smallbulb") {
+                            light.intensity = 200.0;
+                        }
                     }
                 }
             }
@@ -234,6 +282,14 @@ fn animate_camera(
         )
         .looking_at(Vec3::new(0.0, 1., 0.0), Vec3::Y);
     }
+    // for mut transform in query.iter_mut() {
+    //     *transform = Transform::from_xyz(
+    //         -16. + (time.seconds_since_startup() / 10.0).sin() as f32 * 4.5,
+    //         3.,
+    //         1.0 + (time.seconds_since_startup() / 10.0).cos() as f32 * 6.5,
+    //     )
+    //     .looking_at(Vec3::new(0.0, 1., 0.0), Vec3::Y);
+    // }
 
     for mut transform in sun.iter_mut() {
         transform.rotation = Quat::from_euler(
