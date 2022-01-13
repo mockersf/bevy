@@ -274,29 +274,29 @@ fn animate_camera(
     >,
     mut sun: Query<&mut Transform, With<Sun>>,
 ) {
-    let door_name = Name::new("dOORS_2");
-    for (transform, name) in door.iter() {
-        if *name == door_name {
-            for mut camera_transform in query.iter_mut() {
-                *camera_transform = Transform {
-                    translation: transform.translation
-                        + Quat::from_rotation_y(115.0 / 360.0 * PI * 2.0)
-                            .mul_vec3(Vec3::new(0.0, 0.0, -14.0))
-                        + Vec3::new(0.0, 3.5, 0.0),
-                    ..Default::default()
-                }
-                .looking_at(transform.translation + Vec3::new(0.0, 3.0, 0.0), Vec3::Y);
-            }
-        }
-    }
-    // for mut transform in query.iter_mut() {
-    //     *transform = Transform::from_xyz(
-    //         -16. + (time.seconds_since_startup() / 10.0).sin() as f32 * 4.5,
-    //         3.,
-    //         1.0 + (time.seconds_since_startup() / 10.0).cos() as f32 * 6.5,
-    //     )
-    //     .looking_at(Vec3::new(0.0, 1., 0.0), Vec3::Y);
+    // let door_name = Name::new("dOORS_2");
+    // for (transform, name) in door.iter() {
+    //     if *name == door_name {
+    //         for mut camera_transform in query.iter_mut() {
+    //             *camera_transform = Transform {
+    //                 translation: transform.translation
+    //                     + Quat::from_rotation_y(115.0 / 360.0 * PI * 2.0)
+    //                         .mul_vec3(Vec3::new(0.0, 0.0, -14.0))
+    //                     + Vec3::new(0.0, 3.5, 0.0),
+    //                 ..Default::default()
+    //             }
+    //             .looking_at(transform.translation + Vec3::new(0.0, 3.0, 0.0), Vec3::Y);
+    //         }
+    //     }
     // }
+    for mut transform in query.iter_mut() {
+        *transform = Transform::from_xyz(
+            -16. + (time.seconds_since_startup() / 10.0).sin() as f32 * 4.5,
+            3.,
+            1.0 + (time.seconds_since_startup() / 10.0).cos() as f32 * 6.5,
+        )
+        .looking_at(Vec3::new(0.0, 1., 0.0), Vec3::Y);
+    }
 
     for mut transform in sun.iter_mut() {
         transform.rotation = Quat::from_euler(
