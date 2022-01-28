@@ -15,7 +15,7 @@ use std::{collections::VecDeque, fmt};
 /// ```
 pub struct Audio<Source = AudioSource>
 where
-    Source: Asset + Decodable,
+    Source: Asset + Decdable,
 {
     /// Queue for playing audio from asset handles
     pub queue: RwLock<VecDeque<Handle<Source>>>,
