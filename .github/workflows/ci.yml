@@ -41,8 +41,7 @@ jobs:
         run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
         if: runner.os == 'linux'
       - name: Setup problem matcher
-        run: echo "::add-matcher::.github/problem-matchers/rust.json"
-        # if: runner.os != 'windows'
+        run: echo "::add-matcher::.github/matchers/rust.json"
       - name: Build & run tests
         run: cargo test --workspace
         env:
