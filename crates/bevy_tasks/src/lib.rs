@@ -21,7 +21,7 @@ mod usages;
 pub use usages::{AsyncComputeTaskPool, ComputeTaskPool, IoTaskPool};
 
 mod countdown_event;
-pub use countdown_event::CountdownEvent;
+pub use countdown_evet::CountdownEvent;
 
 mod iter;
 pub use iter::ParallelIterator;
