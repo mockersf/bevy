@@ -131,7 +131,8 @@ impl Camera {
             None
         }
     }
-    /// Given a position in world space, use the camera to compute the screen space coordinates.
+
+    /// Given a position in world space, use the camera to compute the normalized device coordinates.
     pub fn world_to_ndc(
         &self,
         camera_transform: &GlobalTransform,
