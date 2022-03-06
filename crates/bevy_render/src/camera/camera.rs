@@ -16,7 +16,7 @@ use bevy_math::{Mat4, UVec2, Vec2, Vec3};
 use bevy_reflect::{Reflect, ReflectDeserialize};
 use bevy_transform::components::GlobalTransform;
 use bevy_utils::HashSet;
-use bevy_window::{WindowCreated, WindowId, WindowResized, Windows};
+use bevy_window::{Window, WindowCreated, WindowId, WindowResized, Windows};
 use serde::{Deserialize, Serialize};
 use wgpu::Extent3d;
 
@@ -62,27 +62,25 @@ impl RenderTarget {
             }
         }
     }
-    pub fn get_physical_size(&self, windows: &Windows, images: &Assets<Image>) -> Option<UVec2> {
+    pub fn as_sized_target<'a>(
+        &'a self,
+        windows: &'a Windows,
+        images: &'a Assets<Image>,
+    ) -> Option<&'a dyn SizedTarget> {
         match self {
-            RenderTarget::Window(window_id) => windows
-                .get(*window_id)
-                .map(|window| UVec2::new(window.physical_width(), window.physical_height())),
-            RenderTarget::Image(image_handle) => images.get(image_handle).map(|image| {
-                let Extent3d { width, height, .. } = image.texture_descriptor.size;
-                UVec2::new(width, height)
-            }),
+            RenderTarget::Window(window_id) => {
+                windows.get(*window_id).map(|x| x as &'a dyn SizedTarget)
+            }
+            RenderTarget::Image(image_handle) => {
+                images.get(image_handle).map(|x| x as &'a dyn SizedTarget)
+            }
         }
     }
+    pub fn get_physical_size(&self, windows: &Windows, images: &Assets<Image>) -> Option<UVec2> {
+        self.as_sized_target(windows, images)?.get_physical_size()
+    }
     pub fn get_logical_size(&self, windows: &Windows, images: &Assets<Image>) -> Option<Vec2> {
-        match self {
-            RenderTarget::Window(window_id) => windows
-                .get(*window_id)
-                .map(|window| Vec2::new(window.width(), window.height())),
-            RenderTarget::Image(image_handle) => images.get(image_handle).map(|image| {
-                let Extent3d { width, height, .. } = image.texture_descriptor.size;
-                Vec2::new(width as f32, height as f32)
-            }),
-        }
+        self.as_sized_target(windows, images)?.get_logical_size()
     }
     // Check if this render target is contained in the given changed windows or images.
     fn is_changed(
@@ -94,6 +92,29 @@ impl RenderTarget {
             RenderTarget::Window(window_id) => changed_window_ids.contains(window_id),
             RenderTarget::Image(image_handle) => changed_image_handles.contains(&image_handle),
         }
+    }
+}
+
+pub trait SizedTarget {
+    fn get_physical_size(&self) -> Option<UVec2>;
+    fn get_logical_size(&self) -> Option<Vec2>;
+}
+impl SizedTarget for Image {
+    fn get_physical_size(&self) -> Option<UVec2> {
+        let Extent3d { width, height, .. } = self.texture_descriptor.size;
+        Some(UVec2::new(width, height))
+    }
+    fn get_logical_size(&self) -> Option<Vec2> {
+        let Extent3d { width, height, .. } = self.texture_descriptor.size;
+        Some(Vec2::new(width as f32, height as f32))
+    }
+}
+impl SizedTarget for Window {
+    fn get_physical_size(&self) -> Option<UVec2> {
+        Some(UVec2::new(self.physical_width(), self.physical_height()))
+    }
+    fn get_logical_size(&self) -> Option<Vec2> {
+        Some(Vec2::new(self.width(), self.height()))
     }
 }
 
@@ -113,30 +134,40 @@ impl Default for DepthCalculation {
 }
 
 impl Camera {
-    /// Given a position in world space, use the camera to compute the screen space coordinates.
+    /// Given a position in world space, use the camera and a render target to compute the screen
+    /// space coordinates.
     ///
+    /// ## Examples
+    /// If you have an [`Image`] or [`Window`], you can pass them into the function as the target:
+    /// ```
+    /// # let PerspectiveCameraBundle{ camera, global_transform} = PerspectiveCameraBundle::new_3D()
+    /// let window = windows.get(window_handle).unwrap();
+    /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
+    /// camera.world_to_screen(window, global_transform, world_pos).unwrap();
+    /// ```
+    /// If you have a [`RenderTarget`], you can instead use [`RenderTarget::as_sized_target`]:
+    /// ```
+    /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
+    /// let sized_target = render_target.as_sized_target(windows, images);
+    /// camera.world_to_screen(sized_target, global_transform, world_pos).unwrap();
+    /// ```
     /// To get the coordinates in Normalized Device Coordinates, you should use
     /// [`world_to_ndc`](Self::world_to_ndc).
     pub fn world_to_screen(
         &self,
-        windows: &Windows,
-        images: &Assets<Image>,
+        target: impl SizedTarget,
         camera_transform: &GlobalTransform,
         world_position: Vec3,
     ) -> Option<Vec2> {
-        let window_size = self.target.get_logical_size(windows, images)?;
-
-        if let Some(ndc_space_coords) = self.world_to_ndc(camera_transform, world_position) {
-            // NDC z-values outside of 0 < z < 1 are outside the camera frustum and are thus not in screen space
-            if ndc_space_coords.z < 0.0 || ndc_space_coords.z > 1.0 {
-                return None;
-            }
-
-            // Once in NDC space, we can discard the z element and rescale x/y to fit the screen
-            Some((ndc_space_coords.truncate() + Vec2::ONE) / 2.0 * window_size)
-        } else {
-            None
-        }
+        let window_size = target.get_logical_size()?;
+        // NDC z-values outside of 0 < z < 1 are outside the camera's near and far planes. We don't
+        // check x or y because it's useful to report coordinates of objects as they leave the edges
+        // of the screen.
+        let ndc_space_coords = self
+            .world_to_ndc(camera_transform, world_position)
+            .filter(|pos| pos.z >= 0.0 && pos.z <= 1.0)?;
+        // Once in NDC space, we can discard the z element and rescale x/y to fit the screen
+        Some((ndc_space_coords.truncate() + 1.0) / 2.0 * window_size)
     }
 
     /// Given a position in world space, use the camera to compute the Normalized Device Coordinates.
@@ -152,13 +183,8 @@ impl Camera {
         // Build a transform to convert from world to NDC using camera data
         let world_to_ndc: Mat4 =
             self.projection_matrix * camera_transform.compute_matrix().inverse();
-        let ndc_space_coords: Vec3 = world_to_ndc.project_point3(world_position);
-
-        if !ndc_space_coords.is_nan() {
-            Some(ndc_space_coords)
-        } else {
-            None
-        }
+        let unchecked_ndc = world_to_ndc.project_point3(world_position);
+        Some(unchecked_ndc).filter(|x| !x.is_nan())
     }
 }
 
