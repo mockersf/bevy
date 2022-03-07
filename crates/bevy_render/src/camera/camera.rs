@@ -48,6 +48,20 @@ impl Default for RenderTarget {
 }
 
 impl RenderTarget {
+    pub fn get_window(&self) -> Option<WindowId> {
+        if let RenderTarget::Window(id) = self {
+            Some(id.to_owned())
+        } else {
+            None
+        }
+    }
+    pub fn get_image(&self) -> Option<Handle<Image>> {
+        if let RenderTarget::Image(handle) = self {
+            Some(handle.to_owned())
+        } else {
+            None
+        }
+    }
     pub fn get_texture_view<'a>(
         &self,
         windows: &'a ExtractedWindows,
@@ -62,19 +76,16 @@ impl RenderTarget {
             }
         }
     }
+    /// Attempts to convert a `RenderTarget` into a `SizedTarget` trait object.
     pub fn as_sized_target<'a>(
-        &'a self,
+        &self,
         windows: &'a Windows,
         images: &'a Assets<Image>,
     ) -> Option<&'a dyn SizedTarget> {
-        match self {
-            RenderTarget::Window(window_id) => {
-                windows.get(*window_id).map(|x| x as &'a dyn SizedTarget)
-            }
-            RenderTarget::Image(image_handle) => {
-                images.get(image_handle).map(|x| x as &'a dyn SizedTarget)
-            }
-        }
+        Some(match self {
+            RenderTarget::Window(window_id) => windows.get(*window_id)? as &'a dyn SizedTarget,
+            RenderTarget::Image(image_handle) => images.get(image_handle)? as &'a dyn SizedTarget,
+        })
     }
     pub fn get_physical_size(&self, windows: &Windows, images: &Assets<Image>) -> Option<UVec2> {
         self.as_sized_target(windows, images)?.get_physical_size()
@@ -95,6 +106,7 @@ impl RenderTarget {
     }
 }
 
+/// A trait used to find the size of a `RenderTarget`.
 pub trait SizedTarget {
     fn get_physical_size(&self) -> Option<UVec2>;
     fn get_logical_size(&self) -> Option<Vec2>;
@@ -117,6 +129,7 @@ impl SizedTarget for Window {
         Some(Vec2::new(self.width(), self.height()))
     }
 }
+// Makes it possible to use a trait object in a generic function with a `SizedTarget` trait bound.
 impl SizedTarget for &dyn SizedTarget {
     fn get_physical_size(&self) -> Option<UVec2> {
         (*self).get_physical_size()
@@ -142,38 +155,50 @@ impl Default for DepthCalculation {
 }
 
 impl Camera {
-    /// Given a position in world space, use the camera and a render target to compute the screen
-    /// space coordinates.
+    /// Given a position in world space, use the camera's position and a render target to compute
+    /// the screen space coordinates.
     ///
     /// ## Examples
-    /// If you have an [`Image`] or [`Window`], you can pass them into the function as the target:
+    ///
+    /// If you have the camera's target already available, an [`Image`] or [`Window`], you can pass
+    /// them into the function without needing to use an unnecessary resource.:
+    ///
     /// ```no_run
     /// # use bevy_window::Windows;
     /// # use bevy_math::Vec3;
     /// # use bevy_ecs::prelude::Res;
     /// # use bevy_render::prelude::{PerspectiveCameraBundle};
     /// # use bevy_asset::Handle;
-    /// # fn my_system(windows: Res<Windows>) {
-    /// # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
-    /// let window = windows.get_primary().unwrap();
-    /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
-    /// camera.world_to_screen(&*window, global_transform, world_pos).unwrap();
-    /// # }
+    /// fn my_system(windows: Res<Windows>) {
+    ///     // ...
+    ///     # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
+    ///     let window = windows.get(camera.target.get_window().unwrap()).unwrap();
+    ///     # let world_pos = Vec3::default();
+    ///     camera.world_to_screen(window, global_transform, world_pos).unwrap();
+    /// }
     /// ```
-    /// If you have a [`RenderTarget`], you can instead use [`RenderTarget::as_sized_target`]:
+    ///
+    /// If you only have the [`Camera`] or the [`RenderTarget`], you can instead use
+    /// [`RenderTarget::as_sized_target`]:
+    ///
     /// ```no_run
     /// # use bevy_window::Windows;
     /// # use bevy_math::Vec3;
     /// # use bevy_ecs::prelude::Res;
     /// # use bevy_asset::Assets;
     /// # use bevy_render::prelude::{Image, PerspectiveCameraBundle};
-    /// # fn my_system(windows: Res<Windows>, images: Assets<Image>) {
-    /// # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
-    /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
-    /// let sized_target = camera.target.as_sized_target(&*windows, &images).unwrap();
-    /// camera.world_to_screen(&sized_target, global_transform, world_pos).unwrap();
-    /// # }
+    /// fn my_system(windows: Res<Windows>, images: Assets<Image>) {
+    ///     # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
+    ///     # let world_pos = Vec3::default();
+    ///     // ...
+    ///     let sized_target = camera.target.as_sized_target(&*windows, &images).unwrap();
+    ///     camera.world_to_screen(&sized_target, global_transform, world_pos).unwrap();
+    /// }
     /// ```
+    ///
+    /// Note that the second example uses dynamic dispatch via a trait object, whereas the first
+    /// method uses static dispatch and may be faster. In addition, the first example only requires
+    ///
     /// To get the coordinates in Normalized Device Coordinates, you should use
     /// [`world_to_ndc`](Self::world_to_ndc).
     pub fn world_to_screen(
