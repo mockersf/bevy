@@ -117,6 +117,14 @@ impl SizedTarget for Window {
         Some(Vec2::new(self.width(), self.height()))
     }
 }
+impl SizedTarget for &dyn SizedTarget {
+    fn get_physical_size(&self) -> Option<UVec2> {
+        (*self).get_physical_size()
+    }
+    fn get_logical_size(&self) -> Option<Vec2> {
+        (*self).get_logical_size()
+    }
+}
 
 #[derive(Debug, Clone, Copy, Reflect, Serialize, Deserialize)]
 #[reflect_value(Serialize, Deserialize)]
@@ -139,23 +147,38 @@ impl Camera {
     ///
     /// ## Examples
     /// If you have an [`Image`] or [`Window`], you can pass them into the function as the target:
-    /// ```
-    /// # let PerspectiveCameraBundle{ camera, global_transform} = PerspectiveCameraBundle::new_3D()
-    /// let window = windows.get(window_handle).unwrap();
+    /// ```no_run
+    /// # use bevy_window::Windows;
+    /// # use bevy_math::Vec3;
+    /// # use bevy_ecs::prelude::Res;
+    /// # use bevy_render::prelude::{PerspectiveCameraBundle};
+    /// # use bevy_asset::Handle;
+    /// # fn my_system(windows: Res<Windows>) {
+    /// # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
+    /// let window = windows.get_primary().unwrap();
     /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
-    /// camera.world_to_screen(window, global_transform, world_pos).unwrap();
+    /// camera.world_to_screen(&*window, global_transform, world_pos).unwrap();
+    /// # }
     /// ```
     /// If you have a [`RenderTarget`], you can instead use [`RenderTarget::as_sized_target`]:
-    /// ```
+    /// ```no_run
+    /// # use bevy_window::Windows;
+    /// # use bevy_math::Vec3;
+    /// # use bevy_ecs::prelude::Res;
+    /// # use bevy_asset::Assets;
+    /// # use bevy_render::prelude::{Image, PerspectiveCameraBundle};
+    /// # fn my_system(windows: Res<Windows>, images: Assets<Image>) {
+    /// # let PerspectiveCameraBundle{ camera, ref global_transform, ..} = PerspectiveCameraBundle::new_3d();
     /// let world_pos = Vec3::new(0.0, 0.0, -10.0);
-    /// let sized_target = render_target.as_sized_target(windows, images);
-    /// camera.world_to_screen(sized_target, global_transform, world_pos).unwrap();
+    /// let sized_target = camera.target.as_sized_target(&*windows, &images).unwrap();
+    /// camera.world_to_screen(&sized_target, global_transform, world_pos).unwrap();
+    /// # }
     /// ```
     /// To get the coordinates in Normalized Device Coordinates, you should use
     /// [`world_to_ndc`](Self::world_to_ndc).
     pub fn world_to_screen(
         &self,
-        target: impl SizedTarget,
+        target: &impl SizedTarget,
         camera_transform: &GlobalTransform,
         world_position: Vec3,
     ) -> Option<Vec2> {
