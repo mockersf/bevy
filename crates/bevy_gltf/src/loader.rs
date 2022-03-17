@@ -1,5 +1,4 @@
 use anyhow::Result;
-use bevy_animation_rig::{SkinnedMesh, SkinnedMeshInverseBindposes, SKINNED_MESH_PIPELINE_HANDLE};
 use bevy_asset::{
     AssetIoError, AssetLoader, AssetPath, BoxedFuture, Handle, LoadContext, LoadedAsset,
 };
@@ -25,6 +24,10 @@ use bevy_render::{
         Camera, Camera2d, Camera3d, CameraProjection, OrthographicProjection, PerspectiveProjection,
     },
     color::Color,
+    mesh::{
+        skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
+        Indices, Mesh, VertexAttributeValues,
+    },
     mesh::{Indices, Mesh, VertexAttributeValues},
     pipeline::{PrimitiveTopology, RenderPipeline, RenderPipelines},
     prelude::{Color, Texture},
@@ -262,18 +265,20 @@ async fn load_gltf<'a, 'b>(
             //     mesh.insert_attribute(Mesh::ATTRIBUTE_COLOR, vertex_attribute);
             // }
 
-            if let Some(vertex_attribute) = reader
-                .read_joints(0)
-                .map(|v| VertexAttributeValues::Uint16x4(v.into_u16().collect()))
-            {
-                mesh.set_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, vertex_attribute);
+            if let Some(iter) = reader.read_joints(0) {
+                let vertex_attribute = VertexAttributeValues::Uint32x4(
+                    iter.into_u16()
+                        .map(|v| [v[0] as u32, v[1] as u32, v[2] as u32, v[3] as u32])
+                        .collect(),
+                );
+                mesh.insert_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, vertex_attribute);
             }
 
             if let Some(vertex_attribute) = reader
                 .read_weights(0)
                 .map(|v| VertexAttributeValues::Float32x4(v.into_f32().collect()))
             {
-                mesh.set_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, vertex_attribute);
+                mesh.insert_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, vertex_attribute);
             }
 
             if let Some(indices) = reader.read_indices() {
@@ -415,7 +420,7 @@ async fn load_gltf<'a, 'b>(
         .skins()
         .map(|gltf_skin| {
             let reader = gltf_skin.reader(|buffer| Some(&buffer_data[buffer.index()]));
-            let inverse_bindposes = reader
+            let inverse_bindposes: Vec<Mat4> = reader
                 .read_inverse_bind_matrices()
                 .unwrap()
                 .map(|mat| Mat4::from_cols_array_2d(&mat))
@@ -423,7 +428,7 @@ async fn load_gltf<'a, 'b>(
 
             load_context.set_labeled_asset(
                 &skin_label(&gltf_skin),
-                LoadedAsset::new(SkinnedMeshInverseBindposes(inverse_bindposes)),
+                LoadedAsset::new(SkinnedMeshInverseBindposes::from(inverse_bindposes)),
             )
         })
         .collect();
@@ -468,10 +473,10 @@ async fn load_gltf<'a, 'b>(
                 .map(|node| node_index_to_entity_map[&node.index()])
                 .collect();
 
-            entity.insert(SkinnedMesh::new(
-                skinned_mesh_inverse_bindposes[skin_index].clone(),
-                joint_entities,
-            ));
+            entity.insert(SkinnedMesh {
+                inverse_bindposes: skinned_mesh_inverse_bindposes[skin_index].clone(),
+                joints: joint_entities,
+            });
         }
 
         let scene_handle = load_context
@@ -728,24 +733,14 @@ fn load_node(
                     load_material(&material, load_context);
                 }
 
-                let mut node = parent.spawn();
-
-                let mut pipeline = PBR_PIPELINE_HANDLE.typed();
-
-                // Mark for adding skinned mesh
-                if let Some(skin) = gltf_node.skin() {
-                    entity_to_skin_index_map.insert(node.id(), skin.index());
-                    pipeline = SKINNED_MESH_PIPELINE_HANDLE.typed();
-                }
-
                 let primitive_label = primitive_label(&mesh, &primitive);
+                let bounds = primitive.bounding_box();
                 let mesh_asset_path =
                     AssetPath::new_ref(load_context.path(), Some(&primitive_label));
                 let material_asset_path =
                     AssetPath::new_ref(load_context.path(), Some(&material_label));
 
-                let bounds = primitive.bounding_box();
-                parent
+                let node = parent
                     .spawn_bundle(PbrBundle {
                         mesh: load_context.get_handle(mesh_asset_path),
                         material: load_context.get_handle(material_asset_path),
@@ -754,7 +749,13 @@ fn load_node(
                     .insert(Aabb::from_min_max(
                         Vec3::from_slice(&bounds.min),
                         Vec3::from_slice(&bounds.max),
-                    ));
+                    ))
+                    .id();
+
+                // Mark for adding skinned mesh
+                if let Some(skin) = gltf_node.skin() {
+                    entity_to_skin_index_map.insert(node, skin.index());
+                }
             }
         }
 

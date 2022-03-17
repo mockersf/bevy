@@ -1,6 +1,6 @@
 use crate::{
     AlphaMode, DrawMesh, MeshPipeline, MeshPipelineKey, MeshUniform, SetMeshBindGroup,
-    SetMeshViewBindGroup,
+    SetMeshViewBindGroup, SetSkinnedMeshBindGroup,
 };
 use bevy_app::{App, Plugin};
 use bevy_asset::{AddAsset, Asset, AssetServer, Handle};
@@ -245,11 +245,9 @@ impl<M: SpecializedMaterial> SpecializedMeshPipeline for MaterialPipeline<M> {
         if let Some(fragment_shader) = &self.fragment_shader {
             descriptor.fragment.as_mut().unwrap().shader = fragment_shader.clone();
         }
-        descriptor.layout = Some(vec![
-            self.mesh_pipeline.view_layout.clone(),
-            self.material_layout.clone(),
-            self.mesh_pipeline.mesh_layout.clone(),
-        ]);
+
+        let descriptor_layout = descriptor.layout.as_mut().unwrap();
+        descriptor_layout.insert(1, self.material_layout.clone());
 
         M::specialize(&mut descriptor, key.material_key, layout)?;
         Ok(descriptor)
@@ -277,6 +275,7 @@ type DrawMaterial<M> = (
     SetMeshViewBindGroup<0>,
     SetMaterialBindGroup<M, 1>,
     SetMeshBindGroup<2>,
+    SetSkinnedMeshBindGroup<3>,
     DrawMesh,
 );
 

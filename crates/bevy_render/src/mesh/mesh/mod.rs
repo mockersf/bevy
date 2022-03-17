@@ -1,4 +1,6 @@
 mod conversions;
+pub mod skinning;
+pub use wgpu::PrimitiveTopology;
 
 use crate::{
     primitives::Aabb,
@@ -14,8 +16,8 @@ use bevy_utils::{EnumVariantMeta, Hashed};
 use std::{collections::BTreeMap, hash::Hash};
 use thiserror::Error;
 use wgpu::{
-    util::BufferInitDescriptor, BufferUsages, IndexFormat, PrimitiveTopology, VertexAttribute,
-    VertexFormat, VertexStepMode,
+    util::BufferInitDescriptor, BufferUsages, IndexFormat, VertexAttribute, VertexFormat,
+    VertexStepMode,
 };
 
 pub const INDEX_BUFFER_ASSET_INDEX: u64 = 0;
@@ -77,8 +79,9 @@ impl Mesh {
     pub const ATTRIBUTE_JOINT_WEIGHT: MeshVertexAttribute =
         MeshVertexAttribute::new("Vertex_JointWeight", 5, VertexFormat::Float32x4);
     /// Per vertex joint transform matrix index. Use in conjunction with [`Mesh::insert_attribute`]
+    /// TODO: This could fit in a Uint16x4 instead of a Uint32x4
     pub const ATTRIBUTE_JOINT_INDEX: MeshVertexAttribute =
-        MeshVertexAttribute::new("Vertex_JointIndex", 6, VertexFormat::Uint32);
+        MeshVertexAttribute::new("Vertex_JointIndex", 6, VertexFormat::Uint32x4);
 
     /// Construct a new mesh. You need to provide a [`PrimitiveTopology`] so that the
     /// renderer knows how to treat the vertex data. Most of the time this will be
