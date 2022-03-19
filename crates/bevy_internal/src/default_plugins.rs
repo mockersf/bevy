@@ -41,7 +41,7 @@ impl PluginGroup for DefaultPlugins {
         group.add(bevy_winit::WinitPlugin::default());
 
         #[cfg(feature = "bevy_render")]
-        group.add(RenderPlugin::default());
+        group.add(bevy_render::RenderPlugin::default());
 
         #[cfg(feature = "bevy_render")]
         group.add(bevy_render::RenderPlugin::default());

@@ -3,18 +3,13 @@ use bevy_asset::{
     AssetIoError, AssetLoader, AssetPath, BoxedFuture, Handle, LoadContext, LoadedAsset,
 };
 use bevy_core::Name;
-use bevy_ecs::{entity::Entity, world::World};
-use bevy_ecs::{prelude::FromWorld, world::World};
+use bevy_ecs::{entity::Entity, prelude::FromWorld, world::World};
 use bevy_hierarchy::{BuildWorldChildren, WorldChildBuilder};
 use bevy_log::warn;
 use bevy_log::warn;
 use bevy_math::Mat4;
 use bevy_math::{Mat4, Quat, Vec3};
 use bevy_math::{Mat4, Vec3};
-use bevy_pbr::{
-    prelude::{PbrBundle, StandardMaterial},
-    render_graph::PBR_PIPELINE_HANDLE,
-};
 use bevy_pbr::{
     AlphaMode, DirectionalLight, DirectionalLightBundle, PbrBundle, PointLight, PointLightBundle,
     StandardMaterial,
@@ -28,14 +23,9 @@ use bevy_render::{
         skinning::{SkinnedMesh, SkinnedMeshInverseBindposes},
         Indices, Mesh, VertexAttributeValues,
     },
-    mesh::{Indices, Mesh, VertexAttributeValues},
-    pipeline::{PrimitiveTopology, RenderPipeline, RenderPipelines},
-    prelude::{Color, Texture},
     primitives::{Aabb, Frustum},
-    render_graph::base,
     render_resource::{AddressMode, FilterMode, PrimitiveTopology, SamplerDescriptor},
     renderer::RenderDevice,
-    texture::{AddressMode, FilterMode, ImageType, SamplerDescriptor, TextureError, TextureFormat},
     texture::{CompressedImageFormats, Image, ImageType, TextureError},
     view::VisibleEntities,
 };
