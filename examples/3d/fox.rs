@@ -21,6 +21,7 @@ fn main() {
         )
         .add_system(setup_scene_once_loaded)
         .add_system(gltf_animation_driver)
+        .add_system(animate_light_direction)
         .run();
 }
 
@@ -86,6 +87,8 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut scene_spawner: ResMut<SceneSpawner>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // Insert a resource with the current scene information
     commands.insert_resource(CurrentScene {
@@ -106,14 +109,34 @@ fn setup(
         ..Default::default()
     });
 
-    // Add a directional light
-    commands.spawn_bundle(DirectionalLightBundle::default());
+    // plane
+    commands.spawn_bundle(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Plane { size: 5000.0 })),
+        material: materials.add(Color::rgb(0.3, 0.5, 0.3).into()),
+        ..default()
+    });
+    commands.spawn_bundle(DirectionalLightBundle {
+        directional_light: DirectionalLight {
+            shadows_enabled: true,
+            ..default()
+        },
+        ..default()
+    });
 }
 
 // Switch the scene to the next one every 10 seconds
 fn switch_scene(
     mut commands: Commands,
-    scene_root: Query<Entity, (Without<Camera>, Without<DirectionalLight>, Without<Parent>)>,
+    scene_root: Query<
+        Entity,
+        (
+            Without<Camera>,
+            Without<DirectionalLight>,
+            Without<PointLight>,
+            Without<Parent>,
+            Without<Handle<Mesh>>,
+        ),
+    >,
     mut camera: Query<&mut Transform, With<Camera>>,
     mut current: Local<usize>,
     mut current_scene: ResMut<CurrentScene>,
@@ -232,5 +255,19 @@ fn gltf_animation_driver(
         if !moved {
             current_animation.start_time = time.seconds_since_startup();
         }
+    }
+}
+
+fn animate_light_direction(
+    time: Res<Time>,
+    mut query: Query<&mut Transform, With<DirectionalLight>>,
+) {
+    for mut transform in query.iter_mut() {
+        transform.rotation = Quat::from_euler(
+            EulerRot::ZYX,
+            0.0,
+            time.seconds_since_startup() as f32 * std::f32::consts::TAU / 10.0,
+            -std::f32::consts::FRAC_PI_4,
+        );
     }
 }
