@@ -1,4 +1,10 @@
-use bevy::{core::FixedTimestep, ecs::schedule::SystemSet, prelude::*, render::camera::Camera3d};
+use bevy::{
+    core::FixedTimestep,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
+    ecs::schedule::SystemSet,
+    prelude::*,
+    render::camera::Camera3d,
+};
 use rand::Rng;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
@@ -12,6 +18,8 @@ fn main() {
         .insert_resource(Msaa { samples: 4 })
         .init_resource::<Game>()
         .add_plugins(DefaultPlugins)
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
+        .add_plugin(LogDiagnosticsPlugin::default())
         .add_state(GameState::Playing)
         .add_startup_system(setup_cameras)
         .add_system_set(SystemSet::on_enter(GameState::Playing).with_system(setup))
