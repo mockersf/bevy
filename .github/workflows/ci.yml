@@ -313,7 +313,7 @@ jobs:
           for example in .github/example-run/*.ron; do
             example_name=`basename $example .ron`
             echo "running $example_name - "`date`
-            time CI_TESTING_CONFIG=$example xvfb-run cargo run --example $example_name --features "bevy_ci_testing"
+            time CI_TESTING_CONFIG=$example cargo run --example $example_name --features "bevy_ci_testing"
             sleep 10
           done
 
