@@ -22,6 +22,7 @@ trace_chrome = [ "bevy_log/tracing-chrome" ]
 trace_tracy = ["bevy_render/tracing-tracy", "bevy_log/tracing-tracy" ]
 wgpu_trace = ["bevy_render/wgpu_trace"]
 debug_asset_server = ["bevy_asset/debug_asset_server"]
+examples_in_doc = ["bevy_examples"]
 
 # Image format support for texture loading (PNG and HDR are enabled by default)
 hdr = ["bevy_render/hdr"]
@@ -95,6 +96,9 @@ bevy_text = { path = "../bevy_text", optional = true, version = "0.8.0-dev" }
 bevy_ui = { path = "../bevy_ui", optional = true, version = "0.8.0-dev" }
 bevy_winit = { path = "../bevy_winit", optional = true, version = "0.8.0-dev" }
 bevy_gilrs = { path = "../bevy_gilrs", optional = true, version = "0.8.0-dev" }
+
+# doc helper
+bevy_examples = { path = "../bevy_examples", optional = true, version = "0.8.0-dev" }
 
 [target.'cfg(target_os = "android")'.dependencies]
 ndk-glue = {version = "0.5", features = ["logger"]}

@@ -1,0 +1,10 @@
+[package]
+name = "example-builder"
+version = "0.1.0"
+edition = "2021"
+description = "compare spans for Bevy"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+toml = "0.5.8"

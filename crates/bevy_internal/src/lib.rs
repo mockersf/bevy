@@ -168,3 +168,6 @@ pub mod dynamic_plugin {
 
 #[cfg(target_os = "android")]
 pub use ndk_glue;
+
+#[cfg(feature = "examples_in_doc")]
+pub use bevy_examples;
