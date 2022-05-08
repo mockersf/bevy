@@ -361,11 +361,9 @@ pub fn winit_runner_with(mut app: App) {
                     }
                     WindowEvent::CursorMoved { position, .. } => {
                         let mut cursor_moved_events = world.resource_mut::<Events<CursorMoved>>();
-                        let winit_window = winit_windows.get_window(window_id).unwrap();
-                        let inner_size = winit_window.inner_size();
 
                         // move origin to bottom left
-                        let y_position = inner_size.height as f64 - position.y;
+                        let y_position = window.physical_height() as f64 - position.y;
 
                         let physical_position = DVec2::new(position.x, y_position);
                         window
