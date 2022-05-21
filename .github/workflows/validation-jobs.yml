@@ -68,10 +68,15 @@ jobs:
             cd .github/start-wasm-example
             # Fails to open a webgl2 render context in webkit in CI for all examples
             # webkit doesn't work in 3D for now
-            xvfb-run npx playwright test --headed --project firefox chromium
+            if [ "$example_name" == "lighting" ]
+            then
+              xvfb-run npx playwright test --headed --project firefox chromium
+            else
+              xvfb-run npx playwright test --headed
+              mv screenshot-webkit.png screenshot-$example_name-webkit.png
+            fi
             mv screenshot-firefox.png screenshot-$example_name-firefox.png
             mv screenshot-chromium.png screenshot-$example_name-chromium.png
-            # mv screenshot-webkit.png screenshot-$example_name-webkit.png
             cd ../..
           done
 
