@@ -1,11 +1,7 @@
 name: validation jobs
 
 on:
-  push:
-     branches:
-       - staging
-       - trying
-       - main
+  push
 
 env:
   CARGO_TERM_COLOR: always
