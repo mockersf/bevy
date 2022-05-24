@@ -58,7 +58,7 @@ jobs:
           # start a webserver
           python3 -m http.server --directory examples/wasm &
 
-          cargo run -p build-wasm-example -- --browsers chromium --browsers firefox --frames 10 --test shapes lighting ui
+          xvfb-run cargo run -p build-wasm-example -- --browsers chromium --browsers firefox --frames 10 --test shapes lighting ui
 
       - name: Save screenshots
         uses: actions/upload-artifact@v3
