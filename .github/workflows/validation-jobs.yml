@@ -49,8 +49,7 @@ jobs:
 
       - name: First WASM build
         run: |
-          cp .github/start-wasm-example/test-wasm.ron ci_testing_config.ron
-          cargo build --release --example ui --features "bevy_ci_testing" --target wasm32-unknown-unknown
+          cargo build --release --example ui --target wasm32-unknown-unknown
 
       - name: Run examples
         shell: bash
