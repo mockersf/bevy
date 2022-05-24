@@ -58,27 +58,7 @@ jobs:
           # start a webserver
           python3 -m http.server --directory examples/wasm &
 
-          # build the example in wasm
-          cp .github/start-wasm-example/test-wasm.ron ci_testing_config.ron
-          for example_name in shapes lighting ui
-          do
-            echo "running $example_name - "`date`
-            cargo build --release --example $example_name --features "bevy_ci_testing" --target wasm32-unknown-unknown
-            wasm-bindgen --out-dir examples/wasm/target --out-name wasm_example --target web target/wasm32-unknown-unknown/release/examples/$example_name.wasm
-            cd .github/start-wasm-example
-            # Fails to open a webgl2 render context in webkit in CI for all examples
-            # webkit doesn't work in 3D for now
-            if [ "$example_name" == "lighting" ]
-            then
-              xvfb-run npx playwright test --headed --project firefox chromium
-            else
-              xvfb-run npx playwright test --headed
-              mv screenshot-webkit.png screenshot-$example_name-webkit.png
-            fi
-            mv screenshot-firefox.png screenshot-$example_name-firefox.png
-            mv screenshot-chromium.png screenshot-$example_name-chromium.png
-            cd ../..
-          done
+          cargo run -p build-wasm-example -- --browsers chromium firefox --frames 10 --test shapes lighting ui
 
       - name: Save screenshots
         uses: actions/upload-artifact@v3
