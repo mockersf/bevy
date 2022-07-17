@@ -27,6 +27,10 @@ jobs:
             target/
           key: ${{ runner.os }}-windows-run-examples-${{ hashFiles('**/Cargo.toml') }}
 
+      - name: Free Space
+        run: |
+          fsutil volume diskfree d:
+
       - name: Build bevy
         run: |
           WGPU_BACKEND=dx12 cargo build --features "bevy_ci_testing"
