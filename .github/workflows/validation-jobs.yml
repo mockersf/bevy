@@ -29,7 +29,7 @@ jobs:
 
       - name: Build bevy
         run: |
-          cargo build --features "bevy_ci_testing"
+          WGPU_BACKEND=dx12 cargo build --features "bevy_ci_testing"
 
       - name: Run examples
         shell: bash
