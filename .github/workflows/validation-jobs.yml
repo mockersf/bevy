@@ -27,6 +27,15 @@ jobs:
             target/
           key: ${{ runner.os }}-windows-run-examples-${{ hashFiles('**/Cargo.toml') }}
 
+      - name: Free Space (before)
+        run: |
+          fsutil volume diskfree d:
+
+      - name: cleanup
+        shell: bash
+        run: |
+          rm -rf C:\Android\android-sdk
+
       - name: Free Space
         run: |
           fsutil volume diskfree d:
