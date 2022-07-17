@@ -32,8 +32,9 @@ jobs:
           fsutil volume diskfree d:
 
       - name: Build bevy
+        shell: bash
         run: |
-          WGPU_BACKEND=dx12 cargo build --features "bevy_ci_testing"
+          cargo build --features "bevy_ci_testing"
 
       - name: Run examples
         shell: bash
