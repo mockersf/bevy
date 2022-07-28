@@ -1309,6 +1309,16 @@ category = "Stress Tests"
 wasm = true
 
 [[example]]
+name = "many_text"
+path = "examples/stress_tests/many_text.rs"
+
+[package.metadata.example.many_text]
+name = "Many Text"
+description = "Test rendering of many text elements, either in UI or 2D"
+category = "Stress Tests"
+wasm = true
+
+[[example]]
 name = "transform_hierarchy"
 path = "examples/stress_tests/transform_hierarchy.rs"
 
