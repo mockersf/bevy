@@ -12,6 +12,7 @@ use crate::{
 use bevy_asset::{AssetEvent, Assets, Handle};
 use bevy_ecs::event::EventReader;
 use bevy_ecs::system::{Res, ResMut};
+use bevy_log::debug;
 use bevy_utils::{default, tracing::error, Entry, HashMap, HashSet};
 use std::{hash::Hash, iter::FusedIterator, mem, ops::Deref, sync::Arc};
 use thiserror::Error;
@@ -137,6 +138,10 @@ impl ShaderCache {
                     shader_defs.push(String::from("NO_STORAGE_BUFFERS_SUPPORT"));
                 }
 
+                debug!(
+                    "processing shader {:?}, with shader defs {:?}",
+                    handle, shader_defs
+                );
                 let processed = self.processor.process(
                     shader,
                     &shader_defs,
