@@ -655,6 +655,10 @@ impl World {
         self.query_filtered::<Q, ()>()
     }
 
+    pub fn roquery<Q: WorldQuery>(&self) -> QueryState<Q, ()> {
+        self.roquery_filtered::<Q, ()>()
+    }
+
     /// Returns [`QueryState`] for the given filtered [`WorldQuery`], which is used to efficiently
     /// run queries on the [`World`] by storing and reusing the [`QueryState`].
     /// ```
@@ -677,6 +681,10 @@ impl World {
     #[inline]
     pub fn query_filtered<Q: WorldQuery, F: ReadOnlyWorldQuery>(&mut self) -> QueryState<Q, F> {
         QueryState::new(self)
+    }
+
+    pub fn roquery_filtered<Q: WorldQuery, F: ReadOnlyWorldQuery>(&self) -> QueryState<Q, F> {
+        QueryState::ronew(self)
     }
 
     /// Returns an iterator of entities that had components of type `T` removed

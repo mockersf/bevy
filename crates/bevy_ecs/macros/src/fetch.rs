@@ -320,6 +320,12 @@ pub fn derive_world_query_impl(ast: DeriveInput) -> TokenStream {
                         #(#ignored_field_idents: Default::default(),)*
                     }
                 }
+                fn roinit_state(world: &#path::world::World) -> #state_struct_name #user_ty_generics {
+                    #state_struct_name {
+                        #(#field_idents: <#field_types>::roinit_state(world),)*
+                        #(#ignored_field_idents: Default::default(),)*
+                    }
+                }
 
                 fn matches_component_set(state: &Self::State, _set_contains_id: &impl Fn(#path::component::ComponentId) -> bool) -> bool {
                     true #(&& <#field_types>::matches_component_set(&state.#field_idents, _set_contains_id))*

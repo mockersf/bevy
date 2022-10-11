@@ -430,6 +430,7 @@ pub unsafe trait WorldQuery: for<'w> WorldQueryGats<'w> {
     );
 
     fn init_state(world: &mut World) -> Self::State;
+    fn roinit_state(world: &World) -> Self::State;
     fn matches_component_set(
         state: &Self::State,
         set_contains_id: &impl Fn(ComponentId) -> bool,
@@ -535,6 +536,7 @@ unsafe impl WorldQuery for Entity {
     }
 
     fn init_state(_world: &mut World) {}
+    fn roinit_state(_world: &World) {}
 
     fn matches_component_set(
         _state: &Self::State,
@@ -682,6 +684,9 @@ unsafe impl<T: Component> WorldQuery for &T {
 
     fn init_state(world: &mut World) -> ComponentId {
         world.init_component::<T>()
+    }
+    fn roinit_state(world: &World) -> ComponentId {
+        world.component_id::<T>().unwrap()
     }
 
     fn matches_component_set(
@@ -878,6 +883,9 @@ unsafe impl<'__w, T: Component> WorldQuery for &'__w mut T {
     fn init_state(world: &mut World) -> ComponentId {
         world.init_component::<T>()
     }
+    fn roinit_state(world: &World) -> ComponentId {
+        world.component_id::<T>().unwrap()
+    }
 
     fn matches_component_set(
         &state: &ComponentId,
@@ -1015,6 +1023,9 @@ unsafe impl<T: WorldQuery> WorldQuery for Option<T> {
 
     fn init_state(world: &mut World) -> T::State {
         T::init_state(world)
+    }
+    fn roinit_state(world: &World) -> T::State {
+        T::roinit_state(world)
     }
 
     fn matches_component_set(
@@ -1271,6 +1282,9 @@ unsafe impl<T: Component> WorldQuery for ChangeTrackers<T> {
     fn init_state(world: &mut World) -> ComponentId {
         world.init_component::<T>()
     }
+    fn roinit_state(world: &World) -> ComponentId {
+        world.component_id::<T>().unwrap()
+    }
 
     fn matches_component_set(
         &id: &ComponentId,
@@ -1376,6 +1390,9 @@ macro_rules! impl_tuple_fetch {
 
             fn init_state(_world: &mut World) -> Self::State {
                 ($($name::init_state(_world),)*)
+            }
+            fn roinit_state(_world: & World) -> Self::State {
+                ($($name::roinit_state(_world),)*)
             }
 
             fn matches_component_set(state: &Self::State, _set_contains_id: &impl Fn(ComponentId) -> bool) -> bool {
@@ -1518,6 +1535,9 @@ macro_rules! impl_anytuple_fetch {
             fn init_state(_world: &mut World) -> Self::State {
                 ($($name::init_state(_world),)*)
             }
+            fn roinit_state(_world: & World) -> Self::State {
+                ($($name::roinit_state(_world),)*)
+            }
 
             fn matches_component_set(_state: &Self::State, _set_contains_id: &impl Fn(ComponentId) -> bool) -> bool {
                 let ($($name,)*) = _state;
@@ -1596,6 +1616,9 @@ unsafe impl<Q: WorldQuery> WorldQuery for NopWorldQuery<Q> {
 
     fn init_state(world: &mut World) -> Self::State {
         Q::init_state(world)
+    }
+    fn roinit_state(world: &World) -> Self::State {
+        Q::roinit_state(world)
     }
 
     fn matches_component_set(
