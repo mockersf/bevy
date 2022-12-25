@@ -19,7 +19,7 @@ members = [
   "examples/ios",
   "tools/ci",
   "tools/spancmp",
-  "tools/build-example-pages",
+  "tools/build-template-docs",
   "tools/build-wasm-example",
   "errors",
 ]
@@ -102,14 +102,41 @@ x11 = ["bevy_internal/x11"]
 # Enable rendering of font glyphs using subpixel accuracy
 subpixel_glyph_atlas = ["bevy_internal/subpixel_glyph_atlas"]
 
-# Enable systems that allow for automated testing on CI
 bevy_ci_testing = ["bevy_internal/bevy_ci_testing"]
 
 # Enable the "debug asset server" for hot reloading internal assets
 debug_asset_server = ["bevy_internal/debug_asset_server"]
 
-# Enable animation support, and glTF animation loading
 animation = ["bevy_internal/animation"]
+
+[package.metadata.feature.animation]
+description = "Enable animation support, and glTF animation loading"
+
+[package.metadata.feature.basis-universal]
+description = "Image format support for texture loading"
+
+[package.metadata.feature.bevy_animation]
+description = "Animation support"
+
+[package.metadata.feature.bevy_asset]
+description = "Asset support"
+
+[package.metadata.feature.bevy_audio]
+description = "Audio support"
+
+[package.metadata.feature.bevy_ci_testing]
+description = "Enable systems that allow for automated testing on CI"
+
+[package.metadata.feature.bevy_core_pipeline]
+description = "Core rendering pipeline"
+
+[package.metadata.feature.bevy_dynamic_plugin]
+description = "Provides dynamic plugin loading capabilities for non-wasm platforms"
+
+[package.metadata.feature.bevy_gilrs]
+description = "Gamepad support through gilrs"
+
+
 
 [dependencies]
 bevy_dylib = { path = "crates/bevy_dylib", version = "0.9.0", default-features = false, optional = true }

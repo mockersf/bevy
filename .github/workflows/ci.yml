@@ -238,18 +238,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: cargo run -p build-example-pages -- check-missing
+      - run: cargo run -p build-template-docs -- check-missing
 
   check-examples-readme-update-needed:
     needs: check-missing-examples-in-docs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: cargo run -p build-example-pages -- update
+      - run: cargo run -p build-template-docs -- update
       - name: Check for modified files
         run: |
           echo "if this step fails, run the following command and commit the changed file on your PR."
-          echo " > cargo run -p build-example-pages -- update"
+          echo " > cargo run -p build-template-docs -- update"
           git diff --quiet HEAD --
 
   check-unused-dependencies:
