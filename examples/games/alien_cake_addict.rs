@@ -15,6 +15,7 @@ enum GameState {
 struct BonusSpawnTimer(Timer);
 
 fn main() {
+    panic!();
     App::new()
         .init_resource::<Game>()
         .insert_resource(BonusSpawnTimer(Timer::from_seconds(
