@@ -6,7 +6,7 @@ status = [
     "build-android",
     "markdownlint",
     "run-examples",
-    "run-examples-on-wasm",
+    "run-examples-on-wasm",fzef
     "check-doc",
     "check-missing-examples-in-docs",
     # "check-unused-dependencies",
