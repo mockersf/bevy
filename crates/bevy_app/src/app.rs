@@ -923,9 +923,7 @@ impl App {
     /// # Panics
     ///
     /// Panics if the `SubApp` doesn't exist.
-    pub fn sub_app_mut(&mut self, label: impl AppLabel + Debug) -> &mut App {
-        println!("sub_app_mut {label:?}");
-
+    pub fn sub_app_mut(&mut self, label: impl AppLabel) -> &mut App {
         match self.get_sub_app_mut(label) {
             Ok(app) => app,
             Err(label) => panic!("Sub-App with label '{:?}' does not exist", label.as_str()),
@@ -934,12 +932,7 @@ impl App {
 
     /// Retrieves a `SubApp` inside this [`App`] with the given label, if it exists. Otherwise returns
     /// an [`Err`] containing the given label.
-    pub fn get_sub_app_mut(
-        &mut self,
-        label: impl AppLabel + Debug,
-    ) -> Result<&mut App, AppLabelId> {
-        println!("get_sub_app_mut {label:?}");
-
+    pub fn get_sub_app_mut(&mut self, label: impl AppLabel) -> Result<&mut App, AppLabelId> {
         let label = label.as_label();
         self.sub_apps
             .get_mut(&label)
@@ -952,9 +945,7 @@ impl App {
     /// # Panics
     ///
     /// Panics if the `SubApp` doesn't exist.
-    pub fn sub_app(&self, label: impl AppLabel + Debug) -> &App {
-        println!("sub_app {label:?}");
-
+    pub fn sub_app(&self, label: impl AppLabel) -> &App {
         match self.get_sub_app(label) {
             Ok(app) => app,
             Err(label) => panic!("Sub-App with label '{:?}' does not exist", label.as_str()),
@@ -962,21 +953,18 @@ impl App {
     }
 
     /// Inserts an existing sub app into the app
-    pub fn insert_sub_app(&mut self, label: impl AppLabel + Debug, sub_app: SubApp) {
-        println!("insert_sub_app {label:?}");
+    pub fn insert_sub_app(&mut self, label: impl AppLabel, sub_app: SubApp) {
         self.sub_apps.insert(label.as_label(), sub_app);
     }
 
     /// Removes a sub app from the app. Returns [`None`] if the label doesn't exist.
-    pub fn remove_sub_app(&mut self, label: impl AppLabel + Debug) -> Option<SubApp> {
-        println!("remove_sub_app {label:?}");
+    pub fn remove_sub_app(&mut self, label: impl AppLabel) -> Option<SubApp> {
         self.sub_apps.remove(&label.as_label())
     }
 
     /// Retrieves a `SubApp` inside this [`App`] with the given label, if it exists. Otherwise returns
     /// an [`Err`] containing the given label.
-    pub fn get_sub_app(&self, label: impl AppLabel + Debug) -> Result<&App, impl AppLabel> {
-        println!("get_sub_app {label:?}");
+    pub fn get_sub_app(&self, label: impl AppLabel) -> Result<&App, impl AppLabel> {
         self.sub_apps
             .get(&label.as_label())
             .map(|sub_app| &sub_app.app)
