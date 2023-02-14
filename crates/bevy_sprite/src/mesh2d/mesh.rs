@@ -57,7 +57,10 @@ pub const MESH2D_SHADER_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 2971387252468633715);
 
 impl Plugin for Mesh2dRenderPlugin {
-    fn build(&self, app: &mut bevy_app::App) {
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
+        builder.add_plugin(UniformComponentPlugin::<Mesh2dUniform>::default());
+
+        let app = builder.app();
         load_internal_asset!(
             app,
             MESH2D_VERTEX_OUTPUT,
@@ -95,8 +98,6 @@ impl Plugin for Mesh2dRenderPlugin {
             Shader::from_wgsl
         );
         load_internal_asset!(app, MESH2D_SHADER_HANDLE, "mesh2d.wgsl", Shader::from_wgsl);
-
-        app.add_plugin(UniformComponentPlugin::<Mesh2dUniform>::default());
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

@@ -1,4 +1,4 @@
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{load_internal_asset, Handle, HandleUntyped};
 use bevy_core_pipeline::prelude::Camera3d;
 use bevy_ecs::{prelude::Component, query::With};
@@ -19,7 +19,9 @@ pub const ENVIRONMENT_MAP_SHADER_HANDLE: HandleUntyped =
 pub struct EnvironmentMapPlugin;
 
 impl Plugin for EnvironmentMapPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<EnvironmentMapLight>::default());
+        let app = builder.app();
         load_internal_asset!(
             app,
             ENVIRONMENT_MAP_SHADER_HANDLE,
@@ -27,8 +29,7 @@ impl Plugin for EnvironmentMapPlugin {
             Shader::from_wgsl
         );
 
-        app.register_type::<EnvironmentMapLight>()
-            .add_plugin(ExtractComponentPlugin::<EnvironmentMapLight>::default());
+        app.register_type::<EnvironmentMapLight>();
     }
 }
 

@@ -38,7 +38,8 @@ use bevy_tasks::tick_global_task_pools_on_main_thread;
 pub struct TypeRegistrationPlugin;
 
 impl Plugin for TypeRegistrationPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         app.register_type::<Entity>().register_type::<Name>();
 
         register_rust_types(app);
@@ -102,12 +103,14 @@ pub struct TaskPoolPlugin {
 }
 
 impl Plugin for TaskPoolPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
         // Setup the default bevy task pools
         self.task_pool_options.create_default_pools();
 
         #[cfg(not(target_arch = "wasm32"))]
-        app.add_system(tick_global_task_pools.in_base_set(bevy_app::CoreSet::Last));
+        builder
+            .app()
+            .add_system(tick_global_task_pools.in_base_set(bevy_app::CoreSet::Last));
     }
 }
 /// A dummy type that is [`!Send`](Send), to force systems to run on the main thread.
@@ -140,7 +143,8 @@ pub struct FrameCount(pub u32);
 pub struct FrameCountPlugin;
 
 impl Plugin for FrameCountPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         app.init_resource::<FrameCount>();
         app.add_system(update_frame_count.in_base_set(CoreSet::Last));
     }
@@ -157,9 +161,11 @@ mod tests {
 
     #[test]
     fn runs_spawn_local_tasks() {
-        let mut app = App::new();
-        app.add_plugin(TaskPoolPlugin::default());
-        app.add_plugin(TypeRegistrationPlugin::default());
+        let mut builder = AppBuilder::new();
+        builder
+            .add_plugin(TaskPoolPlugin::default())
+            .add_plugin(TypeRegistrationPlugin::default());
+        let mut app = builder.build();
 
         let (async_tx, async_rx) = crossbeam_channel::unbounded();
         AsyncComputeTaskPool::get()
@@ -191,10 +197,12 @@ mod tests {
 
     #[test]
     fn frame_counter_update() {
-        let mut app = App::new();
-        app.add_plugin(TaskPoolPlugin::default());
-        app.add_plugin(TypeRegistrationPlugin::default());
-        app.add_plugin(FrameCountPlugin::default());
+        let mut builder = AppBuilder::new();
+        builder
+            .add_plugin(TaskPoolPlugin::default())
+            .add_plugin(TypeRegistrationPlugin::default())
+            .add_plugin(FrameCountPlugin::default());
+        let mut app = builder.build();
         app.update();
 
         let frame_count = app.world.resource::<FrameCount>();

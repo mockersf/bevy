@@ -56,7 +56,7 @@ mod splash {
     pub struct SplashPlugin;
 
     impl Plugin for SplashPlugin {
-        fn build(&self, app: &mut App) {
+        fn build(&self, builder: &mut AppBuilder) {
             // As this plugin is managing the splash screen, it will focus on the state `GameState::Splash`
             app
                 // When entering the state, spawn everything needed for this screen
@@ -132,7 +132,7 @@ mod game {
     pub struct GamePlugin;
 
     impl Plugin for GamePlugin {
-        fn build(&self, app: &mut App) {
+        fn build(&self, builder: &mut AppBuilder) {
             app.add_system_to_schedule(OnEnter(GameState::Game), game_setup)
                 .add_system(game.on_update(GameState::Game))
                 .add_system_to_schedule(OnExit(GameState::Game), despawn_screen::<OnGameScreen>);
@@ -262,7 +262,7 @@ mod menu {
     pub struct MenuPlugin;
 
     impl Plugin for MenuPlugin {
-        fn build(&self, app: &mut App) {
+        fn build(&self, builder: &mut AppBuilder) {
             app
                 // At start, the menu is not enabled. This will be changed in `menu_setup` when
                 // entering the `GameState::Menu` state.

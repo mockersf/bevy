@@ -78,10 +78,11 @@ const FXAA_SHADER_HANDLE: HandleUntyped =
 /// Adds support for Fast Approximate Anti-Aliasing (FXAA)
 pub struct FxaaPlugin;
 impl Plugin for FxaaPlugin {
-    fn build(&self, app: &mut App) {
-        load_internal_asset!(app, FXAA_SHADER_HANDLE, "fxaa.wgsl", Shader::from_wgsl);
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Fxaa>::default());
+        let app = builder.app();
 
-        app.add_plugin(ExtractComponentPlugin::<Fxaa>::default());
+        load_internal_asset!(app, FXAA_SHADER_HANDLE, "fxaa.wgsl", Shader::from_wgsl);
 
         let render_app = match app.get_sub_app_mut(RenderApp) {
             Ok(render_app) => render_app,

@@ -66,7 +66,8 @@ pub enum YAxisOrientation {
 }
 
 impl Plugin for TextPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         app.add_asset::<Font>()
             .add_asset::<FontAtlasSet>()
             .register_type::<Text>()

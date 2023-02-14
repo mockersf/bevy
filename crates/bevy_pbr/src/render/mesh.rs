@@ -61,7 +61,10 @@ pub const SKINNING_HANDLE: HandleUntyped =
     HandleUntyped::weak_from_u64(Shader::TYPE_UUID, 13215291596265391738);
 
 impl Plugin for MeshRenderPlugin {
-    fn build(&self, app: &mut bevy_app::App) {
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
+        builder.add_plugin(UniformComponentPlugin::<MeshUniform>::default());
+
+        let app = builder.app();
         load_internal_asset!(
             app,
             MESH_VERTEX_OUTPUT,
@@ -95,8 +98,6 @@ impl Plugin for MeshRenderPlugin {
         );
         load_internal_asset!(app, MESH_SHADER_HANDLE, "mesh.wgsl", Shader::from_wgsl);
         load_internal_asset!(app, SKINNING_HANDLE, "skinning.wgsl", Shader::from_wgsl);
-
-        app.add_plugin(UniformComponentPlugin::<MeshUniform>::default());
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

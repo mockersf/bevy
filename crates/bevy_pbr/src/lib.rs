@@ -99,7 +99,18 @@ impl Default for PbrPlugin {
 }
 
 impl Plugin for PbrPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(MeshRenderPlugin)
+            .add_plugin(MaterialPlugin::<StandardMaterial> {
+                prepass_enabled: self.prepass_enabled,
+                ..Default::default()
+            })
+            .add_plugin(EnvironmentMapPlugin)
+            .add_plugin(ExtractResourcePlugin::<AmbientLight>::default())
+            .add_plugin(FogPlugin);
+
+        let app = builder.app();
         load_internal_asset!(
             app,
             PBR_TYPES_SHADER_HANDLE,
@@ -171,17 +182,10 @@ impl Plugin for PbrPlugin {
             .register_type::<PointLight>()
             .register_type::<PointLightShadowMap>()
             .register_type::<SpotLight>()
-            .add_plugin(MeshRenderPlugin)
-            .add_plugin(MaterialPlugin::<StandardMaterial> {
-                prepass_enabled: self.prepass_enabled,
-                ..Default::default()
-            })
-            .add_plugin(EnvironmentMapPlugin)
             .init_resource::<AmbientLight>()
             .init_resource::<GlobalVisiblePointLights>()
             .init_resource::<DirectionalLightShadowMap>()
             .init_resource::<PointLightShadowMap>()
-            .add_plugin(ExtractResourcePlugin::<AmbientLight>::default())
             .configure_sets(
                 (
                     SimulationLightSystems::AddClusters,
@@ -195,7 +199,6 @@ impl Plugin for PbrPlugin {
                 )
                     .in_base_set(CoreSet::PostUpdate),
             )
-            .add_plugin(FogPlugin)
             .add_system(add_clusters.in_set(SimulationLightSystems::AddClusters))
             .add_system(apply_system_buffers.in_set(SimulationLightSystems::AddClustersFlush))
             .add_system(

@@ -207,9 +207,10 @@ pub enum VisibilitySystems {
 pub struct VisibilityPlugin;
 
 impl Plugin for VisibilityPlugin {
-    fn build(&self, app: &mut bevy_app::App) {
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
         use VisibilitySystems::*;
 
+        let app = builder.app();
         app.configure_set(CalculateBounds.in_base_set(CoreSet::PostUpdate))
             // We add an AABB component in CaclulateBounds, which must be ready on the same frame.
             .add_system(apply_system_buffers.in_set(CalculateBoundsFlush))

@@ -49,7 +49,11 @@ pub enum SpriteSystem {
 }
 
 impl Plugin for SpritePlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(Mesh2dRenderPlugin)
+            .add_plugin(ColorMaterialPlugin);
+        let app = builder.app();
         let mut shaders = app.world.resource_mut::<Assets<Shader>>();
         let sprite_shader = Shader::from_wgsl(include_str!("render/sprite.wgsl"));
         shaders.set_untracked(SPRITE_SHADER_HANDLE, sprite_shader);
@@ -57,9 +61,7 @@ impl Plugin for SpritePlugin {
             .register_asset_reflect::<TextureAtlas>()
             .register_type::<Sprite>()
             .register_type::<Anchor>()
-            .register_type::<Mesh2dHandle>()
-            .add_plugin(Mesh2dRenderPlugin)
-            .add_plugin(ColorMaterialPlugin);
+            .register_type::<Mesh2dHandle>();
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

@@ -2,7 +2,7 @@ use crate::{
     AlphaMode, DrawMesh, EnvironmentMapLight, MeshPipeline, MeshPipelineKey, MeshUniform,
     PrepassPlugin, SetMeshBindGroup, SetMeshViewBindGroup,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{AddAsset, AssetEvent, AssetServer, Assets, Handle};
 use bevy_core_pipeline::{
     core_3d::{AlphaMask3d, Opaque3d, Transparent3d},
@@ -182,9 +182,14 @@ impl<M: Material> Plugin for MaterialPlugin<M>
 where
     M::Data: PartialEq + Eq + Hash + Clone,
 {
-    fn build(&self, app: &mut App) {
-        app.add_asset::<M>()
-            .add_plugin(ExtractComponentPlugin::<Handle<M>>::extract_visible());
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Handle<M>>::extract_visible());
+        if self.prepass_enabled {
+            builder.add_plugin(PrepassPlugin::<M>::default());
+        }
+
+        let app = builder.app();
+        app.add_asset::<M>();
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
@@ -202,10 +207,6 @@ where
                         .after(PrepareAssetLabel::PreAssetPrepare),
                 )
                 .add_system(queue_material_meshes::<M>.in_set(RenderSet::Queue));
-        }
-
-        if self.prepass_enabled {
-            app.add_plugin(PrepassPlugin::<M>::default());
         }
     }
 }

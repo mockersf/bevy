@@ -31,7 +31,7 @@ use crate::{
     renderer::RenderDevice,
     RenderApp, RenderSet,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{AddAsset, Assets};
 use bevy_ecs::prelude::*;
 
@@ -65,7 +65,12 @@ impl ImagePlugin {
 }
 
 impl Plugin for ImagePlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(RenderAssetPlugin::<Image>::with_prepare_asset_label(
+            PrepareAssetLabel::PreAssetPrepare,
+        ));
+
+        let app = builder.app();
         #[cfg(any(
             feature = "png",
             feature = "dds",
@@ -84,12 +89,9 @@ impl Plugin for ImagePlugin {
             app.init_asset_loader::<HdrTextureLoader>();
         }
 
-        app.add_plugin(RenderAssetPlugin::<Image>::with_prepare_asset_label(
-            PrepareAssetLabel::PreAssetPrepare,
-        ))
-        .register_type::<Image>()
-        .add_asset::<Image>()
-        .register_asset_reflect::<Image>();
+        app.register_type::<Image>()
+            .add_asset::<Image>()
+            .register_asset_reflect::<Image>();
         app.world
             .resource_mut::<Assets<Image>>()
             .set_untracked(DEFAULT_IMAGE_HANDLE, Image::default());

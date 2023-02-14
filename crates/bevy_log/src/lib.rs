@@ -30,7 +30,7 @@ pub use bevy_utils::tracing::{
     Level,
 };
 
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use tracing_log::LogTracer;
 #[cfg(feature = "tracing-chrome")]
 use tracing_subscriber::fmt::{format::DefaultFields, FormattedFields};
@@ -104,7 +104,7 @@ impl Default for LogPlugin {
 
 impl Plugin for LogPlugin {
     #[cfg_attr(not(feature = "tracing-chrome"), allow(unused_variables))]
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
         #[cfg(feature = "trace")]
         {
             let old_handler = panic::take_hook();
@@ -146,7 +146,7 @@ impl Plugin for LogPlugin {
                         }
                     }))
                     .build();
-                app.world.insert_non_send_resource(guard);
+                builder.app().world.insert_non_send_resource(guard);
                 chrome_layer
             };
 

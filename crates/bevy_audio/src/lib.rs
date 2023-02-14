@@ -51,7 +51,8 @@ use bevy_ecs::prelude::*;
 pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         app.init_resource::<AudioOutput<AudioSource>>()
             .add_asset::<AudioSource>()
             .add_asset::<AudioSink>()

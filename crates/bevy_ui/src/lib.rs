@@ -72,9 +72,10 @@ impl Default for UiScale {
 }
 
 impl Plugin for UiPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_plugin(ExtractComponentPlugin::<UiCameraConfig>::default())
-            .init_resource::<FlexSurface>()
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<UiCameraConfig>::default());
+        let app = builder.app();
+        app.init_resource::<FlexSurface>()
             .init_resource::<UiScale>()
             .init_resource::<UiStack>()
             .register_type::<AlignContent>()

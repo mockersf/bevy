@@ -22,7 +22,10 @@ const TONEMAPPING_SHARED_SHADER_HANDLE: HandleUntyped =
 pub struct TonemappingPlugin;
 
 impl Plugin for TonemappingPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Tonemapping>::default());
+
+        let app = builder.app();
         load_internal_asset!(
             app,
             TONEMAPPING_SHADER_HANDLE,
@@ -37,8 +40,6 @@ impl Plugin for TonemappingPlugin {
         );
 
         app.register_type::<Tonemapping>();
-
-        app.add_plugin(ExtractComponentPlugin::<Tonemapping>::default());
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

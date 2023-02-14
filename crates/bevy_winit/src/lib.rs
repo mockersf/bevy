@@ -11,7 +11,7 @@ use system::{changed_window, create_window, despawn_window, CachedWindow};
 pub use winit_config::*;
 pub use winit_windows::*;
 
-use bevy_app::{App, AppExit, CoreSet, Plugin};
+use bevy_app::{App, AppBuilder, AppExit, CoreSet, Plugin};
 use bevy_ecs::event::{Events, ManualEventReader};
 use bevy_ecs::prelude::*;
 use bevy_input::{
@@ -49,7 +49,7 @@ pub static ANDROID_APP: once_cell::sync::OnceCell<AndroidApp> = once_cell::sync:
 pub struct WinitPlugin;
 
 impl Plugin for WinitPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
         let mut event_loop_builder = EventLoopBuilder::<()>::with_user_event();
 
         #[cfg(target_os = "android")]
@@ -62,7 +62,7 @@ impl Plugin for WinitPlugin {
                     .clone(),
             );
         }
-
+        let app = builder.app();
         let event_loop = event_loop_builder.build();
         app.insert_non_send_resource(event_loop);
 

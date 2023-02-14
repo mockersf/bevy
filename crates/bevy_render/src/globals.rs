@@ -5,7 +5,7 @@ use crate::{
     renderer::{RenderDevice, RenderQueue},
     Extract, ExtractSchedule, RenderApp, RenderSet,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{load_internal_asset, HandleUntyped};
 use bevy_core::FrameCount;
 use bevy_ecs::prelude::*;
@@ -18,7 +18,8 @@ pub const GLOBALS_TYPE_HANDLE: HandleUntyped =
 pub struct GlobalsPlugin;
 
 impl Plugin for GlobalsPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         load_internal_asset!(app, GLOBALS_TYPE_HANDLE, "globals.wgsl", Shader::from_wgsl);
         app.register_type::<GlobalsUniform>();
 

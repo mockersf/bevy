@@ -1,6 +1,7 @@
 use crate::{
     app::{App, AppExit},
     plugin::Plugin,
+    AppBuilder,
 };
 use bevy_ecs::event::{Events, ManualEventReader};
 use bevy_ecs::prelude::Resource;
@@ -75,7 +76,8 @@ impl ScheduleRunnerSettings {
 pub struct ScheduleRunnerPlugin;
 
 impl Plugin for ScheduleRunnerPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         let settings = app
             .world
             .get_resource_or_insert_with(ScheduleRunnerSettings::default)

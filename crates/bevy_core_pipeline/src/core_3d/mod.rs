@@ -22,7 +22,7 @@ use std::cmp::Reverse;
 pub use camera_3d::*;
 pub use main_pass_3d_node::*;
 
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_ecs::prelude::*;
 use bevy_render::{
     camera::{Camera, ExtractedCamera},
@@ -53,10 +53,11 @@ use crate::{
 pub struct Core3dPlugin;
 
 impl Plugin for Core3dPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Camera3d>::default());
+        let app = builder.app();
         app.register_type::<Camera3d>()
-            .register_type::<Camera3dDepthLoadOp>()
-            .add_plugin(ExtractComponentPlugin::<Camera3d>::default());
+            .register_type::<Camera3dDepthLoadOp>();
 
         let render_app = match app.get_sub_app_mut(RenderApp) {
             Ok(render_app) => render_app,

@@ -14,8 +14,10 @@ use bevy_ecs::prelude::*;
 #[derive(Default)]
 pub struct SystemInformationDiagnosticsPlugin;
 impl Plugin for SystemInformationDiagnosticsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(internal::setup_system.in_set(StartupSet::Startup))
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .app()
+            .add_startup_system(internal::setup_system.in_set(StartupSet::Startup))
             .add_system(internal::diagnostic_system);
     }
 }

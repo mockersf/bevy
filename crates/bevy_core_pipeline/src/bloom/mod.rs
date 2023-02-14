@@ -1,5 +1,5 @@
 use crate::{core_2d, core_3d, fullscreen_vertex_shader::fullscreen_shader_vertex_state};
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{load_internal_asset, HandleUntyped};
 use bevy_ecs::{
     prelude::*,
@@ -32,12 +32,14 @@ const BLOOM_SHADER_HANDLE: HandleUntyped =
 pub struct BloomPlugin;
 
 impl Plugin for BloomPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(ExtractComponentPlugin::<BloomSettings>::default())
+            .add_plugin(UniformComponentPlugin::<BloomUniform>::default());
+        let app = builder.app();
         load_internal_asset!(app, BLOOM_SHADER_HANDLE, "bloom.wgsl", Shader::from_wgsl);
 
         app.register_type::<BloomSettings>();
-        app.add_plugin(ExtractComponentPlugin::<BloomSettings>::default());
-        app.add_plugin(UniformComponentPlugin::<BloomUniform>::default());
 
         let render_app = match app.get_sub_app_mut(RenderApp) {
             Ok(render_app) => render_app,

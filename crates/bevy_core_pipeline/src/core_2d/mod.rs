@@ -19,7 +19,7 @@ pub mod graph {
 pub use camera_2d::*;
 pub use main_pass_2d_node::*;
 
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_ecs::prelude::*;
 use bevy_render::{
     camera::Camera,
@@ -40,15 +40,17 @@ use crate::{tonemapping::TonemappingNode, upscaling::UpscalingNode};
 pub struct Core2dPlugin;
 
 impl Plugin for Core2dPlugin {
-    fn build(&self, app: &mut App) {
-        app.register_type::<Camera2d>()
-            .add_plugin(ExtractComponentPlugin::<Camera2d>::default());
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Camera2d>::default());
+        let app = builder.app();
+        app.register_type::<Camera2d>();
 
         let render_app = match app.get_sub_app_mut(RenderApp) {
             Ok(render_app) => render_app,
             Err(_) => return,
         };
 
+        println!("inserting DrawFunctions<Transparent2d>");
         render_app
             .init_resource::<DrawFunctions<Transparent2d>>()
             .add_system_to_schedule(ExtractSchedule, extract_core_2d_camera_phases)

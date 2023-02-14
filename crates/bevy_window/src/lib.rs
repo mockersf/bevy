@@ -67,7 +67,8 @@ pub struct WindowPlugin {
 }
 
 impl Plugin for WindowPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         // User convenience events
         app.add_event::<WindowResized>()
             .add_event::<WindowCreated>()

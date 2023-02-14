@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy_app::{App, CoreSchedule, CoreSet, Plugin, StartupSet};
+use bevy_app::{App, AppBuilder, CoreSchedule, CoreSet, Plugin, StartupSet};
 use bevy_ecs::{prelude::*, reflect::ReflectComponent};
 use bevy_math::{Mat4, Rect, Vec2};
 use bevy_reflect::{
@@ -25,7 +25,8 @@ impl<T: CameraProjection> Default for CameraProjectionPlugin<T> {
 pub struct CameraUpdateSystem;
 
 impl<T: CameraProjection + Component + GetTypeRegistration> Plugin for CameraProjectionPlugin<T> {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         app.register_type::<T>()
             .edit_schedule(CoreSchedule::Startup, |schedule| {
                 schedule.configure_set(CameraUpdateSystem.in_set(StartupSet::PostStartup));

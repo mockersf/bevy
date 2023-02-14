@@ -8,8 +8,10 @@ use crate::{Diagnostic, DiagnosticId, Diagnostics};
 pub struct EntityCountDiagnosticsPlugin;
 
 impl Plugin for EntityCountDiagnosticsPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_startup_system(Self::setup_system.in_set(StartupSet::Startup))
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .app()
+            .add_startup_system(Self::setup_system.in_set(StartupSet::Startup))
             .add_system(Self::diagnostic_system);
     }
 }

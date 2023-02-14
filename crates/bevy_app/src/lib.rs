@@ -3,6 +3,7 @@
 #![warn(missing_docs)]
 
 mod app;
+mod app_builder;
 mod plugin;
 mod plugin_group;
 mod schedule_runner;
@@ -11,6 +12,7 @@ mod schedule_runner;
 mod ci_testing;
 
 pub use app::*;
+pub use app_builder::*;
 pub use bevy_derive::DynamicPlugin;
 pub use plugin::*;
 pub use plugin_group::*;
@@ -23,7 +25,8 @@ pub mod prelude {
     pub use crate::AppTypeRegistry;
     #[doc(hidden)]
     pub use crate::{
-        app::App, CoreSchedule, CoreSet, DynamicPlugin, Plugin, PluginGroup, StartupSet,
+        app::App, app_builder::AppBuilder, CoreSchedule, CoreSet, DynamicPlugin, Plugin,
+        PluginGroup, StartupSet,
     };
 }
 

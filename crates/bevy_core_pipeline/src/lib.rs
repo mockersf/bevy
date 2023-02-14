@@ -28,7 +28,7 @@ use crate::{
     tonemapping::TonemappingPlugin,
     upscaling::UpscalingPlugin,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::load_internal_asset;
 use bevy_render::{extract_resource::ExtractResourcePlugin, prelude::Shader};
 
@@ -36,7 +36,18 @@ use bevy_render::{extract_resource::ExtractResourcePlugin, prelude::Shader};
 pub struct CorePipelinePlugin;
 
 impl Plugin for CorePipelinePlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(ExtractResourcePlugin::<ClearColor>::default())
+            .add_plugin(Core2dPlugin)
+            .add_plugin(Core3dPlugin)
+            .add_plugin(TonemappingPlugin)
+            .add_plugin(UpscalingPlugin)
+            .add_plugin(BloomPlugin)
+            .add_plugin(FxaaPlugin);
+
+        let app = builder.app();
+
         load_internal_asset!(
             app,
             FULLSCREEN_SHADER_HANDLE,
@@ -48,13 +59,6 @@ impl Plugin for CorePipelinePlugin {
             .register_type::<ClearColorConfig>()
             .register_type::<DepthPrepass>()
             .register_type::<NormalPrepass>()
-            .init_resource::<ClearColor>()
-            .add_plugin(ExtractResourcePlugin::<ClearColor>::default())
-            .add_plugin(Core2dPlugin)
-            .add_plugin(Core3dPlugin)
-            .add_plugin(TonemappingPlugin)
-            .add_plugin(UpscalingPlugin)
-            .add_plugin(BloomPlugin)
-            .add_plugin(FxaaPlugin);
+            .init_resource::<ClearColor>();
     }
 }

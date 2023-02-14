@@ -16,7 +16,7 @@ use crate::{
     texture::{BevyDefault, TextureCache},
     RenderApp, RenderSet,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_ecs::prelude::*;
 use bevy_math::{Mat4, UVec4, Vec3, Vec4};
 use bevy_reflect::{Reflect, TypeUuid};
@@ -34,7 +34,12 @@ pub const VIEW_TYPE_HANDLE: HandleUntyped =
 pub struct ViewPlugin;
 
 impl Plugin for ViewPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(ExtractResourcePlugin::<Msaa>::default())
+            .add_plugin(VisibilityPlugin);
+
+        let app = builder.app();
         load_internal_asset!(app, VIEW_TYPE_HANDLE, "view.wgsl", Shader::from_wgsl);
 
         app.register_type::<ComputedVisibility>()
@@ -43,10 +48,7 @@ impl Plugin for ViewPlugin {
             .register_type::<RenderLayers>()
             .register_type::<Visibility>()
             .register_type::<VisibleEntities>()
-            .init_resource::<Msaa>()
-            // NOTE: windows.is_changed() handles cases where a window was resized
-            .add_plugin(ExtractResourcePlugin::<Msaa>::default())
-            .add_plugin(VisibilityPlugin);
+            .init_resource::<Msaa>();
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

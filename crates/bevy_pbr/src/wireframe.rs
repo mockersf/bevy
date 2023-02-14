@@ -28,7 +28,11 @@ pub const WIREFRAME_SHADER_HANDLE: HandleUntyped =
 pub struct WireframePlugin;
 
 impl Plugin for WireframePlugin {
-    fn build(&self, app: &mut bevy_app::App) {
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
+        builder
+            .add_plugin(ExtractResourcePlugin::<WireframeConfig>::default())
+            .add_plugin(ExtractComponentPlugin::<Wireframe>::default());
+        let app = builder.app();
         load_internal_asset!(
             app,
             WIREFRAME_SHADER_HANDLE,
@@ -38,9 +42,7 @@ impl Plugin for WireframePlugin {
 
         app.register_type::<Wireframe>()
             .register_type::<WireframeConfig>()
-            .init_resource::<WireframeConfig>()
-            .add_plugin(ExtractResourcePlugin::<WireframeConfig>::default())
-            .add_plugin(ExtractComponentPlugin::<Wireframe>::default());
+            .init_resource::<WireframeConfig>();
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

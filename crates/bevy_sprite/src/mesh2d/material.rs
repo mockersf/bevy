@@ -1,4 +1,4 @@
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{AddAsset, AssetEvent, AssetServer, Assets, Handle};
 use bevy_core_pipeline::{core_2d::Transparent2d, tonemapping::Tonemapping};
 use bevy_derive::{Deref, DerefMut};
@@ -147,9 +147,10 @@ impl<M: Material2d> Plugin for Material2dPlugin<M>
 where
     M::Data: PartialEq + Eq + Hash + Clone,
 {
-    fn build(&self, app: &mut App) {
-        app.add_asset::<M>()
-            .add_plugin(ExtractComponentPlugin::<Handle<M>>::extract_visible());
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<Handle<M>>::extract_visible());
+        let app = builder.app();
+        app.add_asset::<M>();
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app

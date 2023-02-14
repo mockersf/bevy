@@ -50,7 +50,7 @@ impl AssetIo for CustomAssetIo {
 struct CustomAssetIoPlugin;
 
 impl Plugin for CustomAssetIoPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
         let default_io = AssetPlugin::default().create_platform_default_asset_io();
 
         // create the custom asset io instance

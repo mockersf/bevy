@@ -3,7 +3,7 @@ use crate::{
     renderer::{RenderAdapter, RenderDevice, RenderInstance},
     Extract, ExtractSchedule, RenderApp, RenderSet,
 };
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_ecs::prelude::*;
 use bevy_utils::{tracing::debug, HashMap, HashSet};
 use bevy_window::{
@@ -26,8 +26,8 @@ pub enum WindowSystem {
 }
 
 impl Plugin for WindowRenderPlugin {
-    fn build(&self, app: &mut App) {
-        if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
+    fn build(&self, builder: &mut AppBuilder) {
+        if let Ok(render_app) = builder.app().get_sub_app_mut(RenderApp) {
             render_app
                 .init_resource::<ExtractedWindows>()
                 .init_resource::<WindowSurfaces>()

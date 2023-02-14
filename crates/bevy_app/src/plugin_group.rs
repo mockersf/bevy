@@ -1,4 +1,4 @@
-use crate::{App, AppError, Plugin};
+use crate::{app_builder::AppBuilder, App, AppError, Plugin};
 use bevy_utils::{tracing::debug, tracing::warn, HashMap};
 use std::any::TypeId;
 
@@ -166,29 +166,55 @@ impl PluginGroupBuilder {
         self
     }
 
+    // /// Consumes the [`PluginGroupBuilder`] and [builds](Plugin::build) the contained [`Plugin`]s
+    // /// in the order specified.
+    // ///
+    // /// # Panics
+    // ///
+    // /// Panics if one of the plugin in the group was already added to the application.
+    // pub fn finish(mut self, app: &mut App) {
+    //     for ty in &self.order {
+    //         if let Some(entry) = self.plugins.remove(ty) {
+    //             if entry.enabled {
+    //                 debug!("added plugin: {}", entry.plugin.name());
+    //                 if let Err(AppError::DuplicatePlugin { plugin_name }) =
+    //                     app.add_boxed_plugin(entry.plugin)
+    //                 {
+    //                     panic!(
+    //                         "Error adding plugin {} in group {}: plugin was already added in application",
+    //                         plugin_name,
+    //                         self.group_name
+    //                     );
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
     /// Consumes the [`PluginGroupBuilder`] and [builds](Plugin::build) the contained [`Plugin`]s
     /// in the order specified.
     ///
     /// # Panics
     ///
     /// Panics if one of the plugin in the group was already added to the application.
-    pub fn finish(mut self, app: &mut App) {
+    pub fn finish(mut self, app: &mut AppBuilder) -> &mut AppBuilder {
         for ty in &self.order {
             if let Some(entry) = self.plugins.remove(ty) {
                 if entry.enabled {
                     debug!("added plugin: {}", entry.plugin.name());
-                    if let Err(AppError::DuplicatePlugin { plugin_name }) =
-                        app.add_boxed_plugin(entry.plugin)
-                    {
+                    let res = app.add_boxed_plugin(entry.plugin);
+                    if let Err(AppError::DuplicatePlugin { plugin_name }) = res {
                         panic!(
                             "Error adding plugin {} in group {}: plugin was already added in application",
                             plugin_name,
                             self.group_name
                         );
                     }
+                    // app = res.unwrap();
                 }
             }
         }
+        app
     }
 }
 
@@ -213,21 +239,21 @@ impl PluginGroup for NoopPluginGroup {
 #[cfg(test)]
 mod tests {
     use super::PluginGroupBuilder;
-    use crate::{App, NoopPluginGroup, Plugin};
+    use crate::{AppBuilder, NoopPluginGroup, Plugin};
 
     struct PluginA;
     impl Plugin for PluginA {
-        fn build(&self, _: &mut App) {}
+        fn build(&self, _: &mut AppBuilder) {}
     }
 
     struct PluginB;
     impl Plugin for PluginB {
-        fn build(&self, _: &mut App) {}
+        fn build(&self, _: &mut AppBuilder) {}
     }
 
     struct PluginC;
     impl Plugin for PluginC {
-        fn build(&self, _: &mut App) {}
+        fn build(&self, _: &mut AppBuilder) {}
     }
 
     #[test]

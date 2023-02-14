@@ -1,4 +1,4 @@
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{load_internal_asset, AddAsset, Assets, Handle, HandleUntyped};
 use bevy_math::Vec4;
 use bevy_reflect::{prelude::*, TypeUuid};
@@ -15,7 +15,19 @@ pub const COLOR_MATERIAL_SHADER_HANDLE: HandleUntyped =
 pub struct ColorMaterialPlugin;
 
 impl Plugin for ColorMaterialPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(Material2dPlugin::<ColorMaterial>::default())
+            .add_plugin(ColorMaterialPlugin2);
+    }
+}
+
+#[derive(Default)]
+pub struct ColorMaterialPlugin2;
+
+impl Plugin for ColorMaterialPlugin2 {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         load_internal_asset!(
             app,
             COLOR_MATERIAL_SHADER_HANDLE,
@@ -23,8 +35,7 @@ impl Plugin for ColorMaterialPlugin {
             Shader::from_wgsl
         );
 
-        app.add_plugin(Material2dPlugin::<ColorMaterial>::default())
-            .register_asset_reflect::<ColorMaterial>();
+        app.register_asset_reflect::<ColorMaterial>();
 
         app.world
             .resource_mut::<Assets<ColorMaterial>>()

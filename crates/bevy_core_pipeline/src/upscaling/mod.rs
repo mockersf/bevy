@@ -17,7 +17,8 @@ const UPSCALING_SHADER_HANDLE: HandleUntyped =
 pub struct UpscalingPlugin;
 
 impl Plugin for UpscalingPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         load_internal_asset!(
             app,
             UPSCALING_SHADER_HANDLE,

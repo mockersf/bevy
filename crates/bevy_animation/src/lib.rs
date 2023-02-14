@@ -5,7 +5,7 @@
 use std::ops::Deref;
 use std::time::Duration;
 
-use bevy_app::{App, CoreSet, Plugin};
+use bevy_app::{App, AppBuilder, CoreSet, Plugin};
 use bevy_asset::{AddAsset, Assets, Handle};
 use bevy_core::Name;
 use bevy_ecs::prelude::*;
@@ -546,8 +546,10 @@ fn update_transitions(player: &mut AnimationPlayer, time: &Time) {
 pub struct AnimationPlugin {}
 
 impl Plugin for AnimationPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_asset::<AnimationClip>()
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .app()
+            .add_asset::<AnimationClip>()
             .register_asset_reflect::<AnimationClip>()
             .register_type::<AnimationPlayer>()
             .add_system(

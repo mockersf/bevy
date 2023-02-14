@@ -89,10 +89,12 @@ pub enum TransformSystem {
 pub struct TransformPlugin;
 
 impl Plugin for TransformPlugin {
-    fn build(&self, app: &mut App) {
-        app.register_type::<Transform>()
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ValidParentCheckPlugin::<GlobalTransform>::default());
+        builder
+            .app()
+            .register_type::<Transform>()
             .register_type::<GlobalTransform>()
-            .add_plugin(ValidParentCheckPlugin::<GlobalTransform>::default())
             // add transform systems to startup so the first update is "correct"
             .configure_set(TransformSystem::TransformPropagate.in_base_set(CoreSet::PostUpdate))
             .edit_schedule(CoreSchedule::Startup, |schedule| {

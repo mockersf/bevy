@@ -1,6 +1,6 @@
 use std::marker::PhantomData;
 
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_ecs::prelude::*;
 pub use bevy_render_macros::ExtractResource;
 
@@ -30,8 +30,8 @@ impl<R: ExtractResource> Default for ExtractResourcePlugin<R> {
 }
 
 impl<R: ExtractResource> Plugin for ExtractResourcePlugin<R> {
-    fn build(&self, app: &mut App) {
-        if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
+    fn build(&self, builder: &mut AppBuilder) {
+        if let Ok(render_app) = builder.app().get_sub_app_mut(RenderApp) {
             render_app.add_system_to_schedule(ExtractSchedule, extract_resource::<R>);
         }
     }

@@ -1,6 +1,6 @@
 use downcast_rs::{impl_downcast, Downcast};
 
-use crate::App;
+use crate::{App, AppBuilder};
 use std::any::Any;
 
 /// A collection of Bevy app logic and configuration.
@@ -15,12 +15,14 @@ use std::any::Any;
 /// generic plugins with different type parameters will not be considered duplicates.
 pub trait Plugin: Downcast + Any + Send + Sync {
     /// Configures the [`App`] to which this plugin is added.
-    fn build(&self, app: &mut App);
+    fn build(&self, _builder: &mut AppBuilder) {
+        // do nothing
+    }
 
     /// Runs after all plugins are built, but before the app runner is called.
     /// This can be useful if you have some resource that other plugins need during their build step,
     /// but after build you want to remove it and send it to another thread.
-    fn setup(&self, _app: &mut App) {
+    fn cleanup(&self, _app: &mut App) {
         // do nothing
     }
 

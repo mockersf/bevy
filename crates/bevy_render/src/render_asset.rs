@@ -1,5 +1,5 @@
 use crate::{Extract, ExtractSchedule, RenderApp, RenderSet};
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{Asset, AssetEvent, Assets, Handle};
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::{
@@ -77,7 +77,8 @@ impl<A: RenderAsset> Default for RenderAssetPlugin<A> {
 }
 
 impl<A: RenderAsset> Plugin for RenderAssetPlugin<A> {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
                 .configure_sets(

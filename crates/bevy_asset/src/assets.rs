@@ -482,7 +482,7 @@ macro_rules! load_internal_binary_asset {
 
 #[cfg(test)]
 mod tests {
-    use bevy_app::App;
+    use bevy_app::AppBuilder;
 
     use crate::{AddAsset, Assets};
 
@@ -491,10 +491,12 @@ mod tests {
         #[derive(bevy_reflect::TypeUuid)]
         #[uuid = "44115972-f31b-46e5-be5c-2b9aece6a52f"]
         struct MyAsset;
-        let mut app = App::new();
-        app.add_plugin(bevy_core::TaskPoolPlugin::default())
+        let mut builder = AppBuilder::new();
+        builder
+            .add_plugin(bevy_core::TaskPoolPlugin::default())
             .add_plugin(bevy_core::TypeRegistrationPlugin::default())
             .add_plugin(crate::AssetPlugin::default());
+        let mut app = builder.build();
         app.add_asset::<MyAsset>();
         let mut assets_before = app.world.resource_mut::<Assets<MyAsset>>();
         let handle = assets_before.add(MyAsset);

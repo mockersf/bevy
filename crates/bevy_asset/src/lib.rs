@@ -99,7 +99,8 @@ impl AssetPlugin {
 }
 
 impl Plugin for AssetPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        let app = builder.app();
         if !app.world.contains_resource::<AssetServer>() {
             let source = self.create_platform_default_asset_io();
             let asset_server = AssetServer::with_boxed_io(source);

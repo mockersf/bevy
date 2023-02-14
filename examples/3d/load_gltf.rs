@@ -8,16 +8,17 @@ use bevy::{
 };
 
 fn main() {
-    App::new()
-        .insert_resource(AmbientLight {
-            color: Color::WHITE,
-            brightness: 1.0 / 5.0f32,
-        })
-        .insert_resource(DirectionalLightShadowMap { size: 4096 })
-        .add_plugins(DefaultPlugins)
-        .add_startup_system(setup)
-        .add_system(animate_light_direction)
-        .run();
+    let mut builder = AppBuilder::new();
+    builder.add_plugins(DefaultPlugins);
+    let mut app = builder.build();
+    app.insert_resource(AmbientLight {
+        color: Color::WHITE,
+        brightness: 1.0 / 5.0f32,
+    })
+    .insert_resource(DirectionalLightShadowMap { size: 4096 })
+    .add_startup_system(setup)
+    .add_system(animate_light_direction)
+    .run();
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {

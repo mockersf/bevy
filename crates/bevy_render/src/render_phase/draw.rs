@@ -291,6 +291,11 @@ impl AddRenderCommand for App {
     where
         C::Param: ReadOnlySystemParam,
     {
+        println!(
+            "add_render_command {:?} {:?}",
+            std::any::type_name::<P>(),
+            std::any::type_name::<C>()
+        );
         let draw_function = RenderCommandState::<P, C>::new(&mut self.world);
         let draw_functions = self
             .world

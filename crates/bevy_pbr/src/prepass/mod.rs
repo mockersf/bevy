@@ -70,7 +70,8 @@ impl<M: Material> Plugin for PrepassPlugin<M>
 where
     M::Data: PartialEq + Eq + Hash + Clone,
 {
-    fn build(&self, app: &mut bevy_app::App) {
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
+        let app = builder.app();
         load_internal_asset!(
             app,
             PREPASS_SHADER_HANDLE,

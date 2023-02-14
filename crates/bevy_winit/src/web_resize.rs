@@ -8,7 +8,7 @@ use winit::dpi::LogicalSize;
 pub(crate) struct CanvasParentResizePlugin;
 
 impl Plugin for CanvasParentResizePlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
         app.init_resource::<CanvasParentResizeEventChannel>()
             .add_system(canvas_parent_resize_event_handler);
     }

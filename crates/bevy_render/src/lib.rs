@@ -51,7 +51,7 @@ use crate::{
     settings::WgpuSettings,
     view::{ViewPlugin, WindowRenderPlugin},
 };
-use bevy_app::{App, AppLabel, CoreSchedule, Plugin, SubApp};
+use bevy_app::{App, AppBuilder, AppLabel, CoreSchedule, Plugin, SubApp};
 use bevy_asset::{AddAsset, AssetServer};
 use bevy_ecs::{prelude::*, schedule::ScheduleLabel, system::SystemState};
 use bevy_utils::tracing::debug;
@@ -172,7 +172,16 @@ pub struct RenderApp;
 
 impl Plugin for RenderPlugin {
     /// Initializes the renderer, sets up the [`RenderSet`](RenderSet) and creates the rendering sub-app.
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder
+            .add_plugin(ValidParentCheckPlugin::<view::ComputedVisibility>::default())
+            .add_plugin(WindowRenderPlugin)
+            .add_plugin(CameraPlugin)
+            .add_plugin(ViewPlugin)
+            .add_plugin(MeshPlugin)
+            .add_plugin(GlobalsPlugin);
+
+        let app = builder.app();
         app.add_asset::<Shader>()
             .add_debug_asset::<Shader>()
             .init_asset_loader::<ShaderLoader>()
@@ -256,6 +265,7 @@ impl Plugin for RenderPlugin {
             app.insert_resource(receiver);
             render_app.insert_resource(sender);
 
+            println!("inserting the renderapp");
             app.insert_sub_app(RenderApp, SubApp::new(render_app, move |main_world, render_app| {
                 #[cfg(feature = "trace")]
                 let _render_span = bevy_utils::tracing::info_span!("extract main app to render subapp").entered();
@@ -288,13 +298,6 @@ impl Plugin for RenderPlugin {
                 extract(main_world, render_app);
             }));
         }
-
-        app.add_plugin(ValidParentCheckPlugin::<view::ComputedVisibility>::default())
-            .add_plugin(WindowRenderPlugin)
-            .add_plugin(CameraPlugin)
-            .add_plugin(ViewPlugin)
-            .add_plugin(MeshPlugin)
-            .add_plugin(GlobalsPlugin);
 
         app.register_type::<color::Color>()
             .register_type::<primitives::Aabb>()

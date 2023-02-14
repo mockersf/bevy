@@ -9,8 +9,10 @@ use bevy_time::Time;
 pub struct FrameTimeDiagnosticsPlugin;
 
 impl Plugin for FrameTimeDiagnosticsPlugin {
-    fn build(&self, app: &mut bevy_app::App) {
-        app.add_startup_system(Self::setup_system.in_set(StartupSet::Startup))
+    fn build(&self, builder: &mut bevy_app::AppBuilder) {
+        builder
+            .app()
+            .add_startup_system(Self::setup_system.in_set(StartupSet::Startup))
             .add_system(Self::diagnostic_system);
     }
 }

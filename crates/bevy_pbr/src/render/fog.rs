@@ -1,4 +1,4 @@
-use bevy_app::{App, Plugin};
+use bevy_app::{App, AppBuilder, Plugin};
 use bevy_asset::{load_internal_asset, HandleUntyped};
 use bevy_ecs::prelude::*;
 use bevy_math::{Vec3, Vec4};
@@ -134,10 +134,10 @@ pub const FOG_SHADER_HANDLE: HandleUntyped =
 pub struct FogPlugin;
 
 impl Plugin for FogPlugin {
-    fn build(&self, app: &mut App) {
+    fn build(&self, builder: &mut AppBuilder) {
+        builder.add_plugin(ExtractComponentPlugin::<FogSettings>::default());
+        let app = builder.app();
         load_internal_asset!(app, FOG_SHADER_HANDLE, "fog.wgsl", Shader::from_wgsl);
-
-        app.add_plugin(ExtractComponentPlugin::<FogSettings>::default());
 
         if let Ok(render_app) = app.get_sub_app_mut(RenderApp) {
             render_app
