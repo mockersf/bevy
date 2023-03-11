@@ -114,6 +114,7 @@ struct PlayingAnimation {
     elapsed: f32,
     animation_clip: Handle<AnimationClip>,
     path_cache: Vec<Vec<Option<Entity>>>,
+    root_motion: Option<RootMotion>,
 }
 
 impl Default for PlayingAnimation {
@@ -124,6 +125,7 @@ impl Default for PlayingAnimation {
             elapsed: 0.0,
             animation_clip: Default::default(),
             path_cache: Vec::new(),
+            root_motion: None,
         }
     }
 }
@@ -136,6 +138,26 @@ struct AnimationTransition {
     weight_decline_per_sec: f32,
     /// The animation that is being faded out
     animation: PlayingAnimation,
+}
+
+/// zut
+#[derive(Reflect, FromReflect, Default, Clone)]
+pub enum RootMotionMode {
+    /// zut
+    #[default]
+    Enabled,
+    /// zut
+    Locked,
+}
+
+#[derive(Reflect, Default, FromReflect, Clone)]
+struct RootMotion {
+    mode: RootMotionMode,
+    root_node: EntityPath,
+    root_transform_rotation: bool,
+    root_transform_y: bool,
+    root_transform_xz: bool,
+    old_pos: Vec3,
 }
 
 /// Animation controls
@@ -156,6 +178,25 @@ pub struct AnimationPlayer {
 }
 
 impl AnimationPlayer {
+    /// zut
+    pub fn disable_root_motion(&mut self) -> &mut Self {
+        self.animation.root_motion = None;
+        self
+    }
+
+    /// zut
+    pub fn set_root_motion(&mut self, mode: RootMotionMode, root_node: EntityPath) -> &mut Self {
+        self.animation.root_motion = Some(RootMotion {
+            mode,
+            root_node,
+            old_pos: Vec3::ZERO,
+            root_transform_rotation: false,
+            root_transform_y: false,
+            root_transform_xz: true,
+        });
+        self
+    }
+
     /// Start playing an animation, resetting state of the player
     /// This will use a linear blending between the previous and the new animation to make a smooth transition
     pub fn start(&mut self, handle: Handle<AnimationClip>) -> &mut Self {
@@ -382,7 +423,7 @@ fn run_animation_player(
     }
 
     // Apply the main animation
-    apply_animation(
+    let mut delta = apply_animation(
         1.0,
         &mut player.animation,
         paused,
@@ -403,19 +444,32 @@ fn run_animation_player(
         ..
     } in &mut player.transitions
     {
-        apply_animation(
+        delta = delta.lerp(
+            apply_animation(
+                *current_weight,
+                animation,
+                paused,
+                root,
+                time,
+                animations,
+                names,
+                transforms,
+                maybe_parent,
+                parents,
+                children,
+            ),
             *current_weight,
-            animation,
-            paused,
-            root,
-            time,
-            animations,
-            names,
-            transforms,
-            maybe_parent,
-            parents,
-            children,
         );
+    }
+
+    if let Some(root_motion) = player.animation.root_motion.as_ref() {
+        if matches!(root_motion.mode, RootMotionMode::Enabled) {
+            // println!("{:.4?} - {:.4?}", delta.length(), delta);
+            let mut transform = (unsafe { transforms.get_unchecked(root) }).unwrap();
+            let scale = transform.scale;
+            let rotation = transform.rotation;
+            transform.translation += rotation.mul_vec3(delta) * scale;
+        }
     }
 }
 
@@ -432,15 +486,21 @@ fn apply_animation(
     maybe_parent: Option<&Parent>,
     parents: &Query<(Option<With<AnimationPlayer>>, Option<&Parent>)>,
     children: &Query<&Children>,
-) {
+) -> Vec3 {
+    let mut root_position = Transform::IDENTITY;
     if let Some(animation_clip) = animations.get(&animation.animation_clip) {
+        let elapsed_before = animation.elapsed % animation_clip.duration;
         if !paused {
             animation.elapsed += time.delta_seconds() * animation.speed;
         }
         let mut elapsed = animation.elapsed;
-        if animation.repeat {
+        let cycle = if animation.repeat {
             elapsed %= animation_clip.duration;
-        }
+            (animation.speed > 0.0 && elapsed < elapsed_before)
+                || (animation.speed < 0.0 && elapsed > elapsed_before)
+        } else {
+            false
+        };
         if elapsed < 0.0 {
             elapsed += animation_clip.duration;
         }
@@ -449,7 +509,12 @@ fn apply_animation(
         }
         if !verify_no_ancestor_player(maybe_parent, parents) {
             warn!("Animation player on {:?} has a conflicting animation player on an ancestor. Cannot safely animate.", root);
-            return;
+            return Vec3::ZERO;
+        }
+
+        let mut animation_root = None;
+        if let Some(root_motion) = animation.root_motion.as_ref() {
+            animation_root = find_bone(root, &root_motion.root_node, children, names, &mut vec![]);
         }
 
         for (path, bone_id) in &animation_clip.paths {
@@ -469,6 +534,8 @@ fn apply_animation(
             // to run their animation. Any players in the children or descendants will log a warning
             // and do nothing.
             let Ok(mut transform) = (unsafe { transforms.get_unchecked(target) }) else { continue };
+            let root_entity = animation_root.unwrap_or(Entity::from_bits(u64::MAX));
+
             for curve in curves {
                 // Some curves have only one keyframe used to set a transform
                 if curve.keyframe_timestamps.len() == 1 {
@@ -484,6 +551,7 @@ fn apply_animation(
                             transform.scale = transform.scale.lerp(keyframes[0], weight);
                         }
                     }
+                    println!("one keyframe");
                     continue;
                 }
 
@@ -514,13 +582,60 @@ fn apply_animation(
                         }
                         // Rotations are using a spherical linear interpolation
                         let rot = rot_start.normalize().slerp(rot_end.normalize(), lerp);
-                        transform.rotation = transform.rotation.slerp(rot, weight);
+                        let rotation = transform.rotation.slerp(rot, weight);
+                        if target == root_entity
+                            && animation
+                                .root_motion
+                                .as_ref()
+                                .map(|rm| rm.root_transform_rotation)
+                                .unwrap_or_default()
+                        {
+                            root_position.rotation = rotation;
+                            // transform.rotation = rotation;
+                        } else {
+                            transform.rotation = rotation;
+                        }
                     }
                     Keyframes::Translation(keyframes) => {
                         let translation_start = keyframes[step_start];
                         let translation_end = keyframes[step_start + 1];
                         let result = translation_start.lerp(translation_end, lerp);
-                        transform.translation = transform.translation.lerp(result, weight);
+                        let translation = transform.translation.lerp(result, weight);
+                        if target == root_entity {
+                            let root_transform = transforms.get(root).unwrap();
+                            let translation =
+                                root_transform.rotation.inverse().mul_vec3(translation);
+                            let mut root_translation = Vec3::ZERO;
+                            let mut node_translation = Vec3::ZERO;
+                            if animation
+                                .root_motion
+                                .as_ref()
+                                .map(|rm| rm.root_transform_xz)
+                                .unwrap_or_default()
+                            {
+                                root_translation.x = translation.x;
+                                root_translation.z = translation.z;
+                            } else {
+                                node_translation.x = translation.x;
+                                node_translation.z = translation.z;
+                            }
+                            if animation
+                                .root_motion
+                                .as_ref()
+                                .map(|rm| rm.root_transform_y)
+                                .unwrap_or_default()
+                            {
+                                root_translation.y = translation.y;
+                            } else {
+                                node_translation.y = translation.y;
+                            }
+                            transform.translation =
+                                root_transform.rotation.mul_vec3(node_translation);
+                            root_position.translation =
+                                root_transform.rotation.mul_vec3(root_translation);
+                        } else {
+                            transform.translation = translation;
+                        }
                     }
                     Keyframes::Scale(keyframes) => {
                         let scale_start = keyframes[step_start];
@@ -531,7 +646,17 @@ fn apply_animation(
                 }
             }
         }
+        if let Some(rm) = animation.root_motion.as_mut() {
+            if !cycle {
+                let delta = root_position.translation - rm.old_pos;
+                rm.old_pos = root_position.translation;
+                return delta;
+            } else {
+                rm.old_pos = root_position.translation;
+            }
+        }
     }
+    Vec3::ZERO
 }
 
 fn update_transitions(player: &mut AnimationPlayer, time: &Time) {
