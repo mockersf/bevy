@@ -158,6 +158,7 @@ struct RootMotion {
     root_transform_y: bool,
     root_transform_xz: bool,
     old_pos: Vec3,
+    last_was_zero: bool,
 }
 
 /// Animation controls
@@ -193,6 +194,7 @@ impl AnimationPlayer {
             root_transform_rotation: false,
             root_transform_y: false,
             root_transform_xz: true,
+            last_was_zero: false,
         });
         self
     }
@@ -464,11 +466,16 @@ fn run_animation_player(
 
     if let Some(root_motion) = player.animation.root_motion.as_ref() {
         if matches!(root_motion.mode, RootMotionMode::Enabled) {
-            // println!("{:.4?} - {:.4?}", delta.length(), delta);
             let mut transform = (unsafe { transforms.get_unchecked(root) }).unwrap();
             let scale = transform.scale;
             let rotation = transform.rotation;
             transform.translation += rotation.mul_vec3(delta) * scale;
+            // println!(
+            //     "{:.4?} - {:.4?} -> {:.4?}",
+            //     delta.length(),
+            //     delta,
+            //     transform.translation
+            // );
         }
     }
 }
@@ -501,6 +508,7 @@ fn apply_animation(
         } else {
             false
         };
+        // println!("{:?}", elapsed);
         if elapsed < 0.0 {
             elapsed += animation_clip.duration;
         }
@@ -536,6 +544,7 @@ fn apply_animation(
             let Ok(mut transform) = (unsafe { transforms.get_unchecked(target) }) else { continue };
             let root_entity = animation_root.unwrap_or(Entity::from_bits(u64::MAX));
 
+            // if target == root_entity {
             for curve in curves {
                 // Some curves have only one keyframe used to set a transform
                 if curve.keyframe_timestamps.len() == 1 {
@@ -557,25 +566,36 @@ fn apply_animation(
 
                 // Find the current keyframe
                 // PERF: finding the current keyframe can be optimised
-                let step_start = match curve
+                let (mut step_start, before) = match curve
                     .keyframe_timestamps
                     .binary_search_by(|probe| probe.partial_cmp(&elapsed).unwrap())
                 {
                     Ok(n) if n >= curve.keyframe_timestamps.len() - 1 => continue, // this curve is finished
-                    Ok(i) => i,
-                    Err(0) => continue, // this curve isn't started yet
+                    Ok(i) => (i, false),
+                    Err(0) if !animation.repeat => continue, // this curve isn't started yet
                     Err(n) if n > curve.keyframe_timestamps.len() - 1 => continue, // this curve is finished
-                    Err(i) => i - 1,
+                    Err(i) => i.overflowing_sub(1),
                 };
-                let ts_start = curve.keyframe_timestamps[step_start];
-                let ts_end = curve.keyframe_timestamps[step_start + 1];
-                let lerp = (elapsed - ts_start) / (ts_end - ts_start);
+                // println!("not continue");
+                let step_end;
+                let lerp = if !before {
+                    let ts_start = curve.keyframe_timestamps[step_start];
+                    let ts_end = curve.keyframe_timestamps[step_start + 1];
+                    let lerp = (elapsed - ts_start) / (ts_end - ts_start);
+                    step_end = step_start + 1;
+                    lerp
+                } else {
+                    let ts_end = curve.keyframe_timestamps[0];
+                    step_start = curve.keyframe_timestamps.len() - 1;
+                    step_end = 0;
+                    elapsed / ts_end
+                };
 
                 // Apply the keyframe
                 match &curve.keyframes {
                     Keyframes::Rotation(keyframes) => {
                         let rot_start = keyframes[step_start];
-                        let mut rot_end = keyframes[step_start + 1];
+                        let mut rot_end = keyframes[step_end];
                         // Choose the smallest angle for the rotation
                         if rot_end.dot(rot_start) < 0.0 {
                             rot_end = -rot_end;
@@ -598,7 +618,7 @@ fn apply_animation(
                     }
                     Keyframes::Translation(keyframes) => {
                         let translation_start = keyframes[step_start];
-                        let translation_end = keyframes[step_start + 1];
+                        let translation_end = keyframes[step_end];
                         let result = translation_start.lerp(translation_end, lerp);
                         let translation = transform.translation.lerp(result, weight);
                         if target == root_entity {
@@ -639,20 +659,33 @@ fn apply_animation(
                     }
                     Keyframes::Scale(keyframes) => {
                         let scale_start = keyframes[step_start];
-                        let scale_end = keyframes[step_start + 1];
+                        let scale_end = keyframes[step_end];
                         let result = scale_start.lerp(scale_end, lerp);
                         transform.scale = transform.scale.lerp(result, weight);
                     }
                 }
             }
+            // }
         }
         if let Some(rm) = animation.root_motion.as_mut() {
-            if !cycle {
+            println!("{:.5?} - {:.3?}", elapsed, root_position.translation);
+            // if !cycle || root_position.translation != Vec3::ZERO {
+            if cycle {
+                println!("-- {:?}", elapsed);
+
+                rm.old_pos = root_position.translation;
+            // } else if root_position.translation == Vec3::ZERO {
+            //     println!("zero! {:?}", elapsed);
+            //     rm.last_was_zero = true;
+            //     rm.old_pos = root_position.translation;
+            } else {
                 let delta = root_position.translation - rm.old_pos;
                 rm.old_pos = root_position.translation;
+                // let last_was_zero = rm.last_was_zero;
+                // rm.last_was_zero = false;
+                // if !last_was_zero {
                 return delta;
-            } else {
-                rm.old_pos = root_position.translation;
+                // }
             }
         }
     }
