@@ -1,7 +1,6 @@
 #[cfg(any(feature = "flate2", feature = "ruzstd"))]
 use std::io::Read;
 
-use crate::color::SrgbColorSpace;
 #[cfg(feature = "basis-universal")]
 use basis_universal::{
     DecodeFlags, LowLevelUastcTranscoder, SliceParametersUastc, TranscoderBlockFormat,
@@ -95,7 +94,7 @@ pub fn ktx2_buffer_to_image(
                             level_data
                                 .iter()
                                 .copied()
-                                .map(|v| v.nonlinear_to_linear_srgb())
+                                .map(|v| (<crate::color::encoding::Srgb as crate::color::rgb::RgbStandard>::TransferFn::into_linear(v as f32 / u8::MAX as f32) * u8::MAX as f32) as u8)
                                 .collect::<Vec<u8>>(),
                         );
 
@@ -114,7 +113,7 @@ pub fn ktx2_buffer_to_image(
                             level_data
                                 .iter()
                                 .copied()
-                                .map(|v| v.nonlinear_to_linear_srgb())
+                                .map(|v| (<crate::color::encoding::Srgb as crate::color::rgb::RgbStandard>::TransferFn::into_linear(v as f32 / u8::MAX as f32) * u8::MAX as f32) as u8)
                                 .collect::<Vec<u8>>(),
                         );
 

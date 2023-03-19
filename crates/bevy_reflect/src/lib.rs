@@ -453,6 +453,8 @@ mod type_uuid_impl;
 mod impls {
     #[cfg(feature = "glam")]
     mod glam;
+    #[cfg(feature = "palette")]
+    mod palette;
     #[cfg(feature = "bevy_math")]
     mod rect;
     #[cfg(feature = "smallvec")]

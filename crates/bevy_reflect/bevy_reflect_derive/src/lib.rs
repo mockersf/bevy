@@ -332,12 +332,18 @@ pub fn impl_reflect_struct(input: TokenStream) -> TokenStream {
                 #impl_from_struct
             })
         }
-        ReflectDerive::TupleStruct(..) => syn::Error::new(
-            ast.span(),
-            "impl_reflect_struct does not support tuple structs",
-        )
-        .into_compile_error()
-        .into(),
+        ReflectDerive::TupleStruct(struct_data) => {
+            let impl_struct: proc_macro2::TokenStream =
+                impls::impl_tuple_struct(&struct_data).into();
+            let impl_from_struct: proc_macro2::TokenStream =
+                from_reflect::impl_tuple_struct(&struct_data).into();
+
+            TokenStream::from(quote! {
+                #impl_struct
+
+                #impl_from_struct
+            })
+        }
         ReflectDerive::UnitStruct(..) => syn::Error::new(
             ast.span(),
             "impl_reflect_struct does not support unit structs",
