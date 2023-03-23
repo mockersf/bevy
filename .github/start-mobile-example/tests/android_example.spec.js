@@ -3,7 +3,7 @@ const androidOptions = require('../helpers/caps').androidOptions;
 const app = require('../helpers/apps').androidApiDemos;
 const assert = require('chai').assert;
 
-androidOptions.capabilities.app = app;
+androidOptions.capabilities['appium:app'] = app;
 
 const MAX_TIMEOUT_FOR_TEST = 1_200_000;
 
