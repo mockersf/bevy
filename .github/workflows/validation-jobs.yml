@@ -32,7 +32,6 @@ jobs:
         run: cd examples/mobile && make install
 
   build-android:
-    if: ${{ github.event_name == 'merge_group' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -58,57 +57,24 @@ jobs:
 
       - name: Build APK
         run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package bevy_mobile_example
+        env: 
+          # This will reduce the APK size from 1GB to ~200MB
+          CARGO_PROFILE_DEV_DEBUG=false
 
-  run-android:
-    runs-on: macos-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v3
+      - name: Upload to Browser Stack
+        run: |
+          curl -u "${{ secrets.BROWSERSTACK_USERNAME }}:${{ secrets.BROWSERSTACK_PASSWORD }}" \
+            -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
+            -F "file=@target/debug/apk/bevyexample.apk" \
+            -F "custom_id=$GITHUB_RUN_ID"
 
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-build-android-x86-${{ hashFiles('**/Cargo.toml') }}
-
-      - name: Install Android targets
-        run: rustup target add x86_64-linux-android
-
-      - name: Install Cargo APK
-        run: cargo install --force cargo-apk
-    
-      - name: Build APK for x86_64
-        run: ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME cargo apk build --package bevy_mobile_example --target x86_64-linux-android
-    
-      - name: Setup appium
+      - name: Run Example
         run: |
           cd .github/start-mobile-example
           npm install
-          ./node_modules/.bin/appium &
-
-      - run: nohup adb logcat > logcat.log &
-        name: Capture logcat
-
-      - uses: reactivecircus/android-emulator-runner@v2
-        name: Run test on android emulator
-        with:
-          api-level: 31
-          arch: x86_64
-          working-directory: .github/start-mobile-example
-          script: npm run android
-          ram-size: 3072
-          emulator-boot-timeout: 600
-          disable-spellchecker: true
-
-      - name: Show logcat server output
-        if: ${{ always() }}
-        run: cat logcat.log
+          npm run android
+        env:
+          BROWSERSTACK_APP_ID=$GITHUB_RUN_ID
 
       - name: Save screenshots
         if: ${{ always() }}
