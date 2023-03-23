@@ -102,6 +102,9 @@ jobs:
           arch: x86_64
           working-directory: .github/start-mobile-example
           script: npm run android
+          ram-size: 3072
+          emulator-boot-timeout: 600
+          disable-spellchecker: true
 
       - name: Show logcat server output
         if: ${{ always() }}
