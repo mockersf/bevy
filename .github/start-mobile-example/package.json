@@ -11,11 +11,12 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "appium": "^1.22.3",
+    "appium": "^2.0.0-beta.57",
+    "appium-uiautomator2-driver": "^2.12.6",
     "assert": "^2.0.0",
     "chai": "^4.1.2",
     "mocha": "^8.0.1",
-    "webdriverio": "^7.2.0"
+    "webdriverio": "^7.30.0"
   },
   "dependencies": {
     "dotenv": "^16.0.1"

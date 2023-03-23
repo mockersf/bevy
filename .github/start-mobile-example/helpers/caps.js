@@ -9,15 +9,14 @@ const iosCaps = {
 
 const androidCaps = {
     platformName: 'Android',
-    automationName: 'UiAutomator2',
-    deviceName: process.env.ANDROID_DEVICE_NAME || 'My Android Device',
-    platformVersion: process.env.ANDROID_PLATFORM_VERSION || null,
-    orientation: 'LANDSCAPE',
-    app: undefined
+    'appium:automationName': 'UiAutomator2',
+    'appium:deviceName': process.env.ANDROID_DEVICE_NAME || 'My Android Device',
+    'appium:platformVersion': process.env.ANDROID_PLATFORM_VERSION || null,
+    'appium:orientation': 'LANDSCAPE',
+    'appium:app': undefined
 };
 
 const serverConfig = {
-    path: '/wd/hub',
     host: process.env.APPIUM_HOST || 'localhost',
     port: process.env.APPIUM_PORT || 4723,
     logLevel: 'info',
