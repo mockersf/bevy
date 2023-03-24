@@ -74,7 +74,7 @@ jobs:
           npm install
           npm run android
         env:
-          BROWSERSTACK_APP_ID: ${{ env.GITHUB_RUN_ID }}
+          BROWSERSTACK_APP_ID: ${{ github.run_id }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_PASSWORD }}
 
