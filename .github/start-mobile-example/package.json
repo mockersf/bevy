@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "android": "./node_modules/.bin/wdio mobile.conf.js",
+    "mobile": "./node_modules/.bin/wdio mobile.conf.js",
+    "android": "OS_VERSION='13.0' DEVICE='Samsung Galaxy S23' ./node_modules/.bin/wdio mobile.conf.js",
+    "ios": "OS_VERSION='15' DEVICE='iPhone 13' ./node_modules/.bin/wdio mobile.conf.js",
     "clean": "rm -rf node_modules && rm -f package-lock.json && npm install"
   },
   "keywords": [],
