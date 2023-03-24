@@ -43,7 +43,7 @@ jobs:
         run: |
           curl -u "${{ secrets.BROWSERSTACK_USERNAME }}:${{ secrets.BROWSERSTACK_PASSWORD }}" \
             -X POST "https://api-cloud.browserstack.com/app-automate/upload" \
-            -F "file=@target/debug/apk/bevyexample.apk" \
+            -F "file=@bevy_mobile_example.ipa" \
             -F "custom_id=ios-$GITHUB_RUN_ID"
 
       - name: Run Example
