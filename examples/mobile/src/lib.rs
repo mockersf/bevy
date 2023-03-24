@@ -73,7 +73,7 @@ fn setup_scene(
             })
             .unwrap(),
         ),
-        material: materials.add(Color::rgb(0.1, 0.4, 0.8).into()),
+        material: materials.add(Color::rgb(0.9, 0.4, 0.1).into()),
         transform: Transform::from_xyz(1.5, 1.5, 1.5),
         ..default()
     });
