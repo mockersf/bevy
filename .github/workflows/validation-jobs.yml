@@ -72,11 +72,13 @@ jobs:
         run: |
           cd .github/start-mobile-example
           npm install
-          npm run android
+          npm install -g @percy/cli@latest
+          npx percy app:exec -- npm run android
         env:
           BROWSERSTACK_APP_ID: ${{ github.run_id }}
           BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
           BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_PASSWORD }}
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
       - name: Save screenshots
         if: ${{ always() }}

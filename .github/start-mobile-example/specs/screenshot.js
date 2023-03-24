@@ -1,4 +1,6 @@
 var assert = require('assert');
+const percyScreenshot = require('@percy/appium-app');
+
 
 describe('Running Bevy Example', () => {
   it('can take a screenshot', async () => {
@@ -7,5 +9,8 @@ describe('Running Bevy Example', () => {
     assert.equal(current_package, 'org.bevyengine.example');
 
     await browser.saveScreenshot('./screenshot.png');
+
+    await percyScreenshot('Main Screen');
+
   });
 });
