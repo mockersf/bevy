@@ -89,7 +89,7 @@ jobs:
 
       - name: Run Example
         run: |
-          npx percy build:wait --project 80a5aff7/Bevy --commit $GITHUB_SHA --fail-on-changes --pass-if-approved
+          npx percy build:wait --project 80a5aff7/Bevy --commit ${{ env.GITHUB_SHA }} --fail-on-changes --pass-if-approved
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
