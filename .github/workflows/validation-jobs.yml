@@ -87,6 +87,12 @@ jobs:
           name: screenshots-android
           path: .github/start-mobile-example/*.png
 
+      - name: Run Example
+        run: |
+          npx percy build:wait --project 80a5aff7/Bevy --commit $GITHUB_SHA --fail-on-changes --pass-if-approved
+        env:
+          PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+
   run-examples-on-windows-dx12:
     if: ${{ github.event_name == 'merge_group' }}
     runs-on: windows-latest
