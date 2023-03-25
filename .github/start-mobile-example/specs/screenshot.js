@@ -12,7 +12,7 @@ describe('Running Bevy Example', () => {
     await browser.saveScreenshot('./screenshot.png');
 
     // Take screenshot for visual testing
-    await percyScreenshot(`Bevy Mobile Example`);
+    await percyScreenshot(`Bevy Mobile Example - ${process.env.DEVICE} (os ${process.env.OS_VERSION})`);
 
   });
 });
