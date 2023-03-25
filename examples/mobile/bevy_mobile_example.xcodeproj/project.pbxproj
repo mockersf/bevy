@@ -294,7 +294,7 @@
 					"-lbevy_mobile_example",
 					"-lc++abi",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rust.bevy_mobile_example";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.bevyengine.example";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -402,7 +402,7 @@
 					"-lbevy_mobile_example",
 					"-lc++abi",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.rust.bevy_mobile_example";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.bevyengine.example";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
