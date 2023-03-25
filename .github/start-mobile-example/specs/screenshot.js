@@ -1,5 +1,5 @@
 var assert = require('assert');
-const { percyScreenshot, isPercyEnabled } = require('@percy/appium-app');
+const percyScreenshot = require('@percy/appium-app');
 
 
 describe('Running Bevy Example', () => {
@@ -11,10 +11,8 @@ describe('Running Bevy Example', () => {
     // Take local screenshot
     await browser.saveScreenshot('./screenshot.png');
 
-    if (isPercyEnabled != undefined && isPercyEnabled()) {
-      // Take screenshot for visual testing
-      await percyScreenshot('Main Screen');
-    }
+    // Take screenshot for visual testing
+    await percyScreenshot('Main Screen');
 
   });
 });
