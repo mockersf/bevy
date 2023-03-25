@@ -59,6 +59,7 @@ jobs:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           DEVICE: "iPhone 13"
           OS_VERSION: "15"
+          PERCY_PARTIAL_BUILD: 1
 
       - name: Save screenshots
         if: ${{ always() }}
@@ -123,6 +124,7 @@ jobs:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
           DEVICE: "Samsung Galaxy S23"
           OS_VERSION: "13.0"
+          PERCY_PARTIAL_BUILD: 1
 
       - name: Save screenshots
         if: ${{ always() }}
