@@ -10,7 +10,7 @@ env:
   NIGHTLY_TOOLCHAIN: nightly
 
 jobs:
-  build-and-install-on-iOS:
+  run-on-iOS:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
@@ -65,7 +65,7 @@ jobs:
         env:
           PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
 
-  build-android:
+  run-on-Android:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
