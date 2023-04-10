@@ -387,16 +387,11 @@ impl Image {
 
     /// Whether the texture format is compressed or uncompressed
     pub fn is_compressed(&self) -> bool {
-        let format_description = self.texture_descriptor.format.describe();
-        format_description
-            .required_features
-            .contains(wgpu::Features::TEXTURE_COMPRESSION_ASTC_LDR)
-            || format_description
-                .required_features
-                .contains(wgpu::Features::TEXTURE_COMPRESSION_BC)
-            || format_description
-                .required_features
-                .contains(wgpu::Features::TEXTURE_COMPRESSION_ETC2)
+        let required_features = self.texture_descriptor.format.required_features();
+
+        required_features.contains(wgpu::Features::TEXTURE_COMPRESSION_ASTC)
+            || required_features.contains(wgpu::Features::TEXTURE_COMPRESSION_BC)
+            || required_features.contains(wgpu::Features::TEXTURE_COMPRESSION_ETC2)
     }
 }
 
@@ -483,9 +478,8 @@ pub trait TextureFormatPixelInfo {
 
 impl TextureFormatPixelInfo for TextureFormat {
     fn pixel_size(&self) -> usize {
-        let info = self.describe();
-        match info.block_dimensions {
-            (1, 1) => info.block_size.into(),
+        match self.block_dimensions() {
+            (1, 1) => self.block_size(None).unwrap() as usize,
             _ => panic!("Using pixel_size for compressed textures is invalid"),
         }
     }
@@ -569,7 +563,7 @@ bitflags::bitflags! {
 impl CompressedImageFormats {
     pub fn from_features(features: wgpu::Features) -> Self {
         let mut supported_compressed_formats = Self::default();
-        if features.contains(wgpu::Features::TEXTURE_COMPRESSION_ASTC_LDR) {
+        if features.contains(wgpu::Features::TEXTURE_COMPRESSION_ASTC) {
             supported_compressed_formats |= Self::ASTC_LDR;
         }
         if features.contains(wgpu::Features::TEXTURE_COMPRESSION_BC) {
@@ -594,7 +588,7 @@ impl CompressedImageFormats {
             | TextureFormat::Bc5RgUnorm
             | TextureFormat::Bc5RgSnorm
             | TextureFormat::Bc6hRgbUfloat
-            | TextureFormat::Bc6hRgbSfloat
+            | TextureFormat::Bc6hRgbFloat
             | TextureFormat::Bc7RgbaUnorm
             | TextureFormat::Bc7RgbaUnormSrgb => self.contains(CompressedImageFormats::BC),
             TextureFormat::Etc2Rgb8Unorm

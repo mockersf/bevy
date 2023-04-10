@@ -233,12 +233,10 @@ pub fn ktx2_buffer_to_image(
     }
 
     // Reorder data from KTX2 MipXLayerYFaceZ to wgpu LayerYFaceZMipX
-    let texture_format_info = texture_format.describe();
-    let (block_width_pixels, block_height_pixels) = (
-        texture_format_info.block_dimensions.0 as usize,
-        texture_format_info.block_dimensions.1 as usize,
-    );
-    let block_bytes = texture_format_info.block_size as usize;
+    let block_dimensions = texture_format.block_dimensions();
+    let (block_width_pixels, block_height_pixels) =
+        (block_dimensions.0 as usize, block_dimensions.1 as usize);
+    let block_bytes = texture_format.block_size(None).unwrap() as usize;
 
     let mut wgpu_data = vec![Vec::default(); (layer_count * face_count) as usize];
     for (level, level_data) in levels.iter().enumerate() {
@@ -1037,7 +1035,7 @@ pub fn ktx2_dfd_to_texture_format(
             if sample_information[0].lower == 0 {
                 TextureFormat::Bc6hRgbUfloat
             } else {
-                TextureFormat::Bc6hRgbSfloat
+                TextureFormat::Bc6hRgbFloat
             }
         }
         Some(ColorModel::BC7) => {
@@ -1311,7 +1309,7 @@ pub fn ktx2_format_to_texture_format(
         ktx2::Format::BC5_UNORM_BLOCK => TextureFormat::Bc5RgUnorm,
         ktx2::Format::BC5_SNORM_BLOCK => TextureFormat::Bc5RgSnorm,
         ktx2::Format::BC6H_UFLOAT_BLOCK => TextureFormat::Bc6hRgbUfloat,
-        ktx2::Format::BC6H_SFLOAT_BLOCK => TextureFormat::Bc6hRgbSfloat,
+        ktx2::Format::BC6H_SFLOAT_BLOCK => TextureFormat::Bc6hRgbFloat,
         ktx2::Format::BC7_UNORM_BLOCK | ktx2::Format::BC7_SRGB_BLOCK => {
             if is_srgb {
                 TextureFormat::Bc7RgbaUnormSrgb

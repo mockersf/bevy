@@ -1973,3 +1973,6 @@ codegen-units = 1
 inherits = "release"
 lto = "fat"
 panic = "abort"
+
+[patch.crates-io]
+wgpu = { git = "https://github.com/gfx-rs/wgpu" }
