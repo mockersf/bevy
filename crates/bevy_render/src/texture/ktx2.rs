@@ -233,12 +233,10 @@ pub fn ktx2_buffer_to_image(
     }
 
     // Reorder data from KTX2 MipXLayerYFaceZ to wgpu LayerYFaceZMipX
-    let texture_format_info = texture_format.describe();
-    let (block_width_pixels, block_height_pixels) = (
-        texture_format_info.block_dimensions.0 as usize,
-        texture_format_info.block_dimensions.1 as usize,
-    );
-    let block_bytes = texture_format_info.block_size as usize;
+    let block_dimensions = texture_format.block_dimensions();
+    let (block_width_pixels, block_height_pixels) =
+        (block_dimensions.0 as usize, block_dimensions.1 as usize);
+    let block_bytes = texture_format.block_size(None).unwrap() as usize;
 
     let mut wgpu_data = vec![Vec::default(); (layer_count * face_count) as usize];
     for (level, level_data) in levels.iter().enumerate() {
