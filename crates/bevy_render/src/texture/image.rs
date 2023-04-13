@@ -588,7 +588,7 @@ impl CompressedImageFormats {
             | TextureFormat::Bc5RgUnorm
             | TextureFormat::Bc5RgSnorm
             | TextureFormat::Bc6hRgbUfloat
-            | TextureFormat::Bc6hRgbSfloat
+            | TextureFormat::Bc6hRgbFloat
             | TextureFormat::Bc7RgbaUnorm
             | TextureFormat::Bc7RgbaUnormSrgb => self.contains(CompressedImageFormats::BC),
             TextureFormat::Etc2Rgb8Unorm

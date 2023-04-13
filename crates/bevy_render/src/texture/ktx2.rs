@@ -1035,7 +1035,7 @@ pub fn ktx2_dfd_to_texture_format(
             if sample_information[0].lower == 0 {
                 TextureFormat::Bc6hRgbUfloat
             } else {
-                TextureFormat::Bc6hRgbSfloat
+                TextureFormat::Bc6hRgbFloat
             }
         }
         Some(ColorModel::BC7) => {
@@ -1309,7 +1309,7 @@ pub fn ktx2_format_to_texture_format(
         ktx2::Format::BC5_UNORM_BLOCK => TextureFormat::Bc5RgUnorm,
         ktx2::Format::BC5_SNORM_BLOCK => TextureFormat::Bc5RgSnorm,
         ktx2::Format::BC6H_UFLOAT_BLOCK => TextureFormat::Bc6hRgbUfloat,
-        ktx2::Format::BC6H_SFLOAT_BLOCK => TextureFormat::Bc6hRgbSfloat,
+        ktx2::Format::BC6H_SFLOAT_BLOCK => TextureFormat::Bc6hRgbFloat,
         ktx2::Format::BC7_UNORM_BLOCK | ktx2::Format::BC7_SRGB_BLOCK => {
             if is_srgb {
                 TextureFormat::Bc7RgbaUnormSrgb
