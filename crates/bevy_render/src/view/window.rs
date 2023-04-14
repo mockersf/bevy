@@ -269,8 +269,11 @@ pub fn prepare_windows(
                 CompositeAlphaMode::PostMultiplied => wgpu::CompositeAlphaMode::PostMultiplied,
                 CompositeAlphaMode::Inherit => wgpu::CompositeAlphaMode::Inherit,
             },
-            // TODO: Use an sRGB view format here on platforms that don't support sRGB surfaces. (afaik only WebGPU)
-            view_formats: vec![],
+            view_formats: if surface_data.format.is_srgb() {
+                vec![]
+            } else {
+                vec![surface_data.format.add_srgb_suffix()]
+            },
         };
 
         // This is an ugly hack to work around drivers that don't support MSAA.
