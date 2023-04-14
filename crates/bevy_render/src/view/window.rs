@@ -269,10 +269,10 @@ pub fn prepare_windows(
                 CompositeAlphaMode::PostMultiplied => wgpu::CompositeAlphaMode::PostMultiplied,
                 CompositeAlphaMode::Inherit => wgpu::CompositeAlphaMode::Inherit,
             },
-            view_formats: if surface_data.format.is_srgb() {
-                vec![]
-            } else {
+            view_formats: if !surface_data.format.is_srgb() {
                 vec![surface_data.format.add_srgb_suffix()]
+            } else {
+                vec![]
             },
         };
 
