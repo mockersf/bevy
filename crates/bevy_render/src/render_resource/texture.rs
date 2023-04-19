@@ -1,6 +1,3 @@
-use bevy_utils::default;
-use wgpu::TextureViewDescriptor;
-
 use crate::define_atomic_id;
 use std::ops::Deref;
 
