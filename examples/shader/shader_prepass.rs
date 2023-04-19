@@ -12,6 +12,7 @@ use bevy::{
 
 fn main() {
     App::new()
+        .insert_resource(Msaa::Off)
         .add_plugins(DefaultPlugins.set(PbrPlugin {
             // The prepass is enabled by default on the StandardMaterial,
             // but you can disable it if you need to.

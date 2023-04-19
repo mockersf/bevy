@@ -15,17 +15,31 @@ var<uniform> settings: ShowPrepassSettings;
 @fragment
 fn fragment(
     @builtin(position) frag_coord: vec4<f32>,
+#ifdef MULTISAMPLED
     @builtin(sample_index) sample_index: u32,
+#endif
     #import bevy_pbr::mesh_vertex_output
 ) -> @location(0) vec4<f32> {
     if settings.show_depth == 1u {
+#ifdef MULTISAMPLED
         let depth = prepass_depth(frag_coord, sample_index);
+#else
+        let depth = prepass_depth(frag_coord, 0u);
+#endif
         return vec4(depth, depth, depth, 1.0);
     } else if settings.show_normals == 1u {
+#ifdef MULTISAMPLED
         let normal = prepass_normal(frag_coord, sample_index);
+#else
+        let normal = prepass_normal(frag_coord, 0u);
+#endif
         return vec4(normal, 1.0);
     } else if settings.show_motion_vectors == 1u {
+#ifdef MULTISAMPLED
         let motion_vector = prepass_motion_vector(frag_coord, sample_index);
+#else
+        let motion_vector = prepass_motion_vector(frag_coord, 0u);
+#endif
         return vec4(motion_vector / globals.delta_time, 0.0, 1.0);
     }
 
