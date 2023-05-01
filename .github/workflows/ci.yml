@@ -371,6 +371,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: screenshots-linux
+          path: screenshots-linux
       - name: Check screenshots
         run: |
           ls -R
