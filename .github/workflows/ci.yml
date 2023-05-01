@@ -193,6 +193,7 @@ jobs:
           TRACE_CHROME=trace-alien_cake_addict.json CI_TESTING_CONFIG=.github/example-run/alien_cake_addict.ron cargo build --example alien_cake_addict --features "bevy_ci_testing,trace,trace_chrome"
       - name: Run examples
         run: |
+          mkdir screenshots
           for example in .github/example-run/*.ron; do
             example_name=`basename $example .ron`
             echo -n $example_name > last_example_run
@@ -200,12 +201,11 @@ jobs:
             time TRACE_CHROME=trace-$example_name.json CI_TESTING_CONFIG=$example xvfb-run cargo run --example $example_name --features "bevy_ci_testing,trace,trace_chrome"
             sleep 10
             if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
-              mkdir screenshots-$example_name
-              mv screenshot-*.png screenshots-$example_name/
+              mkdir screenshots/screenshots-$example_name
+              mv screenshot-*.png screenshots/screenshots-$example_name/
             fi
           done
           zip traces.zip trace*.json
-          zip -r screenshots.zip screenshots-*
       - name: save traces
         uses: actions/upload-artifact@v3
         with:
@@ -214,8 +214,8 @@ jobs:
       - name: save screenshots
         uses: actions/upload-artifact@v3
         with:
-          name: screenshots.zip
-          path: screenshots.zip
+          name: screenshots-linux
+          path: screenshots
       - name: Save PR number
         if: ${{ failure() && github.event_name == 'pull_request' }}
         run: |
@@ -364,3 +364,19 @@ jobs:
         with:
           name: msrv
           path: msrv/
+
+  visual-testing-examples-linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: run-examples
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: screenshots-linux
+      - name: Check screenshots
+        run: |
+          npm install -g @percy/cli@latest
+          npx percy upload screenshots-linux
+          npx percy build:wait --project 80a5aff7/zut2 --commit ${{ github.sha }} --fail-on-changes --pass-if-approved
+        env:
+          PERCY_TOKEN: 624e3a921cbb0e7efa3cc0f69cc32613c05eb764a19f0ff1ad80c6868b4e7a01
