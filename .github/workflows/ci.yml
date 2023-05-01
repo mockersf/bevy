@@ -374,7 +374,6 @@ jobs:
           path: screenshots-linux
       - name: Check screenshots
         run: |
-          ls -R
           npm install -g @percy/cli@latest
           npx percy upload screenshots-linux
           npx percy build:wait --project 80a5aff7/zut2 --commit ${{ github.sha }} --fail-on-changes --pass-if-approved
