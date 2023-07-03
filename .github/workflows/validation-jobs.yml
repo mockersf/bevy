@@ -132,10 +132,6 @@ jobs:
           npx playwright install --with-deps
           cd ../..
 
-      - name: First WASM build
-        run: |
-          cargo build --release --example ui --target wasm32-unknown-unknown
-
       - name: Run examples
         shell: bash
         run: |
@@ -187,10 +183,6 @@ jobs:
           npm install
           npx playwright install --with-deps
           cd ../..
-
-      - name: First WASM build
-        run: |
-          cargo build --release --example ui --target wasm32-unknown-unknown
 
       - name: Run examples
         shell: bash
