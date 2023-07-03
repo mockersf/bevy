@@ -3,6 +3,7 @@ name: validation jobs
 on:
   merge_group:
   pull_request:
+  push:
 
 env:
   CARGO_TERM_COLOR: always
