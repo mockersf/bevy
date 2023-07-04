@@ -118,14 +118,23 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
+            let mut npx_command = std::process::Command::new("npx");
+            npx_command
+                .arg("playwright")
+                .arg("test")
+                .arg("--headed")
+                .args(browsers)
+                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"));
+            npx_command.current_dir(".github/start-wasm-example");
+            println!("{:?}", npx_command.output());
             // cmd!(sh, "which npx").run();
             // cmd!(sh, "export").run();
-            sh.cmd("npx")
-                .args(["playwright", "test", "--headed"])
-                .args(browsers)
-                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-                .run()
-                .expect("Error running playwright test");
+            // sh.cmd("npx")
+            //     .args(["playwright", "test", "--headed"])
+            //     .args(browsers)
+            //     .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+            //     .run()
+            //     .expect("Error running playwright test");
             // cmd!(
             //     sh,
             //     "/c/Program\\ Files/nodejs/npx playwright test --headed {browsers...}"
