@@ -94,9 +94,12 @@ jobs:
             sleep 10
           done
 
-  run-examples-on-webgl2:
-    runs-on: ubuntu-latest
+  run-examples-on-wasm:
+    runs-on: windows-latest
     timeout-minutes: 60
+    strategy:
+      matrix:
+        api: [webgl2, webgpu]
     steps:
       - uses: actions/checkout@v3
 
@@ -113,14 +116,7 @@ jobs:
             ~/.cargo/git/db/
             ~/.github/start-wasm-example/node_modules
             target/
-          key: ${{ runner.os }}-webgl2-run-examples-${{ hashFiles('**/Cargo.toml') }}
-
-      - name: install xvfb, llvmpipe and lavapipe
-        run: |
-          sudo apt-get update -y -qq
-          sudo add-apt-repository ppa:oibaf/graphics-drivers -y
-          sudo apt-get update
-          sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+          key: ${{ runner.os }}-${{ matrix.api }}-run-examples-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install wasm-bindgen
         run: cargo install --force wasm-bindgen-cli
@@ -138,65 +134,13 @@ jobs:
           # start a webserver
           python3 -m http.server --directory examples/wasm &
 
-          xvfb-run cargo run -p build-wasm-example -- --api webgl2 --browsers chromium --browsers firefox --frames 25 --test 2d_shapes lighting text_debug breakout
+          cargo run -p build-wasm-example -- --api ${{ matrix.api }} --browsers chromium --browsers firefox --frames 25 --test 2d_shapes lighting text_debug breakout
 
       - name: Save screenshots
         uses: actions/upload-artifact@v3
         with:
-          name: screenshots
-          path: .github/webgl2-examples/screenshot-*.png
-
-  run-examples-on-webgpu:
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          target: wasm32-unknown-unknown
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.github/start-wasm-example/node_modules
-            target/
-          key: ${{ runner.os }}-webgpu-run-examples-${{ hashFiles('**/Cargo.toml') }}
-
-      - name: install xvfb, llvmpipe and lavapipe
-        run: |
-          sudo apt-get update -y -qq
-          sudo add-apt-repository ppa:oibaf/graphics-drivers -y
-          sudo apt-get update
-          sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
-
-      - name: Install wasm-bindgen
-        run: cargo install --force wasm-bindgen-cli
-
-      - name: Setup playwright
-        run: |
-          cd .github/start-wasm-example
-          npm install
-          npx playwright install --with-deps
-          cd ../..
-
-      - name: Run examples
-        shell: bash
-        run: |
-          # start a webserver
-          python3 -m http.server --directory examples/wasm &
-
-          xvfb-run cargo run -p build-wasm-example -- --api webgpu --browsers chromium --frames 25 --test 2d_shapes lighting text_debug breakout
-
-      - name: Save screenshots
-        uses: actions/upload-artifact@v3
-        with:
-          name: screenshots
-          path: .github/webgpu-examples/screenshot-*.png
+          name: screenshots-${{ matrix.api }}
+          path: .github/start-wasm-examples/screenshot-*.png
 
   build-without-default-features:
     if: ${{ github.event_name == 'merge_group' }}
