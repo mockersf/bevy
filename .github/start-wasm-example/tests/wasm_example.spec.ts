@@ -1,6 +1,10 @@
 import { test, expect, Page } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
+  await page.goto('chrome://gpu/');
+  let prefix = process.env.SCREENSHOT_PREFIX === undefined ? "screenshot" : process.env.SCREENSHOT_PREFIX;
+  await page.screenshot({ path: `${prefix}-${test_info.project.name}-chromegpu.png`, fullPage: true });
+
   await page.goto('http://localhost:8000/');
 });
 
