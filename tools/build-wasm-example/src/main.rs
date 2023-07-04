@@ -120,10 +120,13 @@ fn main() {
             }
             cmd!(sh, "which npx").run();
             cmd!(sh, "export").run();
-            cmd!(sh, "npx playwright test --headed {browsers...}")
-                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-                .run()
-                .expect("Error running playwright test");
+            cmd!(
+                sh,
+                "/c/Program Files/nodejs/npx playwright test --headed {browsers...}"
+            )
+            .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+            .run()
+            .expect("Error running playwright test");
         }
     }
 }
