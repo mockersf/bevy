@@ -118,6 +118,9 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
+            cmd!(sh, "ls").run().expect("zut");
+            cmd!(sh, "ls ./node_modules").run().expect("zut");
+            cmd!(sh, "ls ./node_modules/.bin").run().expect("zut");
             cmd!(
                 sh,
                 "./node_modules/.bin/playwright test --headed {browsers...}"
