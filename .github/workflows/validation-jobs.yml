@@ -136,6 +136,7 @@ jobs:
           python3 -m http.server --directory examples/wasm &
 
           which npx
+          export
 
           cargo run -p build-wasm-example -- --api ${{ matrix.api }} --browsers chromium --browsers firefox --frames 25 --test 2d_shapes lighting text_debug breakout
 

@@ -118,6 +118,8 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
+            cmd!(sh, "which npx").run();
+            cmd!(sh, "export").run();
             cmd!(sh, "npx playwright test --headed {browsers...}")
                 .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
                 .run()
