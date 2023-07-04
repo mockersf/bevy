@@ -118,15 +118,21 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
-            cmd!(sh, "which npx").run();
-            cmd!(sh, "export").run();
-            cmd!(
-                sh,
-                "/c/Program\\ Files/nodejs/npx playwright test --headed {browsers...}"
-            )
-            .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-            .run()
-            .expect("Error running playwright test");
+            // cmd!(sh, "which npx").run();
+            // cmd!(sh, "export").run();
+            sh.cmd("/c/Program\\ Files/nodejs/npx")
+                .args(["playwright", "test", "--headed"])
+                .args(browsers)
+                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+                .run()
+                .expect("Error running playwright test");
+            // cmd!(
+            //     sh,
+            //     "/c/Program\\ Files/nodejs/npx playwright test --headed {browsers...}"
+            // )
+            // .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+            // .run()
+            // .expect("Error running playwright test");
         }
     }
 }
