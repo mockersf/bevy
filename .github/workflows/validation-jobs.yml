@@ -119,7 +119,9 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.api }}-run-examples-${{ hashFiles('**/Cargo.toml') }}
 
       - name: Install wasm-bindgen
-        run: cargo install --force wasm-bindgen-cli
+        run: |
+          cargo install cargo-binstall
+          cargo binstall wasm-bindgen-cli
 
       - name: Setup playwright
         run: |
