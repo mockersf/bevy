@@ -82,35 +82,35 @@ fn main() {
 
     for example in cli.examples {
         let sh = Shell::new().unwrap();
-        // let features_string = features.join(",");
-        // let mut parameters = vec![];
-        // if !default_features {
-        //     parameters.push("--no-default-features");
-        // }
-        // if !features.is_empty() {
-        //     parameters.push("--features");
-        //     parameters.push(&features_string);
-        // }
-        // let mut cmd = cmd!(
-        //     sh,
-        //     "cargo build {parameters...} --profile release --target wasm32-unknown-unknown --example {example}"
-        // );
-        // if matches!(cli.api, Api::Webgpu) {
-        //     cmd = cmd.env("RUSTFLAGS", "--cfg=web_sys_unstable_apis");
-        // }
-        // cmd.run().expect("Error building example");
+        let features_string = features.join(",");
+        let mut parameters = vec![];
+        if !default_features {
+            parameters.push("--no-default-features");
+        }
+        if !features.is_empty() {
+            parameters.push("--features");
+            parameters.push(&features_string);
+        }
+        let mut cmd = cmd!(
+            sh,
+            "cargo build {parameters...} --profile release --target wasm32-unknown-unknown --example {example}"
+        );
+        if matches!(cli.api, Api::Webgpu) {
+            cmd = cmd.env("RUSTFLAGS", "--cfg=web_sys_unstable_apis");
+        }
+        cmd.run().expect("Error building example");
 
-        // cmd!(
-        //     sh,
-        //     "wasm-bindgen --out-dir examples/wasm/target --out-name wasm_example --target web target/wasm32-unknown-unknown/release/examples/{example}.wasm"
-        // )
-        // .run()
-        // .expect("Error creating wasm binding");
+        cmd!(
+            sh,
+            "wasm-bindgen --out-dir examples/wasm/target --out-name wasm_example --target web target/wasm32-unknown-unknown/release/examples/{example}.wasm"
+        )
+        .run()
+        .expect("Error creating wasm binding");
 
-        // if cli.optimize_size {
-        //     cmd!(sh, "wasm-opt -Oz --output examples/wasm/target/wasm_example_bg.wasm.optimized examples/wasm/target/wasm_example_bg.wasm")
-        //         .run().expect("Failed to optimize for size. Do you have wasm-opt corretly set up?");
-        // }
+        if cli.optimize_size {
+            cmd!(sh, "wasm-opt -Oz --output examples/wasm/target/wasm_example_bg.wasm.optimized examples/wasm/target/wasm_example_bg.wasm")
+                .run().expect("Failed to optimize for size. Do you have wasm-opt corretly set up?");
+        }
 
         if cli.test {
             let _dir = sh.push_dir(".github/start-wasm-example");
@@ -118,33 +118,11 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
-            // let mut npx_command = std::process::Command::new("npx");
-            let mut npx_command = std::process::Command::new("cmd");
-            npx_command
-                .arg("/C")
-                .arg("npx")
-                .arg("playwright")
-                .arg("test")
-                .arg("--headed")
-                .args(browsers)
-                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"));
-            npx_command.current_dir(".github/start-wasm-example");
-            println!("{:?}", npx_command.output());
-            // cmd!(sh, "which npx").run();
-            // cmd!(sh, "export").run();
-            // sh.cmd("npx")
-            //     .args(["playwright", "test", "--headed"])
-            //     .args(browsers)
-            //     .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-            //     .run()
-            //     .expect("Error running playwright test");
-            // cmd!(
-            //     sh,
-            //     "/c/Program\\ Files/nodejs/npx playwright test --headed {browsers...}"
-            // )
-            // .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-            // .run()
-            // .expect("Error running playwright test");
+
+            cmd!(sh, "cmd /C npx playwright test --headed {browsers...}")
+                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+                .run()
+                .expect("Error running playwright test");
         }
     }
 }
