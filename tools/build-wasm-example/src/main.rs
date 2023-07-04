@@ -123,7 +123,7 @@ fn main() {
             cmd!(sh, "ls ./node_modules/.bin").run().expect("zut");
             cmd!(
                 sh,
-                "node_modules/.bin/playwright test --headed {browsers...}"
+                "node_modules/.bin/playwright.cmd test --headed {browsers...}"
             )
             .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
             .run()
