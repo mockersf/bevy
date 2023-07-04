@@ -118,16 +118,10 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
-            cmd!(sh, "ls").run().expect("zut");
-            cmd!(sh, "ls ./node_modules").run().expect("zut");
-            cmd!(sh, "ls ./node_modules/.bin").run().expect("zut");
-            cmd!(
-                sh,
-                "./node_modules/.bin/playwright.cmd test --headed {browsers...}"
-            )
-            .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
-            .run()
-            .expect("Error running playwright test");
+            cmd!(sh, "npx playwright.cmd test --headed {browsers...}")
+                .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
+                .run()
+                .expect("Error running playwright test");
         }
     }
 }
