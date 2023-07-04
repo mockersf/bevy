@@ -118,7 +118,7 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
-            cmd!(sh, "npx playwright.cmd test --headed {browsers...}")
+            cmd!(sh, "npx playwright test --headed {browsers...}")
                 .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
                 .run()
                 .expect("Error running playwright test");
