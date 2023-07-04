@@ -120,7 +120,7 @@ fn main() {
             }
             // cmd!(sh, "which npx").run();
             // cmd!(sh, "export").run();
-            sh.cmd("/c/Program\\ Files/nodejs/npx")
+            sh.cmd("\\c\\Program\\ Files\\nodejs\\npx")
                 .args(["playwright", "test", "--headed"])
                 .args(browsers)
                 .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
