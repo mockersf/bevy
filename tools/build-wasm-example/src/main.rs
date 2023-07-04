@@ -118,8 +118,11 @@ fn main() {
             if !browsers.is_empty() {
                 browsers.insert(0, "--project".to_string());
             }
-            let mut npx_command = std::process::Command::new("npx");
+            // let mut npx_command = std::process::Command::new("npx");
+            let mut npx_command = std::process::Command::new("cmd");
             npx_command
+                .arg("/C")
+                .arg("npx")
                 .arg("playwright")
                 .arg("test")
                 .arg("--headed")
