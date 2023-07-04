@@ -122,7 +122,7 @@ fn main() {
             cmd!(sh, "export").run();
             cmd!(
                 sh,
-                "/c/Program Files/nodejs/npx playwright test --headed {browsers...}"
+                "/c/Program\ Files/nodejs/npx playwright test --headed {browsers...}"
             )
             .env("SCREENSHOT_PREFIX", format!("screenshot-{example}"))
             .run()
