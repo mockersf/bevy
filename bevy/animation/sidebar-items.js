@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Keyframes"],"fn":["animation_player"],"mod":["prelude"],"struct":["AnimationClip","AnimationPlayer","AnimationPlugin","EntityPath","VariableCurve"]};

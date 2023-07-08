@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AssetEvent"],"struct":["AssetPlugin","AssetServer","Assets","Handle","HandleUntyped"],"trait":["AddAsset"]};
