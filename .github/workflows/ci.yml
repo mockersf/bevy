@@ -60,10 +60,12 @@ jobs:
       - name: wgpu-info
         run: |
           cd wgpu
-          cargo run --bin wgpu-info
           cargo run --bin wgpu-info --features vulkan-portability
+      - name: wgpu-info & xvfb
+        run: |
+          cd wgpu
           xvfb cargo run --bin wgpu-info --features vulkan-portability
-
+  
       - uses: dtolnay/rust-toolchain@stable
 
       - name: disable debug
