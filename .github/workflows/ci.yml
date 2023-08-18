@@ -56,18 +56,18 @@ jobs:
           sudo apt-get update
           sudo apt install -y libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev vulkan-sdk
 
-      - uses: actions/checkout@v3
-        with:
-          repository: 'gfx-rs/wgpu'
-          path: 'wgpu'
-      - name: wgpu-info
-        run: |
-          cd wgpu
-          cargo run --bin wgpu-info --features vulkan-portability
-      - name: wgpu-info & xvfb
-        run: |
-          cd wgpu
-          xvfb-run cargo run --bin wgpu-info --features vulkan-portability
+      # - uses: actions/checkout@v3
+      #   with:
+      #     repository: 'gfx-rs/wgpu'
+      #     path: 'wgpu'
+      # - name: wgpu-info
+      #   run: |
+      #     cd wgpu
+      #     cargo run --bin wgpu-info --features vulkan-portability
+      # - name: wgpu-info & xvfb
+      #   run: |
+      #     cd wgpu
+      #     xvfb-run cargo run --bin wgpu-info --features vulkan-portability
   
       - uses: dtolnay/rust-toolchain@stable
 
