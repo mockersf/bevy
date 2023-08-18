@@ -64,7 +64,7 @@ jobs:
       - name: wgpu-info & xvfb
         run: |
           cd wgpu
-          xvfb cargo run --bin wgpu-info --features vulkan-portability
+          xvfb-run cargo run --bin wgpu-info --features vulkan-portability
   
       - uses: dtolnay/rust-toolchain@stable
 
