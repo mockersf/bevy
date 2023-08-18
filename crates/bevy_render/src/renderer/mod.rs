@@ -128,6 +128,7 @@ pub async fn initialize_renderer(
     for adapter in instance.enumerate_adapters(Backends::all()) {
         info!("found adapter: {:?}", adapter.get_info());
     }
+    info!("requestion for {:?}", request_adapter_options);
     let adapter = instance
         .request_adapter(request_adapter_options)
         .await
