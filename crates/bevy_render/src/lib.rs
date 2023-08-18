@@ -237,21 +237,21 @@ impl Plugin for RenderPlugin {
                         backends,
                         dx12_shader_compiler: settings.dx12_shader_compiler.clone(),
                     });
-                    let surface = primary_window.map(|wrapper| unsafe {
-                        // SAFETY: Plugins should be set up on the main thread.
-                        let handle = wrapper.get_handle();
-                        instance
-                            .create_surface(&handle)
-                            .expect("Failed to create wgpu surface")
-                    });
+                    // let surface = primary_window.map(|wrapper| unsafe {
+                    //     // SAFETY: Plugins should be set up on the main thread.
+                    //     let handle = wrapper.get_handle();
+                    //     instance
+                    //         .create_surface(&handle)
+                    //         .expect("Failed to create wgpu surface")
+                    // });
 
-                    eprintln!("==> {:?}", surface.as_ref());
-                    if let Some(surface) = surface.as_ref() {
-                        eprintln!("===> {:?}", surface.get_current_texture());
-                    }
+                    // eprintln!("==> {:?}", surface.as_ref());
+                    // if let Some(surface) = surface.as_ref() {
+                    //     eprintln!("===> {:?}", surface.configure(device, config));
+                    // }
                     let request_adapter_options = wgpu::RequestAdapterOptions {
                         power_preference: settings.power_preference,
-                        compatible_surface: surface.as_ref(),
+                        // compatible_surface: surface.as_ref(),
                         ..Default::default()
                     };
 
