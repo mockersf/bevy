@@ -245,6 +245,10 @@ impl Plugin for RenderPlugin {
                             .expect("Failed to create wgpu surface")
                     });
 
+                    eprintln!("==> {:?}", surface.as_ref());
+                    if let Some(surface) = surface.as_ref() {
+                        eprintln!("===> {:?}", surface.get_current_texture());
+                    }
                     let request_adapter_options = wgpu::RequestAdapterOptions {
                         power_preference: settings.power_preference,
                         compatible_surface: surface.as_ref(),
