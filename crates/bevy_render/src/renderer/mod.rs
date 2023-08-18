@@ -129,8 +129,7 @@ pub async fn initialize_renderer(
         info!("found adapter: {:?}", adapter.get_info());
     }
     let adapter = instance
-        // .request_adapter(request_adapter_options)
-        .request_adapter(&RequestAdapterOptions::default())
+        .request_adapter(request_adapter_options)
         .await
         .expect(GPU_NOT_FOUND_ERROR_MESSAGE);
 
