@@ -60,6 +60,10 @@ jobs:
           echo """
           [profile.dev]
           debug = 1" >> .cargo/config.toml
+      - name: vulkaninfo
+        run: |
+          sudo apt-get install vulkan-tools
+          vulkaninfo
       - name: Build bevy
         # this uses the same command as when running the example to ensure build is reused
         run: |
