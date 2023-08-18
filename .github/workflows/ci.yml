@@ -26,7 +26,6 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-run-examples-${{ hashFiles('**/Cargo.toml') }}
-      - uses: dtolnay/rust-toolchain@stable
       - name: Install Bevy dependencies
         run: |
           sudo apt-get update;
@@ -61,9 +60,11 @@ jobs:
       - name: wgpu-info
         run: |
           cd wgpu
-          cargo run --bin wgpu-info --no-report
-          cargo run --bin wgpu-info --no-report --features vulkan-portability
-          xvfb cargo run --bin wgpu-info --no-report --features vulkan-portability
+          cargo run --bin wgpu-info
+          cargo run --bin wgpu-info --features vulkan-portability
+          xvfb cargo run --bin wgpu-info --features vulkan-portability
+
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: disable debug
         shell: bash
