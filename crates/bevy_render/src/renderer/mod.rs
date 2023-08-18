@@ -18,7 +18,8 @@ use bevy_time::TimeSender;
 use bevy_utils::Instant;
 use std::sync::Arc;
 use wgpu::{
-    Adapter, AdapterInfo, CommandBuffer, CommandEncoder, Instance, Queue, RequestAdapterOptions,
+    Adapter, AdapterInfo, Backends, CommandBuffer, CommandEncoder, Instance, Queue,
+    RequestAdapterOptions,
 };
 
 /// Updates the [`RenderGraph`] with all of its nodes and then runs it to render the entire frame.
@@ -124,6 +125,9 @@ pub async fn initialize_renderer(
     options: &WgpuSettings,
     request_adapter_options: &RequestAdapterOptions<'_>,
 ) -> (RenderDevice, RenderQueue, RenderAdapterInfo, RenderAdapter) {
+    for adapter in instance.enumerate_adapters(Backends::all()) {
+        info!("found adapter: {:?}", adapter.get_info());
+    }
     let adapter = instance
         .request_adapter(request_adapter_options)
         .await
