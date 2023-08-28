@@ -50,7 +50,7 @@ jobs:
           example_name=`basename $example .ron`
           echo -n $example_name > last_example_run
           echo "running $example_name - "`date`
-          CI_TESTING_CONFIG=$example xvfb-run gdb --command commands.gdb ./target/debug/examples/alien_cake_addict
+          CI_TESTING_CONFIG=$example xvfb-run ./target/debug/examples/alien_cake_addict
           sleep 10
           if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
             mkdir screenshots-$example_name
