@@ -19,10 +19,15 @@ jobs:
           sudo add-apt-repository ppa:oibaf/graphics-drivers -y
           sudo apt-get update
           sudo apt install -y xvfb libegl1-mesa libgl1-mesa-dri libxcb-xfixes0-dev mesa-vulkan-drivers
+      - name: Prepare gdb
+        run: |
+          echo "run"  >  commands.gdb
+          echo "bt"   >> commands.gdb
+          echo "quit" >> commands.gdb
       - name: vulkaninfo
         run: |
           sudo apt-get install vulkan-tools
-          vulkaninfo
+          gdb --command commands.gdb vulkaninfo
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
         with:
@@ -38,11 +43,6 @@ jobs:
         # this uses the same command as when running the example to ensure build is reused
         run: |
           CI_TESTING_CONFIG=.github/example-run/alien_cake_addict.ron cargo build --example alien_cake_addict --features "bevy_ci_testing"
-      - name: Prepare gdb
-        run: |
-          echo "run"  >  commands.gdb
-          echo "bt"   >> commands.gdb
-          echo "quit" >> commands.gdb
       - name: Run examples
         run: |
           example=".github/example-run/alien_cake_addict.ron"
