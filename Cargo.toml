@@ -26,6 +26,7 @@ members = [
   "tools/build-templated-pages",
   "tools/build-wasm-example",
   "tools/example-showcase",
+  "tools/shader-documentation",
   "errors",
 ]
 
