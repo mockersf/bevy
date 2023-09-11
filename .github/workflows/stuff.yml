@@ -1,0 +1,42 @@
+name: Stuff
+
+on:
+  push:
+
+jobs:
+  check-stuff:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-build-stable-${{ hashFiles('**/Cargo.toml') }}
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install alsa and udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        if: runner.os == 'linux'
+
+    #   - name: Build with dynamic_linking
+    #     run: cargo build --features dynamic_linking
+
+      - name: Check hot reloading
+        shell: pwsh
+        run: |
+          cargo build --example asset_processing --features "filesystem_watcher,bevy_ci_testing"
+          & { Start-Sleep -s 1; sed -i.bak 's/"a"/"modified"/' examples/asset/processing/assets/a.cool.ron; } &
+          cargo run --example asset_processing --features "filesystem_watcher,bevy_ci_testing"
+          cat examples/asset/processing/imported_assets/a.cool.ron
+        env:
+          CI_TESTING_CONFIG: .github/example-run/alien_cake_addict.ron 
