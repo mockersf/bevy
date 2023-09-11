@@ -37,9 +37,18 @@ fn main() {
 
     #[cfg(feature = "bevy_winit")]
     app.run();
+
     #[cfg(not(feature = "bevy_winit"))]
     loop {
         app.update();
+        if !app
+            .world
+            .resource_mut::<Events<bevy_internal::app::AppExit>>()
+            .is_empty()
+        {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(25));
     }
 }
 
