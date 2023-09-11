@@ -34,7 +34,7 @@ jobs:
       - name: Check hot reloading
         shell: pwsh
         run: |
-          cargo build --example asset_processing --features "filesystem_watcher,bevy_ci_testing"
+          cargo build --example asset_processing --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
           & { Start-Sleep -s 1; sed -i.bak 's/"a"/"modified"/' examples/asset/processing/assets/a.cool.ron; } &
           cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
           cat examples/asset/processing/imported_assets/a.cool.ron
