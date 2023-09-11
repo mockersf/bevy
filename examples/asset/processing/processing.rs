@@ -48,7 +48,7 @@ fn main() {
         {
             break;
         }
-        std::thread::sleep(std::time::Duration::from_millis(25));
+        std::thread::sleep(std::time::Duration::from_millis(100));
     }
 }
 
