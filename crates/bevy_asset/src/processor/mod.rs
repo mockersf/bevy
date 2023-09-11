@@ -17,7 +17,7 @@ use crate::{
     LoadDirectError, MissingAssetLoaderForExtensionError, CANNOT_WATCH_ERROR_MESSAGE,
 };
 use bevy_ecs::prelude::*;
-use bevy_log::{debug, error, trace, warn};
+use bevy_log::{debug, error, info, trace, warn};
 use bevy_tasks::IoTaskPool;
 use bevy_utils::{BoxedFuture, HashMap, HashSet};
 use futures_io::ErrorKind;
@@ -218,7 +218,7 @@ impl AssetProcessor {
     }
 
     async fn handle_asset_source_event(&self, event: AssetSourceEvent) {
-        trace!("{event:?}");
+        info!("{event:?}");
         match event {
             AssetSourceEvent::AddedAsset(path)
             | AssetSourceEvent::AddedMeta(path)
@@ -625,6 +625,7 @@ impl AssetProcessor {
     ///
     /// [`LoadContext`]: crate::loader::LoadContext
     async fn process_asset(&self, path: &Path) {
+        info!("processing {:?}", path);
         let result = self.process_asset_internal(path).await;
         let mut infos = self.data.asset_infos.write().await;
         let asset_path = AssetPath::from_path(path.to_owned());

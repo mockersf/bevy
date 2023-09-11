@@ -94,6 +94,7 @@ impl AssetLoader for TextLoader {
         settings: &'a TextSettings,
         _load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<Text, anyhow::Error>> {
+        println!("TextLoader::load");
         Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
@@ -139,6 +140,8 @@ impl AssetLoader for CoolTextLoader {
         _settings: &'a Self::Settings,
         load_context: &'a mut LoadContext,
     ) -> BoxedFuture<'a, Result<CoolText, anyhow::Error>> {
+        println!("CoolTextLoader::load");
+
         Box::pin(async move {
             let mut bytes = Vec::new();
             reader.read_to_end(&mut bytes).await?;
