@@ -35,7 +35,7 @@ jobs:
         shell: pwsh
         run: |
           cargo build --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
-          start-process pwsh '-c',{start-sleep 2; sed -i.bak 's/"a"/"modified"/' examples/asset/processing/assets/a.cool.ron; cat examples/asset/processing/imported_assets/a.cool.ron; } -PassThru
+          & { Start-Sleep -s 2; $content = Get-Content -Path 'examples/asset/processing/assets/a.cool.ron'; $newContent = $content -replace '"a"', '"modified"'; $newContent | Set-Content -Path 'examples/asset/processing/assets/a.cool.ron'} &
           cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
           cat examples/asset/processing/imported_assets/a.cool.ron
         env:
