@@ -103,7 +103,7 @@ impl AssetLoader for TextLoader {
             } else {
                 String::from_utf8(bytes).unwrap()
             };
-            Ok(Text(value))
+            Ok(Text(dbg!(value)))
         })
     }
 
@@ -153,7 +153,7 @@ impl AssetLoader for CoolTextLoader {
                 base_text.push_str(&text.0);
             }
             Ok(CoolText {
-                text: base_text,
+                text: dbg!(base_text),
                 dependencies: ron
                     .dependencies
                     .iter()
