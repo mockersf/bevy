@@ -213,7 +213,7 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
 fn print_text(handles: Res<TextAssets>, texts: Res<Assets<Text>>) {
     // This prints the current values of the assets
     // Hot-reloading is supported, so try modifying the source assets (and their meta files)!
-    println!("Current Values:");
+    info!("Current Values:");
     println!("  a: {:?}", texts.get(&handles.a));
     println!("  b: {:?}", texts.get(&handles.b));
     println!("  c: {:?}", texts.get(&handles.c));
