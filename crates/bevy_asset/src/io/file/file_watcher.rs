@@ -1,6 +1,6 @@
 use crate::io::{AssetSourceEvent, AssetWatcher};
 use anyhow::Result;
-use bevy_log::error;
+use bevy_log::{error, warn};
 use bevy_utils::Duration;
 use crossbeam_channel::Sender;
 use notify_debouncer_full::{
@@ -32,6 +32,7 @@ impl FileWatcher {
                 match result {
                     Ok(events) => {
                         for event in events.iter() {
+                            warn!("{event:?}");
                             match event.kind {
                                 notify::EventKind::Create(CreateKind::File) => {
                                     let (path, is_meta) =
