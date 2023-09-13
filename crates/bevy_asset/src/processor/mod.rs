@@ -201,7 +201,6 @@ impl AssetProcessor {
         debug!("Listening for changes to source assets");
         loop {
             let mut started_processing = false;
-
             for event in self.data.source_event_receiver.try_iter() {
                 if !started_processing {
                     self.set_state(ProcessorState::Processing).await;
@@ -219,17 +218,15 @@ impl AssetProcessor {
 
     async fn handle_asset_source_event(&self, event: AssetSourceEvent) {
         info!("{event:?}");
-        let mut removed_files = HashSet::new();
         match event {
             AssetSourceEvent::AddedAsset(path)
             | AssetSourceEvent::AddedMeta(path)
             | AssetSourceEvent::ModifiedAsset(path)
             | AssetSourceEvent::ModifiedMeta(path) => {
-                removed_files.remove(&path);
                 self.process_asset(&path).await;
             }
             AssetSourceEvent::RemovedAsset(path) => {
-                removed_files.insert(path);
+                self.handle_removed_asset(path).await;
             }
             AssetSourceEvent::RemovedMeta(path) => {
                 self.handle_removed_meta(&path).await;
@@ -286,7 +283,7 @@ impl AssetProcessor {
                         } else if is_meta {
                             self.handle_removed_meta(&path).await;
                         } else {
-                            removed_files.insert(path);
+                            self.handle_removed_asset(path).await;
                         }
                     }
                     Err(err) => {
@@ -301,10 +298,6 @@ impl AssetProcessor {
                     }
                 }
             }
-        }
-        // Only remove files that weren't readded directly after being removed
-        for path_to_remove in removed_files {
-            self.handle_removed_asset(path_to_remove).await;
         }
     }
 

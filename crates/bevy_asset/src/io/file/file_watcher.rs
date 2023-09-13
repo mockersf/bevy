@@ -31,6 +31,7 @@ impl FileWatcher {
             move |result: DebounceEventResult| {
                 match result {
                     Ok(events) => {
+                        warn!("events!");
                         for event in events.iter() {
                             warn!("{event:?}");
                             match event.kind {
