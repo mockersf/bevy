@@ -229,8 +229,7 @@ impl AssetProcessor {
                 self.process_asset(&path).await;
             }
             AssetSourceEvent::RemovedAsset(path) => {
-                removed_files.insert(path.clone());
-                self.handle_removed_asset(path).await;
+                removed_files.insert(path);
             }
             AssetSourceEvent::RemovedMeta(path) => {
                 self.handle_removed_meta(&path).await;
@@ -287,7 +286,7 @@ impl AssetProcessor {
                         } else if is_meta {
                             self.handle_removed_meta(&path).await;
                         } else {
-                            self.handle_removed_asset(path).await;
+                            removed_files.insert(path);
                         }
                     }
                     Err(err) => {
@@ -302,6 +301,10 @@ impl AssetProcessor {
                     }
                 }
             }
+        }
+        // Only remove files that weren't readded directly after being removed
+        for path_to_remove in removed_files {
+            self.handle_removed_asset(path_to_remove).await;
         }
     }
 
