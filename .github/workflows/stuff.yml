@@ -26,7 +26,13 @@ jobs:
         shell: pwsh
         run: |
           cargo build --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
-          & { Start-Sleep -s 2; Set-Variable -Name "file" -Value "examples/asset/processing/assets/a.cool.ron"; (Get-Content $file) -replace '"a"', '"modified"' | Add-Content -Path "$file.tmp" -Force; Remove-Item -Path $file; Move-Item -Path "$File.tmp" -Destination $file } &
+          & { 
+            Start-Sleep -s 2
+            Set-Variable -Name "file" -Value "./examples/asset/processing/assets/a.cool.ron"
+            (Get-Content $file) -replace '"a"', '"modified"' | Add-Content -Path "$file.tmp" -Force
+            Remove-Item -Path $file
+            Move-Item -Path "$File.tmp" -Destination $file
+          } &
           cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
           cat examples/asset/processing/imported_assets/a.cool.ron
         env:
