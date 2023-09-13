@@ -219,14 +219,17 @@ impl AssetProcessor {
 
     async fn handle_asset_source_event(&self, event: AssetSourceEvent) {
         info!("{event:?}");
+        let mut removed_files = HashSet::new();
         match event {
             AssetSourceEvent::AddedAsset(path)
             | AssetSourceEvent::AddedMeta(path)
             | AssetSourceEvent::ModifiedAsset(path)
             | AssetSourceEvent::ModifiedMeta(path) => {
+                removed_files.remove(&path);
                 self.process_asset(&path).await;
             }
             AssetSourceEvent::RemovedAsset(path) => {
+                removed_files.insert(path.clone());
                 self.handle_removed_asset(path).await;
             }
             AssetSourceEvent::RemovedMeta(path) => {
