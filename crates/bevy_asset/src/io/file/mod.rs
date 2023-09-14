@@ -46,6 +46,7 @@ impl FileAssetReader {
     /// See `get_base_path` below.
     pub fn new<P: AsRef<Path>>(path: P) -> Self {
         let root_path = Self::get_base_path().join(path.as_ref());
+        println!("FileAssetReader::new creating directory {:?}", root_path);
         std::fs::create_dir_all(&root_path).unwrap_or_else(|e| {
             panic!(
                 "Failed to create root directory {:?} for file asset reader: {:?}",
@@ -238,6 +239,7 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
+        println!("FileAssetWriter::remove {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
             async_fs::remove_file(full_path).await?;
@@ -249,6 +251,7 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
+        println!("FileAssetWriter::remove_meta {:?}", path);
         Box::pin(async move {
             let meta_path = get_meta_path(path);
             let full_path = self.root_path.join(meta_path);
@@ -261,6 +264,7 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
+        println!("FileAssetWriter::remove_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
             async_fs::remove_dir_all(full_path).await?;
@@ -272,6 +276,7 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
+        println!("FileAssetWriter::remove_empty_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
             async_fs::remove_dir(full_path).await?;
@@ -283,6 +288,7 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
+        println!("FileAssetWriter::remove_assets_in_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
             async_fs::remove_dir_all(&full_path).await?;
