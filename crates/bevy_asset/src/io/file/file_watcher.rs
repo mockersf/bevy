@@ -27,7 +27,7 @@ impl FileWatcher {
     ) -> Result<Self, notify::Error> {
         let owned_root = root.clone();
         let id = rand::thread_rng().gen::<u8>();
-        println!("FileWatcher::new -> {id}");
+        println!("FileWatcher::new {root:?} -> {id}");
         let mut debouncer = new_debouncer(
             debounce_wait_time,
             None,
@@ -38,7 +38,7 @@ impl FileWatcher {
                         // let mut debounced_modification = HashSet::new();
                         let mut debounced_removal = HashMap::new();
                         for event in events.iter() {
-                            warn!("{event:?}");
+                            warn!("{id} {event:?}");
                             match event.kind {
                                 notify::EventKind::Create(CreateKind::File) => {
                                     let (path, is_meta) =
