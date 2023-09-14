@@ -25,6 +25,7 @@ use futures_lite::{AsyncReadExt, AsyncWriteExt, StreamExt};
 use parking_lot::RwLock;
 use std::{
     collections::VecDeque,
+    ffi::OsStr,
     path::{Path, PathBuf},
     sync::Arc,
 };
@@ -497,7 +498,8 @@ impl AssetProcessor {
                                 .await?
                                 && contains_files;
                     }
-                    if !contains_files && path != "" {
+                    // if !contains_files {
+                    if !contains_files && path != OsStr::new("") {
                         if let Some(writer) = clean_empty_folders_writer {
                             // it is ok for this to fail as it is just a cleanup job.
                             let _ = writer.remove_empty_directory(&path).await;
