@@ -48,7 +48,7 @@ pub(crate) struct AssetServerData {
     pub(crate) loaders: Arc<RwLock<AssetLoaders>>,
     asset_event_sender: Sender<InternalAssetEvent>,
     asset_event_receiver: Receiver<InternalAssetEvent>,
-    source_event_receiver: Receiver<AssetSourceEvent>,
+    source_event_receiver2: Receiver<AssetSourceEvent>,
     reader: Box<dyn AssetReader>,
     _watcher: Option<Box<dyn AssetWatcher>>,
 }
@@ -66,10 +66,11 @@ impl AssetServer {
         watch_for_changes: bool,
     ) -> Self {
         let (asset_event_sender, asset_event_receiver) = crossbeam_channel::unbounded();
-        let (source_event_sender, source_event_receiver) = crossbeam_channel::unbounded();
+        let (source_event_sender, source_event_receiver2) = crossbeam_channel::unbounded();
         let mut infos = AssetInfos::default();
         let watcher = if watch_for_changes {
             infos.watching_for_changes = true;
+            error!("AssetServer::new_with_loaders");
             let watcher = reader.watch_for_changes(source_event_sender);
             if watcher.is_none() {
                 error!("{}", CANNOT_WATCH_ERROR_MESSAGE);
@@ -84,7 +85,7 @@ impl AssetServer {
                 _watcher: watcher,
                 asset_event_sender,
                 asset_event_receiver,
-                source_event_receiver,
+                source_event_receiver2,
                 loaders,
                 infos: RwLock::new(infos),
             }),
@@ -747,7 +748,7 @@ pub fn handle_internal_asset_events(world: &mut World) {
         }
 
         let mut paths_to_reload = HashSet::new();
-        for event in server.data.source_event_receiver.try_iter() {
+        for event in server.data.source_event_receiver2.try_iter() {
             match event {
                 // TODO: if the asset was processed and the processed file was changed, the first modified event
                 // should be skipped?

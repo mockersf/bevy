@@ -7,6 +7,7 @@ use crate::io::{
 };
 use anyhow::Result;
 use async_fs::{read_dir, File};
+use bevy_log::error;
 use bevy_utils::BoxedFuture;
 use futures_lite::StreamExt;
 
@@ -170,6 +171,7 @@ impl AssetReader for FileAssetReader {
         &self,
         _event_sender: crossbeam_channel::Sender<super::AssetSourceEvent>,
     ) -> Option<Box<dyn AssetWatcher>> {
+        error!("creating a file watcher!");
         #[cfg(feature = "filesystem_watcher")]
         return Some(Box::new(
             file_watcher::FileWatcher::new(

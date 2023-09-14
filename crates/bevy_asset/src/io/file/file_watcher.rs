@@ -12,6 +12,7 @@ use notify_debouncer_full::{
     },
     DebounceEventResult, Debouncer, FileIdMap,
 };
+use rand::Rng;
 use std::path::{Path, PathBuf};
 
 pub struct FileWatcher {
@@ -25,13 +26,15 @@ impl FileWatcher {
         debounce_wait_time: Duration,
     ) -> Result<Self, notify::Error> {
         let owned_root = root.clone();
+        let id = rand::thread_rng().gen::<u8>();
+        println!("FileWatcher::new -> {id}");
         let mut debouncer = new_debouncer(
             debounce_wait_time,
             None,
             move |result: DebounceEventResult| {
                 match result {
                     Ok(events) => {
-                        warn!("events!");
+                        warn!("{id} - events!");
                         // let mut debounced_modification = HashSet::new();
                         let mut debounced_removal = HashMap::new();
                         for event in events.iter() {

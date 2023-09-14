@@ -66,7 +66,7 @@ pub struct AssetProcessorData {
     initialized_receiver: async_broadcast::Receiver<()>,
     finished_sender: async_broadcast::Sender<()>,
     finished_receiver: async_broadcast::Receiver<()>,
-    source_event_receiver: crossbeam_channel::Receiver<AssetSourceEvent>,
+    source_event_receiver1: crossbeam_channel::Receiver<AssetSourceEvent>,
     _source_watcher: Option<Box<dyn AssetWatcher>>,
 }
 
@@ -201,7 +201,7 @@ impl AssetProcessor {
         debug!("Listening for changes to source assets");
         loop {
             let mut started_processing = false;
-            for event in self.data.source_event_receiver.try_iter() {
+            for event in self.data.source_event_receiver1.try_iter() {
                 if !started_processing {
                     self.set_state(ProcessorState::Processing).await;
                     started_processing = true;
@@ -882,8 +882,9 @@ impl AssetProcessorData {
         // not block if there was older state present.
         finished_sender.set_overflow(true);
         initialized_sender.set_overflow(true);
-        let (source_event_sender, source_event_receiver) = crossbeam_channel::unbounded();
+        let (source_event_sender, source_event_receiver1) = crossbeam_channel::unbounded();
         // TODO: watching for changes could probably be entirely optional / we could just warn here
+        error!("AssetProcessorData::new");
         let source_watcher = source_reader.watch_for_changes(source_event_sender);
         if source_watcher.is_none() {
             error!("{}", CANNOT_WATCH_ERROR_MESSAGE);
@@ -897,7 +898,7 @@ impl AssetProcessorData {
             finished_receiver,
             initialized_sender,
             initialized_receiver,
-            source_event_receiver,
+            source_event_receiver1,
             _source_watcher: source_watcher,
             state: async_lock::RwLock::new(ProcessorState::Initializing),
             log: Default::default(),
