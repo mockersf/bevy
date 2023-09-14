@@ -15,7 +15,7 @@ use crate::{
 use bevy_ecs::prelude::*;
 use bevy_log::{error, info, warn};
 use bevy_tasks::IoTaskPool;
-use bevy_utils::{HashMap, HashSet};
+use bevy_utils::{warn, HashMap, HashSet};
 use crossbeam_channel::{Receiver, Sender};
 use futures_lite::StreamExt;
 use info::*;
@@ -387,6 +387,7 @@ impl AssetServer {
 
     /// Kicks off a reload of the asset stored at the given path. This will only reload the asset if it currently loaded.
     pub fn reload<'a>(&self, path: impl Into<AssetPath<'a>>) {
+        warn("reloading {path:?}");
         let server = self.clone();
         let path = path.into().into_owned();
         IoTaskPool::get()
@@ -751,7 +752,10 @@ pub fn handle_internal_asset_events(world: &mut World) {
             match event {
                 // TODO: if the asset was processed and the processed file was changed, the first modified event
                 // should be skipped?
-                AssetSourceEvent::ModifiedAsset(path) | AssetSourceEvent::ModifiedMeta(path) => {
+                AssetSourceEvent::AddedAsset(path)
+                | AssetSourceEvent::AddedMeta(path)
+                | AssetSourceEvent::ModifiedAsset(path)
+                | AssetSourceEvent::ModifiedMeta(path) => {
                     let path = AssetPath::from_path(path);
                     queue_ancestors(&path, &infos, &mut paths_to_reload);
                     paths_to_reload.insert(path);
