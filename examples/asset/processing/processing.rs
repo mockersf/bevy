@@ -38,6 +38,7 @@ fn main() {
     #[cfg(feature = "bevy_winit")]
     app.run();
 
+    // Custom event loop not using winit to allow running headless
     #[cfg(not(feature = "bevy_winit"))]
     loop {
         app.update();

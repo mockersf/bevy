@@ -31,6 +31,11 @@ jobs:
             Move-Item -Path "$File.tmp" -Destination $file
           } &
           cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
-          cat examples/asset/processing/imported_assets/a.cool.ron
+
+          # check processed files
+          if ([bool]((Get-Content examples/asset/processing/imported_assets/a.cool.ron) -ne 'modifiedX')) { exit 1 }
+          if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/b.cool.ron) -ne 'b')) { exit 1 }
+          if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/c.cool.ron) -ne 'cmodifiedXb')) { exit 1 }
+          if ([bool]((Get-Content examples/asset/processing/imported_assets/d.cool.ron) -ne 'dcmodifiedXb')) { exit 1 }
         env:
           CI_TESTING_CONFIG: .github/example-run/alien_cake_addict.ron
