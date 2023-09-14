@@ -755,6 +755,7 @@ pub fn handle_internal_asset_events(world: &mut World) {
                 // | AssetSourceEvent::AddedMeta(path)
                 // |
                 AssetSourceEvent::ModifiedAsset(path) | AssetSourceEvent::ModifiedMeta(path) => {
+                    warn!("trigerring a reload of asset at path: {:?}", path);
                     let path = AssetPath::from_path(path);
                     queue_ancestors(&path, &infos, &mut paths_to_reload);
                     paths_to_reload.insert(path);

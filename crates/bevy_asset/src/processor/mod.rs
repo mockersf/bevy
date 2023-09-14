@@ -625,7 +625,7 @@ impl AssetProcessor {
     /// [`LoadContext`]: crate::loader::LoadContext
     async fn process_asset(&self, path: &Path) {
         info!("processing {:?}", path);
-        let result = dbg!(self.process_asset_internal(path).await);
+        let result = self.process_asset_internal(path).await;
         let mut infos = self.data.asset_infos.write().await;
         let asset_path = AssetPath::from_path(path.to_owned());
         infos.finish_processing(asset_path, result).await;
@@ -637,7 +637,7 @@ impl AssetProcessor {
         }
         let asset_path = AssetPath::from_path(path.to_path_buf());
         // TODO: check if already processing to protect against duplicate hot-reload events
-        warn!("Processing {:?}", path);
+        warn!("Processing(internal) {:?}", path);
         let server = &self.server;
 
         // Note: we get the asset source reader first because we don't want to create meta files for assets that don't have source files
