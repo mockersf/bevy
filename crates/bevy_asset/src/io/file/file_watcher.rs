@@ -32,7 +32,7 @@ impl FileWatcher {
                 match result {
                     Ok(events) => {
                         warn!("events!");
-                        let mut debounced_modification = HashSet::new();
+                        // let mut debounced_modification = HashSet::new();
                         let mut debounced_removal = HashMap::new();
                         for event in events.iter() {
                             warn!("{event:?}");
@@ -41,7 +41,7 @@ impl FileWatcher {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
                                     // Insert, but dont check if it was already there. File creation trumps file modification events.
-                                    debounced_modification.insert(path.clone());
+                                    // debounced_modification.insert(path.clone());
                                     debounced_removal.remove(&path);
                                     if is_meta {
                                         sender.send(AssetSourceEvent::AddedMeta(path)).unwrap();
@@ -57,13 +57,13 @@ impl FileWatcher {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
                                     debounced_removal.remove(&path);
-                                    if debounced_modification.insert(path.clone()) {
+                                    // if debounced_modification.insert(path.clone()) {
                                         if is_meta {
                                             sender.send(AssetSourceEvent::ModifiedMeta(path)).unwrap();
                                         } else {
                                             sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
                                         }
-                                    }
+                                    // }
                                 }
                                 notify::EventKind::Remove(RemoveKind::Any) |
                                 // Because this is debounced over a reasonable period of time, "From" events are assumed to be "dangling" without
@@ -136,7 +136,7 @@ impl FileWatcher {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
                                     debounced_removal.remove(&path);
-                                    if debounced_modification.insert(path.clone()) {
+                                    // if debounced_modification.insert(path.clone()) {
                                         if event.paths[0].is_dir() {
                                             // modified folder means nothing in this case
                                         } else if is_meta {
@@ -144,7 +144,7 @@ impl FileWatcher {
                                         } else {
                                             sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
                                         }
-                                    }
+                                    // }
                                 }
                                 notify::EventKind::Remove(RemoveKind::File) => {
                                     let (path, is_meta) =
