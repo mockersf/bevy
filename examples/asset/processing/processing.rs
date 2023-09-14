@@ -14,29 +14,42 @@ use bevy::{
 use serde::{Deserialize, Serialize};
 
 fn main() {
-    App::new()
-        .insert_resource(
-            // This is just overriding the default paths to scope this to the correct example folder
-            // You can generally skip this in your own projects
-            AssetProviders::default()
-                .with_default_file_source("examples/asset/processing/assets".to_string())
-                .with_default_file_destination(
-                    "examples/asset/processing/imported_assets".to_string(),
-                ),
-        )
-        // Enabling `processed_dev` will configure the AssetPlugin to use asset processing.
-        // This will run the AssetProcessor in the background, which will listen for changes to
-        // the `assets` folder, run them through configured asset processors, and write the results
-        // to the `imported_assets` folder.
-        //
-        // The AssetProcessor will create `.meta` files automatically for assets in the `assets` folder,
-        // which can then be used to configure how the asset will be processed.
-        .add_plugins((DefaultPlugins.set(AssetPlugin::processed_dev()), TextPlugin))
-        // This is what a deployed app should use
-        // .add_plugins((DefaultPlugins.set(AssetPlugin::processed()), TextPlugin))
-        .add_systems(Startup, setup)
-        .add_systems(Update, print_text)
-        .run();
+    let mut app = App::new();
+    app.insert_resource(
+        // This is just overriding the default paths to scope this to the correct example folder
+        // You can generally skip this in your own projects
+        AssetProviders::default()
+            .with_default_file_source("examples/asset/processing/assets".to_string())
+            .with_default_file_destination("examples/asset/processing/imported_assets".to_string()),
+    )
+    // Enabling `processed_dev` will configure the AssetPlugin to use asset processing.
+    // This will run the AssetProcessor in the background, which will listen for changes to
+    // the `assets` folder, run them through configured asset processors, and write the results
+    // to the `imported_assets` folder.
+    //
+    // The AssetProcessor will create `.meta` files automatically for assets in the `assets` folder,
+    // which can then be used to configure how the asset will be processed.
+    .add_plugins((DefaultPlugins.set(AssetPlugin::processed_dev()), TextPlugin))
+    // This is what a deployed app should use
+    // .add_plugins((DefaultPlugins.set(AssetPlugin::processed()), TextPlugin))
+    .add_systems(Startup, setup)
+    .add_systems(Update, print_text);
+
+    #[cfg(feature = "bevy_winit")]
+    app.run();
+
+    #[cfg(not(feature = "bevy_winit"))]
+    loop {
+        app.update();
+        if !app
+            .world
+            .resource_mut::<Events<bevy_internal::app::AppExit>>()
+            .is_empty()
+        {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(25));
+    }
 }
 
 /// This [`TextPlugin`] defines two assets types:

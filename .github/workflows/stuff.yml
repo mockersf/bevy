@@ -1,0 +1,36 @@
+name: Stuff
+
+on:
+  push:
+
+jobs:
+  hot-reloading:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install alsa and udev
+        run: sudo apt-get update; sudo apt-get install --no-install-recommends libasound2-dev libudev-dev
+        if: runner.os == 'linux'
+
+      - name: Check hot reloading
+        shell: pwsh
+        run: |
+          cargo build --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
+          & { 
+            Start-Sleep -s 2
+            Set-Variable -Name "file" -Value "./examples/asset/processing/assets/a.cool.ron"
+            (Get-Content $file) -replace '"a"', '"modified"' | Add-Content -Path "$file.tmp" -Force
+            Remove-Item -Path $file
+            Move-Item -Path "$File.tmp" -Destination $file
+          } &
+          cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
+          cat examples/asset/processing/imported_assets/a.cool.ron
+        env:
+          CI_TESTING_CONFIG: .github/example-run/alien_cake_addict.ron
