@@ -59,16 +59,16 @@ fn main() {
             let text_assets = app.world.resource::<Assets<Text>>();
             let a = text_assets.get(&handles.a).unwrap();
             let mut file = std::fs::File::create("a.text").unwrap();
-            std::io::Write::write_all(&mut file, a.0).unwrap();
+            std::io::Write::write_all(&mut file, a.0.as_bytes()).unwrap();
             let b = text_assets.get(&handles.b).unwrap();
             let mut file = std::fs::File::create("b.text").unwrap();
-            std::io::Write::write_all(&mut file, b.0).unwrap();
+            std::io::Write::write_all(&mut file, b.0.as_bytes()).unwrap();
             let c = text_assets.get(&handles.c).unwrap();
             let mut file = std::fs::File::create("c.text").unwrap();
-            std::io::Write::write_all(&mut file, c.0).unwrap();
+            std::io::Write::write_all(&mut file, c.0.as_bytes()).unwrap();
             let d = text_assets.get(&handles.c).unwrap();
             let mut file = std::fs::File::create("d.text").unwrap();
-            std::io::Write::write_all(&mut file, d.0).unwrap();
+            std::io::Write::write_all(&mut file, d.0.as_bytes()).unwrap();
         }
     }
 }
