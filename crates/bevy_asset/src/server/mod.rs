@@ -387,7 +387,6 @@ impl AssetServer {
 
     /// Kicks off a reload of the asset stored at the given path. This will only reload the asset if it currently loaded.
     pub fn reload<'a>(&self, path: impl Into<AssetPath<'a>>) {
-        warn!("reloading {path:?}");
         let server = self.clone();
         let path = path.into().into_owned();
         IoTaskPool::get()
