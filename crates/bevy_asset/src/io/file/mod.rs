@@ -211,6 +211,7 @@ impl AssetWriter for FileAssetWriter {
         Box::pin(async move {
             let full_path = self.root_path.join(path);
             if let Some(parent) = full_path.parent() {
+                println!("FileAssetWriter::write creating directory {:?}", parent);
                 async_fs::create_dir_all(parent).await?;
             }
             let file = File::create(&full_path).await?;
@@ -227,6 +228,10 @@ impl AssetWriter for FileAssetWriter {
             let meta_path = get_meta_path(path);
             let full_path = self.root_path.join(meta_path);
             if let Some(parent) = full_path.parent() {
+                println!(
+                    "FileAssetWriter::write_meta creating directory {:?}",
+                    parent
+                );
                 async_fs::create_dir_all(parent).await?;
             }
             let file = File::create(&full_path).await?;
@@ -239,9 +244,9 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
-        println!("FileAssetWriter::remove {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
+            println!("FileAssetWriter::remove {:?}", path);
             async_fs::remove_file(full_path).await?;
             Ok(())
         })
@@ -251,10 +256,10 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
-        println!("FileAssetWriter::remove_meta {:?}", path);
         Box::pin(async move {
             let meta_path = get_meta_path(path);
             let full_path = self.root_path.join(meta_path);
+            println!("FileAssetWriter::remove_meta {:?}", path);
             async_fs::remove_file(full_path).await?;
             Ok(())
         })
@@ -264,9 +269,9 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
-        println!("FileAssetWriter::remove_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
+            println!("FileAssetWriter::remove_directory {:?}", path);
             async_fs::remove_dir_all(full_path).await?;
             Ok(())
         })
@@ -276,9 +281,9 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
-        println!("FileAssetWriter::remove_empty_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
+            println!("FileAssetWriter::remove_empty_directory {:?}", path);
             async_fs::remove_dir(full_path).await?;
             Ok(())
         })
@@ -288,9 +293,9 @@ impl AssetWriter for FileAssetWriter {
         &'a self,
         path: &'a Path,
     ) -> BoxedFuture<'a, std::result::Result<(), AssetWriterError>> {
-        println!("FileAssetWriter::remove_assets_in_directory {:?}", path);
         Box::pin(async move {
             let full_path = self.root_path.join(path);
+            println!("FileAssetWriter::remove_assets_in_directory {:?}", path);
             async_fs::remove_dir_all(&full_path).await?;
             async_fs::create_dir_all(&full_path).await?;
             Ok(())
@@ -306,8 +311,13 @@ impl AssetWriter for FileAssetWriter {
             let full_old_path = self.root_path.join(old_path);
             let full_new_path = self.root_path.join(new_path);
             if let Some(parent) = full_new_path.parent() {
+                println!("FileAssetWriter::rename creating directory {:?}", parent);
                 async_fs::create_dir_all(parent).await?;
             }
+            println!(
+                "FileAssetWriter::rename renaming {:?} to {:?}",
+                full_old_path, full_new_path
+            );
             async_fs::rename(full_old_path, full_new_path).await?;
             Ok(())
         })
@@ -324,8 +334,16 @@ impl AssetWriter for FileAssetWriter {
             let full_old_path = self.root_path.join(old_meta_path);
             let full_new_path = self.root_path.join(new_meta_path);
             if let Some(parent) = full_new_path.parent() {
+                println!(
+                    "FileAssetWriter::rename_meta creating directory {:?}",
+                    parent
+                );
                 async_fs::create_dir_all(parent).await?;
             }
+            println!(
+                "FileAssetWriter::rename_meta renaming {:?} to {:?}",
+                full_old_path, full_new_path
+            );
             async_fs::rename(full_old_path, full_new_path).await?;
             Ok(())
         })
