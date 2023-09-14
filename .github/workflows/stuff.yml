@@ -26,7 +26,7 @@ jobs:
           & { 
             Start-Sleep -s 2
             Set-Variable -Name "file" -Value "./examples/asset/processing/assets/a.cool.ron"
-            (Get-Content $file) -replace '"a"', '"modifiied"' | Add-Content -Path "$file.tmp" -Force
+            (Get-Content $file) -replace '"a"', '"modified"' | Add-Content -Path "$file.tmp" -Force
             Remove-Item -Path $file
             Move-Item -Path "$File.tmp" -Destination $file
           } &
