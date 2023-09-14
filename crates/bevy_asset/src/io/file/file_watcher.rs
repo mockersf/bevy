@@ -1,7 +1,7 @@
 use crate::io::{AssetSourceEvent, AssetWatcher};
 use anyhow::Result;
 use bevy_log::{error, warn};
-use bevy_utils::Duration;
+use bevy_utils::{Duration, HashMap, HashSet};
 use crossbeam_channel::Sender;
 use notify_debouncer_full::{
     new_debouncer,
@@ -32,12 +32,17 @@ impl FileWatcher {
                 match result {
                     Ok(events) => {
                         warn!("events!");
+                        let mut debounced_modification = HashSet::new();
+                        let mut debounced_removal = HashMap::new();
                         for event in events.iter() {
                             warn!("{event:?}");
                             match event.kind {
                                 notify::EventKind::Create(CreateKind::File) => {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
+                                    // Insert, but dont check if it was already there. File creation trumps file modification events.
+                                    debounced_modification.insert(path.clone());
+                                    debounced_removal.remove(&path);
                                     if is_meta {
                                         sender.send(AssetSourceEvent::AddedMeta(path)).unwrap();
                                     } else {
@@ -51,10 +56,13 @@ impl FileWatcher {
                                 notify::EventKind::Access(AccessKind::Close(AccessMode::Write)) => {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
-                                    if is_meta {
-                                        sender.send(AssetSourceEvent::ModifiedMeta(path)).unwrap();
-                                    } else {
-                                        sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
+                                    debounced_removal.remove(&path);
+                                    if debounced_modification.insert(path.clone()) {
+                                        if is_meta {
+                                            sender.send(AssetSourceEvent::ModifiedMeta(path)).unwrap();
+                                        } else {
+                                            sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
+                                        }
                                     }
                                 }
                                 notify::EventKind::Remove(RemoveKind::Any) |
@@ -64,9 +72,8 @@ impl FileWatcher {
                                 notify::EventKind::Modify(ModifyKind::Name(RenameMode::From)) => {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
-                                    sender
-                                        .send(AssetSourceEvent::RemovedUnknown { path, is_meta })
-                                        .unwrap();
+                                    debounced_removal.insert(path.clone(), AssetSourceEvent::RemovedUnknown { path, is_meta });
+
                                 }
                                 notify::EventKind::Create(CreateKind::Any)
                                 | notify::EventKind::Modify(ModifyKind::Name(RenameMode::To)) => {
@@ -128,21 +135,24 @@ impl FileWatcher {
                                 notify::EventKind::Modify(_) => {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
-                                    if event.paths[0].is_dir() {
-                                        // modified folder means nothing in this case
-                                    } else if is_meta {
-                                        sender.send(AssetSourceEvent::ModifiedMeta(path)).unwrap();
-                                    } else {
-                                        sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
-                                    };
+                                    debounced_removal.remove(&path);
+                                    if debounced_modification.insert(path.clone()) {
+                                        if event.paths[0].is_dir() {
+                                            // modified folder means nothing in this case
+                                        } else if is_meta {
+                                            sender.send(AssetSourceEvent::ModifiedMeta(path)).unwrap();
+                                        } else {
+                                            sender.send(AssetSourceEvent::ModifiedAsset(path)).unwrap();
+                                        }
+                                    }
                                 }
                                 notify::EventKind::Remove(RemoveKind::File) => {
                                     let (path, is_meta) =
                                         get_asset_path(&owned_root, &event.paths[0]);
                                     if is_meta {
-                                        sender.send(AssetSourceEvent::RemovedMeta(path)).unwrap();
+                                        debounced_removal.insert(path.clone(), AssetSourceEvent::RemovedMeta(path));
                                     } else {
-                                        sender.send(AssetSourceEvent::RemovedAsset(path)).unwrap();
+                                        debounced_removal.insert(path.clone(), AssetSourceEvent::RemovedAsset(path));
                                     }
                                 }
                                 notify::EventKind::Remove(RemoveKind::Folder) => {
@@ -151,6 +161,9 @@ impl FileWatcher {
                                 }
                                 _ => {}
                             }
+                        }
+                        for (_, removal) in debounced_removal.drain() {
+                            sender.send(removal).unwrap();
                         }
                     }
                     Err(errors) => errors.iter().for_each(|error| {
