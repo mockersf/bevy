@@ -186,6 +186,7 @@ impl AssetSaver for CoolTextSaver {
         asset: SavedAsset<'a, Self::Asset>,
         settings: &'a Self::Settings,
     ) -> BoxedFuture<'a, Result<TextSettings, anyhow::Error>> {
+        println!("CoolTextSaver::save");
         Box::pin(async move {
             let text = format!("{}{}", asset.text.clone(), settings.appended);
             writer.write_all(text.as_bytes()).await?;
