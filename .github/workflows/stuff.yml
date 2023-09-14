@@ -22,7 +22,10 @@ jobs:
       - name: Check hot reloading
         shell: pwsh
         run: |
+          # first build the example, so that there's no delay when starting it
           cargo build --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
+          
+          # start a subprocess that will modify the asset in 2 seconds
           & { 
             Start-Sleep -s 2
             Set-Variable -Name "file" -Value "./examples/asset/processing/assets/a.cool.ron"
@@ -30,20 +33,17 @@ jobs:
             Remove-Item -Path $file
             Move-Item -Path "$File.tmp" -Destination $file
           } &
+
+          # start the example
           cargo run --example asset_processing --no-default-features --features "filesystem_watcher,bevy_asset,multi-threaded,bevy_ci_testing"
 
-          # check processed files
+          Write-Output "check processed files"
           if ([bool]((Get-Content examples/asset/processing/imported_assets/a.cool.ron) -ne 'modifiedX')) { exit 1 }
           if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/b.cool.ron) -ne 'b')) { exit 1 }
           if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/c.cool.ron) -ne 'cmodifiedXb')) { exit 1 }
           if ([bool]((Get-Content examples/asset/processing/imported_assets/d.cool.ron) -ne 'dcmodifiedXb')) { exit 1 }
 
-          cat a.text
-          cat b.text
-          cat c.text
-          cat d.text
-
-          # check loaded assets
+          Write-Output "check loaded assets"
           if ([bool]((Get-Content a.text) -ne 'modifiedX')) { exit 1 }
           if ([bool]((Get-Content b.text) -ne 'b')) { exit 1 }
           if ([bool]((Get-Content c.text) -ne 'cmodifiedXb')) { exit 1 }

@@ -66,7 +66,7 @@ fn main() {
             let c = text_assets.get(&handles.c).unwrap();
             let mut file = std::fs::File::create("c.text").unwrap();
             std::io::Write::write_all(&mut file, c.0.as_bytes()).unwrap();
-            let d = text_assets.get(&handles.c).unwrap();
+            let d = text_assets.get(&handles.d).unwrap();
             let mut file = std::fs::File::create("d.text").unwrap();
             std::io::Write::write_all(&mut file, d.0.as_bytes()).unwrap();
         }
