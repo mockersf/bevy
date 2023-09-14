@@ -40,16 +40,36 @@ fn main() {
 
     // Custom event loop not using winit to allow running headless
     #[cfg(not(feature = "bevy_winit"))]
-    loop {
-        app.update();
-        if !app
-            .world
-            .resource_mut::<Events<bevy_internal::app::AppExit>>()
-            .is_empty()
-        {
-            break;
+    {
+        loop {
+            app.update();
+            if !app
+                .world
+                .resource_mut::<Events<bevy_internal::app::AppExit>>()
+                .is_empty()
+            {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(25));
         }
-        std::thread::sleep(std::time::Duration::from_millis(25));
+        // Dump the assets to disk to check their content
+        #[cfg(feature = "bevy_ci_testing")]
+        {
+            let handles = app.world.resource::<TextAssets>();
+            let text_assets = app.world.resource::<Assets<Text>>();
+            let a = text_assets.get(&handles.a).unwrap();
+            let mut file = std::fs::File::create("a.text").unwrap();
+            std::io::Write::write_all(&mut file, a.0).unwrap();
+            let b = text_assets.get(&handles.b).unwrap();
+            let mut file = std::fs::File::create("b.text").unwrap();
+            std::io::Write::write_all(&mut file, b.0).unwrap();
+            let c = text_assets.get(&handles.c).unwrap();
+            let mut file = std::fs::File::create("c.text").unwrap();
+            std::io::Write::write_all(&mut file, c.0).unwrap();
+            let d = text_assets.get(&handles.c).unwrap();
+            let mut file = std::fs::File::create("d.text").unwrap();
+            std::io::Write::write_all(&mut file, d.0).unwrap();
+        }
     }
 }
 

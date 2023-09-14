@@ -37,5 +37,16 @@ jobs:
           if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/b.cool.ron) -ne 'b')) { exit 1 }
           if ([bool]((Get-Content examples/asset/processing/imported_assets/foo/c.cool.ron) -ne 'cmodifiedXb')) { exit 1 }
           if ([bool]((Get-Content examples/asset/processing/imported_assets/d.cool.ron) -ne 'dcmodifiedXb')) { exit 1 }
+
+          cat a.text
+          cat b.text
+          cat c.text
+          cat d.text
+
+          # check loaded assets
+          if ([bool]((Get-Content a.text) -ne 'modifiedX')) { exit 1 }
+          if ([bool]((Get-Content b.text) -ne 'b')) { exit 1 }
+          if ([bool]((Get-Content c.text) -ne 'cmodifiedXb')) { exit 1 }
+          if ([bool]((Get-Content d.text) -ne 'dcmodifiedXb')) { exit 1 }
         env:
           CI_TESTING_CONFIG: .github/example-run/alien_cake_addict.ron
