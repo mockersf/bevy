@@ -406,6 +406,13 @@ pub fn winit_runner_with(mut app: App) {
 
                 match event {
                     WindowEvent::Resized(size) => {
+                        // TODO: Remove this once we upgrade winit to a version with the fix
+                        #[cfg(target_os = "macos")]
+                        if size.width == u32::MAX || size.height == u32::MAX {
+                            // HACK to fix a bug on Macos 14
+                            // https://github.com/rust-windowing/winit/issues/2876
+                            return;
+                        }
                         window.update_actual_size_from_backend(size.width, size.height);
                         world.send_event(WindowResized {
                             id: window_id,
