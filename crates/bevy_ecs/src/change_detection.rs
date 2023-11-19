@@ -503,6 +503,7 @@ impl<'w, T: Resource> Res<'w, T> {
     /// Due to lifetime limitations of the `Deref` trait, this method can be used to obtain a
     /// reference of the [`Resource`] with a lifetime bound to `'w` instead of the lifetime of the
     /// struct itself.
+    #[inline]
     pub fn into_inner(self) -> &'w T {
         self.value
     }

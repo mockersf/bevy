@@ -29,7 +29,7 @@ pub struct NoAutomaticBatching;
 ///   variable as a result of the `batch_and_prepare_render_phase` system, e.g.
 ///   due to having to split data across separate uniform bindings within the
 ///   same buffer due to the maximum uniform buffer binding size.
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Eq, PartialOrd, Ord)]
 struct BatchMeta<T: PartialEq> {
     /// The pipeline id encompasses all pipeline configuration including vertex
     /// buffers and layouts, shaders and their specializations, bind group
@@ -62,7 +62,7 @@ pub trait GetBatchData {
     /// Data used for comparison between phase items. If the pipeline id, draw
     /// function id, per-instance data buffer dynamic offset and this data
     /// matches, the draws can be batched.
-    type CompareData: PartialEq;
+    type CompareData: PartialEq + std::fmt::Debug + PartialOrd + Ord;
     /// The per-instance data to be inserted into the [`GpuArrayBuffer`]
     /// containing these data for all instances.
     type BufferData: GpuArrayBufferable + Sync + Send + 'static;
@@ -105,6 +105,12 @@ pub fn batch_and_prepare_render_phase<I: CachedRenderPipelinePhaseItem, F: GetBa
     };
 
     for mut phase in &mut views {
+        phase.items.sort_unstable_by_key(|item| {
+            let batch_query_item = query.get(item.entity()).ok()?;
+
+            let (_, compare_data) = F::get_batch_data(&system_param_item, &batch_query_item);
+            compare_data
+        });
         let items = phase.items.iter_mut().map(|item| {
             let batch_data = process_item(item);
             (item.batch_range_mut(), batch_data)

@@ -173,14 +173,17 @@ pub struct VisibleEntities {
 }
 
 impl VisibleEntities {
+    #[inline]
     pub fn iter(&self) -> impl DoubleEndedIterator<Item = &Entity> {
         self.entities.iter()
     }
 
+    #[inline]
     pub fn len(&self) -> usize {
         self.entities.len()
     }
 
+    #[inline]
     pub fn is_empty(&self) -> bool {
         self.entities.is_empty()
     }

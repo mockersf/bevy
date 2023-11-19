@@ -140,6 +140,7 @@ impl<'a> TrackedRenderPass<'a> {
     /// If the bind group have dynamic offsets, provide them in binding order.
     /// These offsets have to be aligned to [`WgpuLimits::min_uniform_buffer_offset_alignment`](crate::settings::WgpuLimits::min_uniform_buffer_offset_alignment)
     /// or [`WgpuLimits::min_storage_buffer_offset_alignment`](crate::settings::WgpuLimits::min_storage_buffer_offset_alignment) appropriately.
+    #[inline]
     pub fn set_bind_group(
         &mut self,
         index: usize,
