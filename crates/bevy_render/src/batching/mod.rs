@@ -107,10 +107,10 @@ pub fn batch_and_prepare_render_phase<I: CachedRenderPipelinePhaseItem, F: GetBa
     for mut phase in &mut views {
         phase.items.sort_by_cached_key(|item| {
             let Some(batch_query_item) = query.get(item.entity()).ok() else {
-                return (None, item.cached_pipeline());
+                return (item.cached_pipeline(), None);
             };
             let (_, compare_data) = F::get_batch_data(&system_param_item, &batch_query_item);
-            (compare_data, item.cached_pipeline())
+            (item.cached_pipeline(), compare_data)
         });
         let items = phase.items.iter_mut().map(|item| {
             let batch_data = process_item(item);
