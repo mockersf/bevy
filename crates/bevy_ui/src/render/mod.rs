@@ -484,9 +484,12 @@ pub fn extract_uinodes(
         >,
     >,
 ) {
+    println!("extract_uinodes");
     for (entity, uinode, transform, color, maybe_image, view_visibility, clip) in
         uinode_query.iter()
     {
+        println!("      entity: {:?}, color: {:?}", entity, color);
+
         // Skip invisible and completely transparent nodes
         if !view_visibility.get() || color.0.is_fully_transparent() {
             continue;
@@ -738,6 +741,7 @@ pub fn queue_uinodes(
     pipeline_cache: Res<PipelineCache>,
     draw_functions: Res<DrawFunctions<TransparentUi>>,
 ) {
+    println!("queue_uinodes");
     let draw_function = draw_functions.read().id::<DrawUi>();
     for (view, mut transparent_phase) in &mut views {
         let pipeline = pipelines.specialize(
@@ -750,6 +754,10 @@ pub fn queue_uinodes(
             .reserve(extracted_uinodes.uinodes.len());
 
         for (entity, extracted_uinode) in extracted_uinodes.uinodes.iter() {
+            println!(
+                "      entity: {:?}, color: {:?}",
+                entity, extracted_uinode.color
+            );
             transparent_phase.add(TransparentUi {
                 draw_function,
                 pipeline,
