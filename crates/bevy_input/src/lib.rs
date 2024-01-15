@@ -42,7 +42,7 @@ use mouse::{
     MouseWheel,
 };
 use touch::{touch_screen_input_system, ForceTouch, TouchInput, TouchPhase, Touches};
-use touchpad::{TouchpadMagnify, TouchpadRotate};
+use touchpad::{DoubleTapGesture, PinchGesture, RotationGesture};
 
 use gamepad::{
     gamepad_axis_event_system, gamepad_button_event_system, gamepad_connection_system,
@@ -76,8 +76,9 @@ impl Plugin for InputPlugin {
             .add_event::<MouseWheel>()
             .init_resource::<ButtonInput<MouseButton>>()
             .add_systems(PreUpdate, mouse_button_input_system.in_set(InputSystem))
-            .add_event::<TouchpadMagnify>()
-            .add_event::<TouchpadRotate>()
+            .add_event::<PinchGesture>()
+            .add_event::<DoubleTapGesture>()
+            .add_event::<RotationGesture>()
             // gamepad
             .add_event::<GamepadConnectionEvent>()
             .add_event::<GamepadButtonChangedEvent>()
@@ -124,8 +125,9 @@ impl Plugin for InputPlugin {
             .register_type::<MouseWheel>();
 
         // Register touchpad types
-        app.register_type::<TouchpadMagnify>()
-            .register_type::<TouchpadRotate>();
+        app.register_type::<PinchGesture>()
+            .register_type::<DoubleTapGesture>()
+            .register_type::<RotationGesture>();
 
         // Register touch types
         app.register_type::<TouchInput>()

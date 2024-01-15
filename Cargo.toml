@@ -2519,3 +2519,7 @@ panic = "abort"
 
 [package.metadata.docs.rs]
 cargo-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]
+
+[patch.crates-io]
+# winit = { path = "../winit" }
+winit = { git = "https://github.com/mockersf/winit", branch = "ios-gesture-detection" }

@@ -236,6 +236,9 @@ pub struct Window {
     ///
     /// - **Android / Wayland / Web:** Unsupported.
     pub visible: bool,
+    pub recognize_pinch_gesture: bool,
+    pub recognize_doubletap_gesture: bool,
+    pub recognize_rotation_gesture: bool,
 }
 
 impl Default for Window {
@@ -262,6 +265,9 @@ impl Default for Window {
             canvas: None,
             window_theme: None,
             visible: true,
+            recognize_pinch_gesture: false,
+            recognize_doubletap_gesture: false,
+            recognize_rotation_gesture: false,
         }
     }
 }

@@ -35,7 +35,7 @@ use crate::{
 /// default values.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn create_windows<'a>(
-    event_loop: &EventLoopWindowTarget<()>,
+    event_loop: &EventLoopWindowTarget,
     mut commands: Commands,
     created_windows: impl Iterator<Item = (Entity, Mut<'a, Window>)>,
     mut event_writer: EventWriter<WindowCreated>,
@@ -66,6 +66,20 @@ pub(crate) fn create_windows<'a>(
 
         if let Some(theme) = winit_window.theme() {
             window.window_theme = Some(convert_winit_theme(theme));
+        }
+
+        #[cfg(target_os = "ios")]
+        {
+            use winit::platform::ios::WindowExtIOS;
+            if window.recognize_doubletap_gesture {
+                winit_window.recognize_doubletap_gesture(true);
+            }
+            if window.recognize_pinch_gesture {
+                winit_window.recognize_pinch_gesture(true);
+            }
+            if window.recognize_rotation_gesture {
+                winit_window.recognize_rotation_gesture(true);
+            }
         }
 
         window
@@ -298,6 +312,20 @@ pub(crate) fn changed_windows(
 
             if window.visible != cache.window.visible {
                 winit_window.set_visible(window.visible);
+            }
+
+            #[cfg(target_os = "ios")]
+            {
+                use winit::platform::ios::WindowExtIOS;
+                if window.recognize_doubletap_gesture != cache.window.recognize_doubletap_gesture {
+                    winit_window.recognize_doubletap_gesture(window.recognize_doubletap_gesture);
+                }
+                if window.recognize_pinch_gesture != cache.window.recognize_pinch_gesture {
+                    winit_window.recognize_pinch_gesture(window.recognize_pinch_gesture);
+                }
+                if window.recognize_rotation_gesture != cache.window.recognize_rotation_gesture {
+                    winit_window.recognize_rotation_gesture(window.recognize_rotation_gesture);
+                }
             }
 
             cache.window = window.clone();

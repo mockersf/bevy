@@ -21,7 +21,16 @@ use bevy_reflect::{ReflectDeserialize, ReflectSerialize};
     derive(serde::Serialize, serde::Deserialize),
     reflect(Serialize, Deserialize)
 )]
-pub struct TouchpadMagnify(pub f32);
+pub struct PinchGesture(pub f32);
+
+#[derive(Event, Debug, Clone, Copy, PartialEq, Reflect)]
+#[reflect(Debug, PartialEq)]
+#[cfg_attr(
+    feature = "serialize",
+    derive(serde::Serialize, serde::Deserialize),
+    reflect(Serialize, Deserialize)
+)]
+pub struct DoubleTapGesture;
 
 /// Touchpad rotation event with two-finger rotation gesture.
 ///
@@ -38,4 +47,4 @@ pub struct TouchpadMagnify(pub f32);
     derive(serde::Serialize, serde::Deserialize),
     reflect(Serialize, Deserialize)
 )]
-pub struct TouchpadRotate(pub f32);
+pub struct RotationGesture(pub f32);

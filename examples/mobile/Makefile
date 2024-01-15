@@ -5,7 +5,7 @@ ifndef DEVICE_ID
 	DEVICE=$(shell xcrun simctl list devices 'iOS' | grep -v 'unavailable' | grep -v '^--' | grep -v '==' | head -n 1 | grep -E -o -i "([0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12})")
 endif
 
-run: install
+run: ios-clean install
 	xcrun simctl launch --console $(DEVICE) org.bevyengine.example
 
 boot-sim:
@@ -20,6 +20,8 @@ xcodebuild-simulator:
 xcodebuild-iphone:
 	IOS_TARGETS=aarch64-apple-ios xcodebuild -scheme bevy_mobile_example -configuration Debug -derivedDataPath build -arch arm64
 
-clean:
+ios-clean:
 	rm -r build
+
+clean: ios-clean
 	cargo clean

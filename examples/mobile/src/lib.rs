@@ -1,3 +1,5 @@
+use bevy::log::Level;
+use bevy::log::LogPlugin;
 use bevy::{
     input::touch::TouchPhase,
     prelude::*,
@@ -8,14 +10,24 @@ use bevy::{
 #[bevy_main]
 fn main() {
     let mut app = App::new();
-    app.add_plugins(DefaultPlugins.set(WindowPlugin {
-        primary_window: Some(Window {
-            resizable: false,
-            mode: WindowMode::BorderlessFullscreen,
-            ..default()
-        }),
-        ..default()
-    }))
+    app.add_plugins(
+        DefaultPlugins
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    resizable: false,
+                    mode: WindowMode::BorderlessFullscreen,
+                    recognize_doubletap_gesture: true,
+                    recognize_pinch_gesture: false,
+                    recognize_rotation_gesture: true,
+                    ..default()
+                }),
+                ..default()
+            })
+            .set(LogPlugin {
+                level: Level::ERROR,
+                ..default()
+            }),
+    )
     .add_systems(Startup, (setup_scene, setup_music))
     .add_systems(Update, (touch_camera, button_handler, handle_lifetime));
 
@@ -139,11 +151,16 @@ fn button_handler(
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
     >,
+    mut window: Query<&mut Window>,
 ) {
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 *color = Color::BLUE.into();
+                let mut window = window.single_mut();
+                window.recognize_doubletap_gesture = !window.recognize_doubletap_gesture;
+                window.recognize_pinch_gesture = !window.recognize_pinch_gesture;
+                window.recognize_rotation_gesture = !window.recognize_rotation_gesture;
             }
             Interaction::Hovered => {
                 *color = Color::GRAY.into();

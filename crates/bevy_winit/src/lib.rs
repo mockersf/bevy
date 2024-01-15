@@ -26,7 +26,7 @@ use bevy_input::{
     keyboard::KeyboardInput,
     mouse::{MouseButtonInput, MouseMotion, MouseScrollUnit, MouseWheel},
     touch::TouchInput,
-    touchpad::{TouchpadMagnify, TouchpadRotate},
+    touchpad::{DoubleTapGesture, PinchGesture, RotationGesture},
 };
 use bevy_math::{ivec2, DVec2, Vec2};
 #[cfg(not(target_arch = "wasm32"))]
@@ -234,8 +234,9 @@ struct WindowAndInputEventWriters<'w> {
     keyboard_input: EventWriter<'w, KeyboardInput>,
     character_input: EventWriter<'w, ReceivedCharacter>,
     mouse_button_input: EventWriter<'w, MouseButtonInput>,
-    touchpad_magnify_input: EventWriter<'w, TouchpadMagnify>,
-    touchpad_rotate_input: EventWriter<'w, TouchpadRotate>,
+    touchpad_magnify_input: EventWriter<'w, PinchGesture>,
+    touchpad_doubletap_input: EventWriter<'w, DoubleTapGesture>,
+    touchpad_rotate_input: EventWriter<'w, RotationGesture>,
     mouse_wheel_input: EventWriter<'w, MouseWheel>,
     touch_input: EventWriter<'w, TouchInput>,
     ime_input: EventWriter<'w, Ime>,
@@ -356,7 +357,7 @@ pub fn winit_runner(mut app: App) {
     )> = SystemState::from_world(&mut app.world);
 
     // setup up the event loop
-    let event_handler = move |event: Event<()>, event_loop: &EventLoopWindowTarget<()>| {
+    let event_handler = move |event: Event<()>, event_loop: &EventLoopWindowTarget| {
         #[cfg(feature = "trace")]
         let _span = bevy_utils::tracing::info_span!("winit event_handler").entered();
 
@@ -521,15 +522,20 @@ pub fn winit_runner(mut app: App) {
                             window: window_entity,
                         });
                     }
-                    WindowEvent::TouchpadMagnify { delta, .. } => {
+                    WindowEvent::PinchGesture { delta, .. } => {
                         event_writers
                             .touchpad_magnify_input
-                            .send(TouchpadMagnify(delta as f32));
+                            .send(dbg!(PinchGesture(delta as f32)));
                     }
-                    WindowEvent::TouchpadRotate { delta, .. } => {
+                    WindowEvent::DoubleTapGesture { .. } => {
+                        event_writers
+                            .touchpad_doubletap_input
+                            .send(dbg!(DoubleTapGesture));
+                    }
+                    WindowEvent::RotationGesture { delta, .. } => {
                         event_writers
                             .touchpad_rotate_input
-                            .send(TouchpadRotate(delta));
+                            .send(dbg!(RotationGesture(delta)));
                     }
                     WindowEvent::MouseWheel { delta, .. } => match delta {
                         event::MouseScrollDelta::LineDelta(x, y) => {
@@ -837,7 +843,7 @@ fn run_app_update_if_should(
     runner_state: &mut WinitAppRunnerState,
     app: &mut App,
     focused_windows_state: &mut SystemState<(Res<WinitSettings>, Query<&Window>)>,
-    event_loop: &EventLoopWindowTarget<()>,
+    event_loop: &EventLoopWindowTarget,
     create_window_system_state: &mut SystemState<(
         Commands,
         Query<(Entity, &mut Window), Added<Window>>,
