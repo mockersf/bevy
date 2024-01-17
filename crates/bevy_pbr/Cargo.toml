@@ -35,7 +35,7 @@ fixedbitset = "0.4"
 bytemuck = { version = "1", features = ["derive"] }
 radsort = "0.1"
 # naga_oil = "0.11"
-naga_oil = { git = "https://github.com/Elabajaba/naga_oil.git", rev = "29a672905ccdef14e562d8ac860015779e63067e" }
+naga_oil = { git = "https://github.com/Dinnerbone/naga_oil.git", rev = "d44bfaa76ad2d3bb151a9058b61161cbda53ecf1" }
 thread_local = "1.0"
 
 [lints]
