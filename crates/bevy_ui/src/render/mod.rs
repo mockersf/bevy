@@ -4,6 +4,7 @@ mod ui_material_pipeline;
 
 use bevy_core_pipeline::{core_2d::Camera2d, core_3d::Camera3d};
 use bevy_hierarchy::Parent;
+use bevy_log::{info, warn};
 use bevy_render::{
     render_phase::PhaseItem, render_resource::BindGroupEntries, view::ViewVisibility,
     ExtractSchedule, Render,
@@ -416,9 +417,13 @@ pub fn extract_uinodes(
         )>,
     >,
 ) {
+    warn!("  extract_uinodes");
     for (entity, uinode, transform, color, maybe_image, view_visibility, clip, atlas, camera) in
         uinode_query.iter()
     {
+        if color.0.r() != 0.0 && color.0.r() <= 0.4 {
+            info!("      entity: {:?}, color: {:?}", entity, color.0);
+        }
         let Some(camera_entity) = camera.map(TargetCamera::entity).or(default_ui_camera.get())
         else {
             continue;
@@ -696,8 +701,15 @@ pub fn queue_uinodes(
     pipeline_cache: Res<PipelineCache>,
     draw_functions: Res<DrawFunctions<TransparentUi>>,
 ) {
+    warn!("  queue_uinodes");
     let draw_function = draw_functions.read().id::<DrawUi>();
     for (entity, extracted_uinode) in extracted_uinodes.uinodes.iter() {
+        if extracted_uinode.color.r() != 0.0 && extracted_uinode.color.r() <= 0.4 {
+            info!(
+                "      entity: {:?}, color: {:?}",
+                entity, extracted_uinode.color
+            );
+        }
         let Ok((view, mut transparent_phase)) = views.get_mut(extracted_uinode.camera_entity)
         else {
             continue;
@@ -743,6 +755,7 @@ pub fn prepare_uinodes(
     events: Res<SpriteAssetEvents>,
     mut previous_len: Local<usize>,
 ) {
+    warn!("  prepare_uinodes");
     // If an image has changed, the GpuImage has (probably) changed
     for event in &events.images {
         match event {
@@ -775,6 +788,12 @@ pub fn prepare_uinodes(
             for item_index in 0..ui_phase.items.len() {
                 let item = &mut ui_phase.items[item_index];
                 if let Some(extracted_uinode) = extracted_uinodes.uinodes.get(&item.entity) {
+                    if extracted_uinode.color.r() != 0.0 && extracted_uinode.color.r() <= 0.4 {
+                        info!(
+                            "      entity: {:?}, color: {:?}",
+                            item.entity, extracted_uinode.color
+                        );
+                    }
                     let mut existing_batch = batches.last_mut();
 
                     if batch_image_handle == AssetId::invalid()

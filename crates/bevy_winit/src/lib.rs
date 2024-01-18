@@ -515,6 +515,7 @@ pub fn winit_runner(mut app: App) {
                         });
                     }
                     WindowEvent::MouseInput { state, button, .. } => {
+                        error!("MouseInput event received: {state:?} {button:?}");
                         event_writers.mouse_button_input.send(MouseButtonInput {
                             button: converters::convert_mouse_button(button),
                             state: converters::convert_element_state(state),
@@ -696,6 +697,7 @@ pub fn winit_runner(mut app: App) {
                         });
                     }
                     WindowEvent::RedrawRequested => {
+                        warn!("updating");
                         run_app_update_if_should(
                             &mut runner_state,
                             &mut app,
