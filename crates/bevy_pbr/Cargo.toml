@@ -34,8 +34,7 @@ fixedbitset = "0.4"
 # direct dependency required for derive macro
 bytemuck = { version = "1", features = ["derive"] }
 radsort = "0.1"
-# naga_oil = "0.11"
-naga_oil = { git = "https://github.com/Dinnerbone/naga_oil.git", rev = "d44bfaa76ad2d3bb151a9058b61161cbda53ecf1" }
+naga_oil = "0.12"
 thread_local = "1.0"
 
 [lints]
