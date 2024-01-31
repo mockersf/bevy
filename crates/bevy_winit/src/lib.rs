@@ -279,6 +279,7 @@ pub fn winit_runner(mut app: App) {
         SystemState::<CreateWindowParams<Added<Window>>>::from_world(&mut app.world);
     // set up the event loop
     let event_handler = move |event, event_loop: &EventLoopWindowTarget<()>| {
+        warn!("Received event: {event:?}");
         handle_winit_event(
             &mut app,
             &mut app_exit_event_reader,
