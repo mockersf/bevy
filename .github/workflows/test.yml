@@ -1,0 +1,29 @@
+name: test
+
+on:
+  push:
+
+jobs:
+  run-examples-on-macos-metal:
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build bevy
+        shell: bash
+        # this uses the same command as when running the example to ensure build is reused
+        run: |
+          CI_TESTING_CONFIG=.github/example-run/alien_cake_addict.ron cargo build --example alien_cake_addict --features "bevy_ci_testing"
+
+      - name: Run examples
+        shell: bash
+        run: |
+          for example in .github/example-run/*.ron; do
+            example_name=`basename $example .ron`
+            echo "running $example_name - "`date`
+            time CI_TESTING_CONFIG=$example cargo run --example $example_name --features "bevy_ci_testing"
+            sleep 10
+          done
