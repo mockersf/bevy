@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: 8531033b31b086f202b881933d1efcabf8fea026
       - uses: dtolnay/rust-toolchain@stable
       - name: Build bevy
         shell: bash
