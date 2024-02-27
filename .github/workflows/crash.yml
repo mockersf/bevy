@@ -23,6 +23,6 @@ jobs:
         shell: bash
         run: |
           for example_name in anti_aliasing deferred_rendering irradiance_volumes parallax_mapping tonemapping update_gltf_scene; do
-            time WGPU_BACKEND=dx12 CI_TESTING_CONFIG=config.ron cargo run --example $example_name --features "bevy_ci_testing"
+            time WGPU_BACKEND=dx12 CI_TESTING_CONFIG=.github/example-run/config.ron cargo run --example $example_name --features "bevy_ci_testing"
             sleep 10
           done
