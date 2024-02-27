@@ -18,11 +18,11 @@ jobs:
         shell: bash
         # this uses the same command as when running the example to ensure build is reused
         run: |
-          WGPU_BACKEND=dx12 CI_TESTING_CONFIG=.github/example-run/config.ron cargo build --release --example anti_aliasing --features "bevy_ci_testing"
+          WGPU_BACKEND=dx12 CI_TESTING_CONFIG=.github/example-run/alien_cake_addict.ron cargo build --release --example anti_aliasing --features "bevy_ci_testing"
       - name: Run examples
         shell: bash
         run: |
           for example_name in anti_aliasing deferred_rendering irradiance_volumes parallax_mapping tonemapping update_gltf_scene; do
-            time WGPU_BACKEND=dx12 CI_TESTING_CONFIG=.github/example-run/config.ron cargo run --release --example $example_name --features "bevy_ci_testing"
+            time WGPU_BACKEND=dx12 CI_TESTING_CONFIG=.github/example-run/alien_cake_addict.ron cargo run --release --example $example_name --features "bevy_ci_testing"
             sleep 10
           done
