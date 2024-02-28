@@ -73,7 +73,7 @@ fn pbr_input_from_standard_material(
     let NdotV = max(dot(pbr_input.N, pbr_input.V), 0.0001);
 
 #ifdef VERTEX_UVS
-    let uv_transform = pbr_bindings::material.uv_transform;
+    let uv_transform = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
     var uv = (uv_transform * vec3(in.uv, 1.0)).xy;
 
 #ifdef VERTEX_TANGENTS
