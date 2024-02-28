@@ -1,5 +1,5 @@
 use bevy_asset::Asset;
-use bevy_math::{Affine2, Mat3, Vec4};
+use bevy_math::{Affine2, Mat3, Vec3, Vec4};
 use bevy_reflect::{std_traits::ReflectDefault, Reflect};
 use bevy_render::{mesh::MeshVertexBufferLayout, render_asset::RenderAssets, render_resource::*};
 
@@ -598,6 +598,7 @@ pub struct StandardMaterialUniform {
     pub attenuation_color: Vec4,
     // /// The transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is identity.
     // pub uv_transform: Mat3,
+    pub uv_transform_x: Vec3,
     /// Linear perceptual roughness, clamped to [0.089, 1.0] in the shader
     /// Defaults to minimum of 0.089
     pub roughness: f32,
@@ -733,6 +734,7 @@ impl AsBindGroupShaderType<StandardMaterialUniform> for StandardMaterial {
             max_relief_mapping_search_steps: self.parallax_mapping_method.max_steps(),
             deferred_lighting_pass_id: self.deferred_lighting_pass_id as u32,
             // uv_transform: self.uv_transform.into(),
+            uv_transform_x: self.uv_transform.x_axis.extend(0.0),
         }
     }
 }
