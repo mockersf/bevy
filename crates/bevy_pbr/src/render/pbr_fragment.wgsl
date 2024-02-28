@@ -76,9 +76,9 @@ fn pbr_input_from_standard_material(
     // let uv_transform = pbr_bindings::material.uv_transform;
     // let uv_transform = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
     let uv_transform = mat3x3<f32>(
-        pbr_bindings::material.uv_transform[0].x, pbr_bindings::material.uv_transform[0].y, 0.0,
-        pbr_bindings::material.uv_transform[1].x, pbr_bindings::material.uv_transform[1].y, 0.0,
-        pbr_bindings::material.uv_transform[2].x, pbr_bindings::material.uv_transform[2].y, 1.0,
+        vec3<f32>(pbr_bindings::material.uv_transform[0].xy, 0.0),
+        vec3<f32>(pbr_bindings::material.uv_transform[1].xy, 0.0),
+        vec3<f32>(pbr_bindings::material.uv_transform[2].xy, 1.0),
     );
     var uv = (uv_transform * vec3(in.uv, 1.0)).xy;
 
