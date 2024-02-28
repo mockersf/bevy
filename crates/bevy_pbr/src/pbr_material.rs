@@ -599,6 +599,7 @@ pub struct StandardMaterialUniform {
     // /// The transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is identity.
     // pub uv_transform: Mat3,
     pub uv_transform_x: Vec3,
+    pub uv_transform_y: Vec3,
     /// Linear perceptual roughness, clamped to [0.089, 1.0] in the shader
     /// Defaults to minimum of 0.089
     pub roughness: f32,
@@ -735,6 +736,7 @@ impl AsBindGroupShaderType<StandardMaterialUniform> for StandardMaterial {
             deferred_lighting_pass_id: self.deferred_lighting_pass_id as u32,
             // uv_transform: self.uv_transform.into(),
             uv_transform_x: self.uv_transform.x_axis.extend(0.0),
+            uv_transform_y: self.uv_transform.y_axis.extend(0.0),
         }
     }
 }

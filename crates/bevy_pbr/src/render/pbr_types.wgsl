@@ -8,6 +8,7 @@ struct StandardMaterial {
     attenuation_color: vec4<f32>,
     // uv_transform: mat3x3<f32>,
     uv_transform_x: vec3<f32>,
+    uv_transform_y: vec3<f32>,
     perceptual_roughness: f32,
     metallic: f32,
     reflectance: f32,
@@ -81,6 +82,7 @@ fn standard_material_new() -> StandardMaterial {
     // scale 1, translation 0, rotation 0
     // material.uv_transform = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
     material.uv_transform_x = vec3<f32>(1.0, 0.0, 0.0);
+    material.uv_transform_y = vec3<f32>(0.0, 1.0, 0.0);
 
     return material;
 }
