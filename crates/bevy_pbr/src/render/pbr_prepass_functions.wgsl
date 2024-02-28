@@ -21,7 +21,7 @@ fn prepass_alpha_discard(in: VertexOutput) {
     // let uv_transform = pbr_bindings::material.uv_transform;
     // let uv_transform = mat3x3<f32>(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0);
     let uv_transform = mat3x3<f32>(
-        vec3<f32>(pbr_bindings::material.uv_transform[0].xy, 0.0),
+        vec3<f32>(pbr_bindings::material.uv_transform[0].xyz),
         vec3<f32>(pbr_bindings::material.uv_transform[1].xy, 0.0),
         vec3<f32>(pbr_bindings::material.uv_transform[2].xy, 1.0),
     );
