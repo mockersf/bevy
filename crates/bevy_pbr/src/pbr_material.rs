@@ -610,12 +610,12 @@ pub struct StandardMaterialUniform {
     /// Color white light takes after travelling through the attenuation distance underneath the material surface
     pub attenuation_color: Vec4,
     /// The x-axis of the mat2 of the transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is [1, 0].
-    pub uv_transform_x_axis: Vec2,
-    /// The y-axis of the mat2 of the transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is [0, 1].
-    pub uv_transform_y_axis: Vec2,
+    pub uv_transform_xy_axis: Vec4,
+    // /// The y-axis of the mat2 of the transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is [0, 1].
+    // pub uv_transform_y_axis: Vec2,
     /// The translation of the transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is [0, 0].
-    pub uv_transform_translation: Vec2,
-    pub padding: Vec2,
+    pub uv_transform_translation: Vec4,
+    // pub padding: Vec2,
     /// Linear perceptual roughness, clamped to [0.089, 1.0] in the shader
     /// Defaults to minimum of 0.089
     pub roughness: f32,
@@ -755,10 +755,15 @@ impl AsBindGroupShaderType<StandardMaterialUniform> for StandardMaterial {
             lightmap_exposure: self.lightmap_exposure,
             max_relief_mapping_search_steps: self.parallax_mapping_method.max_steps(),
             deferred_lighting_pass_id: self.deferred_lighting_pass_id as u32,
-            uv_transform_x_axis: self.uv_transform.matrix2.x_axis,
-            uv_transform_y_axis: self.uv_transform.matrix2.y_axis,
-            uv_transform_translation: self.uv_transform.translation,
-            padding: Vec2::ZERO,
+            uv_transform_xy_axis: self
+                .uv_transform
+                .matrix2
+                .x_axis
+                .extend(self.uv_transform.matrix2.y_axis.x)
+                .extend(self.uv_transform.matrix2.y_axis.y),
+            // uv_transform_y_axis: self.uv_transform.matrix2.y_axis,
+            uv_transform_translation: self.uv_transform.translation.extend(0.0).extend(0.0),
+            // padding: Vec2::ZERO,
         }
     }
 }
