@@ -21,7 +21,7 @@ fn prepass_alpha_discard(in: VertexOutput) {
     let uv_transform = mat3x3<f32>(
         pbr_bindings::material.uv_transform_x.x, pbr_bindings::material.uv_transform_x.y, pbr_bindings::material.uv_transform_x.z,
         pbr_bindings::material.uv_transform_y.x, pbr_bindings::material.uv_transform_y.y, pbr_bindings::material.uv_transform_y.z,
-        0.0, 0.0, 1.0
+        pbr_bindings::material.uv_transform_z.x, pbr_bindings::material.uv_transform_z.y, pbr_bindings::material.uv_transform_z.z,
     );
     let uv = (uv_transform * vec3(in.uv, 1.0)).xy;
     if (pbr_bindings::material.flags & pbr_types::STANDARD_MATERIAL_FLAGS_BASE_COLOR_TEXTURE_BIT) != 0u {

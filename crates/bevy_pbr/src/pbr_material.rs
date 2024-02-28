@@ -600,6 +600,7 @@ pub struct StandardMaterialUniform {
     // pub uv_transform: Mat3,
     pub uv_transform_x: Vec3,
     pub uv_transform_y: Vec3,
+    pub uv_transform_z: Vec3,
     /// Linear perceptual roughness, clamped to [0.089, 1.0] in the shader
     /// Defaults to minimum of 0.089
     pub roughness: f32,
@@ -737,6 +738,7 @@ impl AsBindGroupShaderType<StandardMaterialUniform> for StandardMaterial {
             // uv_transform: self.uv_transform.into(),
             uv_transform_x: self.uv_transform.x_axis.extend(0.0),
             uv_transform_y: self.uv_transform.y_axis.extend(0.0),
+            uv_transform_z: self.uv_transform.z_axis.extend(0.0),
         }
     }
 }
