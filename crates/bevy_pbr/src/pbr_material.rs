@@ -615,6 +615,7 @@ pub struct StandardMaterialUniform {
     pub uv_transform_y_axis: Vec2,
     /// The translation of the transform applied to the UVs corresponding to ATTRIBUTE_UV_0 on the mesh before sampling. Default is [0, 0].
     pub uv_transform_translation: Vec2,
+    pub padding: Vec2,
     /// Linear perceptual roughness, clamped to [0.089, 1.0] in the shader
     /// Defaults to minimum of 0.089
     pub roughness: f32,
@@ -757,6 +758,7 @@ impl AsBindGroupShaderType<StandardMaterialUniform> for StandardMaterial {
             uv_transform_x_axis: self.uv_transform.matrix2.x_axis,
             uv_transform_y_axis: self.uv_transform.matrix2.y_axis,
             uv_transform_translation: self.uv_transform.translation,
+            padding: Vec2::ZERO,
         }
     }
 }

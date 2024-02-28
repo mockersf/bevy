@@ -7,6 +7,7 @@ struct StandardMaterial {
     emissive: vec4<f32>,
     attenuation_color: vec4<f32>,
     uv_transform: mat3x2<f32>,
+    padding: vec2<f32>,
     perceptual_roughness: f32,
     metallic: f32,
     reflectance: f32,
