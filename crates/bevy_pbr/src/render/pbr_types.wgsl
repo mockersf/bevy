@@ -7,7 +7,7 @@ struct StandardMaterial {
     emissive: vec4<f32>,
     attenuation_color: vec4<f32>,
     uv_transform_xy_axys: vec4<f32>,
-    uv_transform_translation: vec2<f32>,
+    uv_transform_translation: vec4<f32>,
     perceptual_roughness: f32,
     metallic: f32,
     reflectance: f32,
@@ -80,7 +80,7 @@ fn standard_material_new() -> StandardMaterial {
     material.deferred_lighting_pass_id = 1u;
     // scale 1, translation 0, rotation 0
     material.uv_transform_xy_axys = vec4<f32>(1.0, 0.0, 0.0, 0.1);
-    material.uv_transform_translation = vec2<f32>(0.0, 0.0);
+    material.uv_transform_translation = vec4<f32>(0.0, 0.0, 0.0, 0.0);
 
     return material;
 }
