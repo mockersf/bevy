@@ -11,7 +11,6 @@
     parallax_mapping::parallaxed_uv,
     lightmap::lightmap,
 }
-#import bevy_render::maths::affine2_to_square
 
 #ifdef SCREEN_SPACE_AMBIENT_OCCLUSION
 #import bevy_pbr::mesh_view_bindings::screen_space_ambient_occlusion_texture
@@ -74,7 +73,11 @@ fn pbr_input_from_standard_material(
     let NdotV = max(dot(pbr_input.N, pbr_input.V), 0.0001);
 
 #ifdef VERTEX_UVS
-    let uv_transform = affine2_to_square(pbr_bindings::material.uv_transform);
+    let uv_transform = mat3x3<f32>(
+        vec3<f32>(pbr_bindings::material.uv_transform_x_axys, 0.0),
+        vec3<f32>(pbr_bindings::material.uv_transform_y_axys, 0.0),
+        vec3<f32>(pbr_bindings::material.uv_transform_translation, 1.0),
+    );
     var uv = (uv_transform * vec3(in.uv, 1.0)).xy;
 
 #ifdef VERTEX_TANGENTS
