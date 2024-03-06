@@ -318,11 +318,7 @@ pub fn prepare_windows(
                     window.set_swapchain_texture(frame);
                 }
                 Err(wgpu::SurfaceError::Outdated) => {
-                    render_device.configure_surface(surface, &surface_data.configuration);
-                    let frame = surface
-                        .get_current_texture()
-                        .expect("Error reconfiguring surface");
-                    window.set_swapchain_texture(frame);
+                    continue;
                 }
                 #[cfg(target_os = "linux")]
                 Err(wgpu::SurfaceError::Timeout) if may_erroneously_timeout() => {
