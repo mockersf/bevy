@@ -1,6 +1,6 @@
 use bevy_asset::Asset;
 use bevy_color::Alpha;
-use bevy_math::{Affine2, Mat3, Vec2, Vec4};
+use bevy_math::{Affine2, Vec4};
 use bevy_reflect::{std_traits::ReflectDefault, Reflect};
 use bevy_render::{
     mesh::MeshVertexBufferLayoutRef, render_asset::RenderAssets, render_resource::*,
