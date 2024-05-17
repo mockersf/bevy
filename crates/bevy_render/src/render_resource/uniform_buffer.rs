@@ -136,7 +136,8 @@ impl<T: ShaderType + WriteInto> UniformBuffer<T> {
                 contents: self.scratch.as_ref(),
             }));
             self.changed = false;
-        } else if let Some(buffer) = &self.buffer {
+        }
+        if let Some(buffer) = &self.buffer {
             queue.write_buffer(buffer, 0, self.scratch.as_ref());
         }
     }
