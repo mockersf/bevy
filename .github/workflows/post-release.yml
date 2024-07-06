@@ -9,7 +9,6 @@ env:
 
 jobs:
   ci:
-    if: github.repository == 'bevyengine/bevy'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
