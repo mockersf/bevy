@@ -1476,7 +1476,7 @@ doc-scrape-examples = true
 name = "Async Compute"
 description = "How to use `AsyncComputeTaskPool` to complete longer running tasks"
 category = "Async Tasks"
-wasm = false
+wasm = true
 
 [[example]]
 name = "external_source_external_thread"
