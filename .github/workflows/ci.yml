@@ -69,7 +69,6 @@ jobs:
         run: cargo run -p ci -- lints
 
   build-android:
-    if: ${{ github.event_name == 'merge_group' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
