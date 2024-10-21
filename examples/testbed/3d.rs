@@ -8,14 +8,20 @@ use bevy::prelude::*;
 
 fn main() {
     let mut app = App::new();
-    app.add_plugins((DefaultPlugins,))
-        .init_state::<Scene>()
-        .enable_state_scoped_entities::<Scene>()
-        .add_systems(OnEnter(Scene::Light), light::setup)
-        .add_systems(OnEnter(Scene::Animation), animation::setup)
-        .add_systems(OnEnter(Scene::Bloom), bloom::setup)
-        .add_systems(OnEnter(Scene::Gltf), gltf::setup)
-        .add_systems(Update, switch_scene);
+    app.add_plugins(DefaultPlugins.set(WindowPlugin {
+        primary_window: Some(Window {
+            resolution: bevy::window::WindowResolution::default().with_scale_factor_override(0.5),
+            ..default()
+        }),
+        ..default()
+    }))
+    .init_state::<Scene>()
+    .enable_state_scoped_entities::<Scene>()
+    .add_systems(OnEnter(Scene::Light), light::setup)
+    .add_systems(OnEnter(Scene::Animation), animation::setup)
+    .add_systems(OnEnter(Scene::Bloom), bloom::setup)
+    .add_systems(OnEnter(Scene::Gltf), gltf::setup)
+    .add_systems(Update, switch_scene);
 
     app.run();
 }
