@@ -31,7 +31,7 @@ fn main() {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States)]
 enum SceneState {
-    PauseBefore(Scene),
+    PauseBefore(Scene, u32),
     Running(Scene),
 }
 
@@ -75,11 +75,12 @@ fn switch_scene(
             CiTestingCustomEvent(event) => event == "switch_scene",
         });
     }
-    if should_switch || matches!(scene.get(), SceneState::PauseBefore(_)) {
+    if should_switch || matches!(scene.get(), SceneState::PauseBefore(_, _)) {
         info!("Switching scene");
         next_scene.set(match scene.get() {
-            SceneState::Running(scene) => SceneState::PauseBefore(scene.next()),
-            SceneState::PauseBefore(scene) => SceneState::Running(*scene),
+            SceneState::Running(scene) => SceneState::PauseBefore(scene.next(), 5),
+            SceneState::PauseBefore(scene, 0) => SceneState::Running(*scene),
+            SceneState::PauseBefore(scene, n) => SceneState::PauseBefore(*scene, n - 1),
         });
     }
 }
