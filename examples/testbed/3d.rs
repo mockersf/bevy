@@ -29,9 +29,9 @@ fn main() {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
 enum Scene {
     #[default]
+    Gltf,
     Light,
     Bloom,
-    Gltf,
     Animation,
 }
 
@@ -52,10 +52,10 @@ fn switch_scene(
     if should_switch {
         info!("Switching scene");
         next_scene.set(match scene.get() {
+            Scene::Gltf => Scene::Light,
             Scene::Light => Scene::Bloom,
-            Scene::Bloom => Scene::Gltf,
-            Scene::Gltf => Scene::Animation,
-            Scene::Animation => Scene::Light,
+            Scene::Bloom => Scene::Animation,
+            Scene::Animation => Scene::Gltf,
         });
     }
 }
