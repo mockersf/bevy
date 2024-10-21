@@ -15,35 +15,57 @@ fn main() {
         }),
         ..default()
     }))
-    .init_state::<Scene>()
-    .enable_state_scoped_entities::<Scene>()
-    .add_systems(OnEnter(Scene::Light), light::setup)
-    .add_systems(OnEnter(Scene::Animation), animation::setup)
-    .add_systems(OnEnter(Scene::Bloom), bloom::setup)
-    .add_systems(OnEnter(Scene::Gltf), gltf::setup)
+    .init_state::<SceneState>()
+    .enable_state_scoped_entities::<SceneState>()
+    .add_systems(OnEnter(SceneState::Running(Scene::Light)), light::setup)
+    .add_systems(
+        OnEnter(SceneState::Running(Scene::Animation)),
+        animation::setup,
+    )
+    .add_systems(OnEnter(SceneState::Running(Scene::Bloom)), bloom::setup)
+    .add_systems(OnEnter(SceneState::Running(Scene::Gltf)), gltf::setup)
     .add_systems(Update, switch_scene);
 
     app.run();
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash, States, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, States)]
+enum SceneState {
+    PauseBefore(Scene),
+    Running(Scene),
+}
+
+impl Default for SceneState {
+    fn default() -> Self {
+        SceneState::Running(Scene::default())
+    }
+}
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum Scene {
     #[default]
-    Gltf,
-    GltfPause,
     Light,
-    LightPause,
     Bloom,
-    BloomPause,
+    Gltf,
     Animation,
-    AnimationPause,
+}
+
+impl Scene {
+    fn next(&self) -> Self {
+        match self {
+            Scene::Light => Scene::Bloom,
+            Scene::Bloom => Scene::Gltf,
+            Scene::Gltf => Scene::Animation,
+            Scene::Animation => Scene::Light,
+        }
+    }
 }
 
 fn switch_scene(
     keyboard: Res<ButtonInput<KeyCode>>,
     #[cfg(feature = "bevy_ci_testing")] mut ci_events: EventReader<CiTestingCustomEvent>,
-    scene: Res<State<Scene>>,
-    mut next_scene: ResMut<NextState<Scene>>,
+    scene: Res<State<SceneState>>,
+    mut next_scene: ResMut<NextState<SceneState>>,
 ) {
     let mut should_switch = false;
     should_switch |= keyboard.just_pressed(KeyCode::Space);
@@ -53,17 +75,11 @@ fn switch_scene(
             CiTestingCustomEvent(event) => event == "switch_scene",
         });
     }
-    if should_switch {
+    if should_switch || matches!(scene.get(), SceneState::PauseBefore(_)) {
         info!("Switching scene");
         next_scene.set(match scene.get() {
-            Scene::Gltf => Scene::GltfPause,
-            Scene::Light => Scene::LightPause,
-            Scene::Bloom => Scene::BloomPause,
-            Scene::Animation => Scene::AnimationPause,
-            Scene::GltfPause => Scene::Light,
-            Scene::LightPause => Scene::Bloom,
-            Scene::BloomPause => Scene::Animation,
-            Scene::AnimationPause => Scene::Gltf,
+            SceneState::Running(scene) => SceneState::PauseBefore(scene.next()),
+            SceneState::PauseBefore(scene) => SceneState::Running(*scene),
         });
     }
 }
@@ -76,7 +92,7 @@ mod light {
         prelude::*,
     };
 
-    const CURRENT_SCENE: super::Scene = super::Scene::Light;
+    const CURRENT_SCENE: super::SceneState = super::SceneState::Running(super::Scene::Light);
 
     pub fn setup(
         mut commands: Commands,
@@ -155,7 +171,7 @@ mod bloom {
         prelude::*,
     };
 
-    const CURRENT_SCENE: super::Scene = super::Scene::Bloom;
+    const CURRENT_SCENE: super::SceneState = super::SceneState::Running(super::Scene::Bloom);
 
     pub fn setup(
         mut commands: Commands,
@@ -205,7 +221,7 @@ mod bloom {
 mod gltf {
     use bevy::prelude::*;
 
-    const CURRENT_SCENE: super::Scene = super::Scene::Gltf;
+    const CURRENT_SCENE: super::SceneState = super::SceneState::Running(super::Scene::Gltf);
 
     pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         commands.spawn((
@@ -241,7 +257,7 @@ mod animation {
 
     use bevy::{prelude::*, scene::SceneInstanceReady};
 
-    const CURRENT_SCENE: super::Scene = super::Scene::Animation;
+    const CURRENT_SCENE: super::SceneState = super::SceneState::Running(super::Scene::Animation);
     const FOX_PATH: &str = "models/animated/Fox.glb";
 
     #[derive(Resource)]
