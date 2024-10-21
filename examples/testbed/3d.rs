@@ -10,7 +10,7 @@ fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins.set(WindowPlugin {
         primary_window: Some(Window {
-            resolution: bevy::window::WindowResolution::default().with_scale_factor_override(0.5),
+            resolution: bevy::window::WindowResolution::default().with_scale_factor_override(0.25),
             ..default()
         }),
         ..default()
