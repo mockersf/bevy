@@ -30,9 +30,13 @@ fn main() {
 enum Scene {
     #[default]
     Gltf,
+    GltfPause,
     Light,
+    LightPause,
     Bloom,
+    BloomPause,
     Animation,
+    AnimationPause,
 }
 
 fn switch_scene(
@@ -52,10 +56,14 @@ fn switch_scene(
     if should_switch {
         info!("Switching scene");
         next_scene.set(match scene.get() {
-            Scene::Gltf => Scene::Light,
-            Scene::Light => Scene::Bloom,
-            Scene::Bloom => Scene::Animation,
-            Scene::Animation => Scene::Gltf,
+            Scene::Gltf => Scene::GltfPause,
+            Scene::Light => Scene::LightPause,
+            Scene::Bloom => Scene::BloomPause,
+            Scene::Animation => Scene::AnimationPause,
+            Scene::GltfPause => Scene::Light,
+            Scene::LightPause => Scene::Bloom,
+            Scene::BloomPause => Scene::Animation,
+            Scene::AnimationPause => Scene::Gltf,
         });
     }
 }
