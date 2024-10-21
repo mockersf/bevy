@@ -26,6 +26,16 @@ fn main() {
     .add_systems(OnEnter(SceneState::Running(Scene::Gltf)), gltf::setup)
     .add_systems(Update, switch_scene);
 
+    #[cfg(feature = "bevy_ci_testing")]
+    {
+        let mut config = app
+            .world_mut()
+            .resource_mut::<bevy::dev_tools::ci_testing::CiTestingConfig>();
+        for (i, event) in config.events.iter_mut().enumerate() {
+            event.0 += 50 * i as u32;
+        }
+    }
+
     app.run();
 }
 
@@ -76,10 +86,12 @@ fn switch_scene(
         });
     }
     if should_switch || matches!(scene.get(), SceneState::PauseBefore(_, _)) {
-        info!("Switching scene");
         next_scene.set(match scene.get() {
-            SceneState::Running(scene) => SceneState::PauseBefore(scene.next(), 5),
-            SceneState::PauseBefore(scene, 0) => SceneState::Running(*scene),
+            SceneState::Running(scene) => SceneState::PauseBefore(scene.next(), 10),
+            SceneState::PauseBefore(scene, 0) => {
+                info!("Switching scene");
+                SceneState::Running(*scene)
+            }
             SceneState::PauseBefore(scene, n) => SceneState::PauseBefore(*scene, n - 1),
         });
     }
