@@ -15,6 +15,7 @@ crates=(
     bevy_state/macros
     bevy_state
     bevy_app
+    bevy_a11y
     bevy_time
     bevy_log
     bevy_asset/macros
@@ -45,7 +46,6 @@ crates=(
     bevy_gizmos/macros
     bevy_gizmos
     bevy_text
-    bevy_a11y
     bevy_ui
     bevy_winit
     bevy_dev_tools
