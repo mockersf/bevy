@@ -11,10 +11,6 @@ env:
   # If nightly is breaking CI, modify this variable to target a specific nightly version.
   NIGHTLY_TOOLCHAIN: nightly
 
-  # Sourced from https://github.com/microsoft/DirectXShaderCompiler/releases
-  DXC_RELEASE: "v1.8.2407"
-  DXC_FILENAME: "dxc_2024_07_31_clang_cl.zip"
-
 jobs:
   run-examples-on-windows-dx12:
     # also run when pushed to main to update reference screenshots
@@ -24,14 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: install dxc
-        shell: bash
-        run: |
-          set -e
-          curl.exe -L --retry 5 https://github.com/microsoft/DirectXShaderCompiler/releases/download/$DXC_RELEASE/$DXC_FILENAME -o dxc.zip
-          7z.exe e dxc.zip -odxc bin/x64/{dxc.exe,dxcompiler.dll,dxil.dll}
-          cp dxc/dxil.dll ./dxil.dll
-          cp dxc/dxcompiler.dll ./dxcompiler.dll
       - name: Run examples
         shell: bash
         run: |
@@ -39,7 +27,7 @@ jobs:
             example_name=`basename $example .ron`
             echo -n $example_name > last_example_run
             echo "running $example_name - "`date`
-            time WGPU_BACKEND=dx12 TRACE_CHROME=trace-$example_name.json CI_TESTING_CONFIG=$example cargo run --example $example_name --features "bevy_ci_testing,trace,trace_chrome"
+            time WGPU_BACKEND=dx12 TRACE_CHROME=trace-$example_name.json CI_TESTING_CONFIG=$example cargo run --example $example_name --features "statically-linked-dxc,bevy_ci_testing,trace,trace_chrome"
             sleep 10
             if [ `find ./ -maxdepth 1 -name 'screenshot-*.png' -print -quit` ]; then
               mkdir screenshots-$example_name
