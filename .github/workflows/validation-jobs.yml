@@ -11,6 +11,10 @@ env:
   # If nightly is breaking CI, modify this variable to target a specific nightly version.
   NIGHTLY_TOOLCHAIN: nightly
 
+  # Sourced from https://github.com/microsoft/DirectXShaderCompiler/releases
+  DXC_RELEASE: "v1.8.2407"
+  DXC_FILENAME: "dxc_2024_07_31_clang_cl.zip"
+
 jobs:
   run-examples-on-windows-dx12:
     # also run when pushed to main to update reference screenshots
@@ -20,6 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - name: install dxc
+        shell: bash
+        run: |
+          set -e
+          curl.exe -L --retry 5 https://github.com/microsoft/DirectXShaderCompiler/releases/download/$DXC_RELEASE/$DXC_FILENAME -o dxc.zip
+          7z.exe e dxc.zip -odxc bin/x64/{dxc.exe,dxcompiler.dll,dxil.dll}
+          cp dxc/dxil.dll ./dxil.dll
+          cp dxc/dxcompiler.dll ./dxcompiler.dll
       - name: Run examples
         shell: bash
         run: |
