@@ -129,14 +129,14 @@ mod bloom {
         commands.spawn((
             Mesh2d(meshes.add(Circle::new(100.))),
             MeshMaterial2d(materials.add(Color::srgb(7.5, 0.0, 7.5))),
-            Transform::from_translation(Vec3::new(-200., 0., 0.)),
+            Transform::from_translation(Vec3::new(-200., -200., 0.)),
             StateScoped(super::Scene::Bloom),
         ));
 
         commands.spawn((
             Mesh2d(meshes.add(RegularPolygon::new(100., 6))),
             MeshMaterial2d(materials.add(Color::srgb(6.25, 9.4, 9.1))),
-            Transform::from_translation(Vec3::new(200., 0., 0.)),
+            Transform::from_translation(Vec3::new(200., 200., 0.)),
             StateScoped(super::Scene::Bloom),
         ));
     }
