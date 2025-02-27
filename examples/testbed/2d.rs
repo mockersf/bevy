@@ -50,7 +50,7 @@ fn switch_scene(
     mut next_scene: ResMut<NextState<Scene>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
-        info!("Switching scene!");
+        info!("Switching scene");
         next_scene.set(scene.get().next());
     }
 }
