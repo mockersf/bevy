@@ -87,7 +87,7 @@ mod shapes {
 
         for (i, shape) in shapes.into_iter().enumerate() {
             // Distribute colors evenly across the rainbow.
-            let color = Color::hsl(360. * i as f32 / num_shapes as f32, 0.95, 0.7);
+            let color = Color::hsl(360. * i as f32 / num_shapes as f32, 0.15, 0.7);
 
             commands.spawn((
                 Mesh2d(shape),
@@ -95,7 +95,7 @@ mod shapes {
                 Transform::from_xyz(
                     // Distribute shapes from -X_EXTENT/2 to +X_EXTENT/2.
                     -X_EXTENT / 2. + i as f32 / (num_shapes - 1) as f32 * X_EXTENT,
-                    0.0,
+                    100.0,
                     0.0,
                 ),
                 StateScoped(super::Scene::Shapes),
