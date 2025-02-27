@@ -89,7 +89,7 @@ jobs:
           PR: ${{ needs.make-macos-screenshots-available.outputs.pr-number.result }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ `gh api --jq '.labels.[].name' /repos/bevyengine/bevy/pulls/${{ PR }}` =~ "S-Rendering-Change" ]]
+          if [[ `gh api --jq '.labels.[].name' /repos/mockersf/bevy/pulls/${{ PR }}` =~ "S-Rendering-Change" ]]
           then
             echo "result=true" >> $GITHUB_OUTPUT
           else
