@@ -11,15 +11,30 @@ test.describe('Wasm example', () => {
     let start = new Date().getTime();
 
     let found = false;
+    let screenshot_taken = false;
+    let screenshot_count = 0;
     while (new Date().getTime() - start < MAX_TIMEOUT_FOR_TEST) {
       let msg = await promiseWithTimeout(100, onConsole(page), "no log found");
       if (msg.includes("no log found")) {
         continue;
       }
       console.log(msg);
+
+      if (msg.includes("Switching to scene")) {
+        let prefix = process.env.SCREENSHOT_PREFIX === undefined ? "screenshot" : process.env.SCREENSHOT_PREFIX;
+        let scene = msg.match(/scene ([A-Za-z]*)/)[1]
+        // await page.screenshot({ path: `${prefix}-${screenshot_count}-${testInfo.project.name}.png`, fullPage: true });
+        await setTimeout(async () => await page.screenshot({ path: `${prefix}-${scene}-${testInfo.project.name}.png`, fullPage: true }),
+          200
+          );
+        screenshot_count++;
+        screenshot_taken = true;
+      }
       if (msg.includes("Test successful")) {
         let prefix = process.env.SCREENSHOT_PREFIX === undefined ? "screenshot" : process.env.SCREENSHOT_PREFIX;
-        await page.screenshot({ path: `${prefix}-${testInfo.project.name}.png`, fullPage: true });
+        if (!screenshot_taken) {
+          await page.screenshot({ path: `${prefix}-${testInfo.project.name}.png`, fullPage: true });
+        }
         found = true;
         break;
       }

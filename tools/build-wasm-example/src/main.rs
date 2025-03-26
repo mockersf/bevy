@@ -20,6 +20,10 @@ struct Args {
     /// Run tests
     test: bool,
 
+    #[arg(long)]
+    /// Run tests in a testbed
+    testbed: bool,
+
     #[arg(short, long)]
     /// Run on the given browsers. By default, chromium, firefox, webkit
     browsers: Vec<String>,
@@ -52,6 +56,10 @@ fn main() {
         let mut file = File::create("ci_testing_config.ron").unwrap();
         file.write_fmt(format_args!("(events: [({frames}, AppExit)])"))
             .unwrap();
+        features.push("bevy_ci_testing");
+    } else if cli.testbed {
+        let mut file = File::create("ci_testing_config.ron").unwrap();
+        file.write_fmt(format_args!("(events: [])")).unwrap();
         features.push("bevy_ci_testing");
     }
 
