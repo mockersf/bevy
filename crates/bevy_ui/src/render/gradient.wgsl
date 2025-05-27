@@ -26,8 +26,8 @@ struct GradientVertexOutput {
     @location(0) uv: vec2<f32>,
     @location(1) @interpolate(flat) size: vec2<f32>,
     @location(2) @interpolate(flat) flags: u32,
-    @location(3) @interpolate(flat) radius: vec4<f32>,    
-    @location(4) @interpolate(flat) border: vec4<f32>,    
+    @location(3) @interpolate(flat) radius: vec4<f32>,
+    @location(4) @interpolate(flat) border: vec4<f32>,
 
     // Position relative to the center of the rectangle.
     @location(5) point: vec2<f32>,
@@ -103,7 +103,7 @@ fn fragment(in: GradientVertexOutput) -> @location(0) vec4<f32> {
     );
 
     if enabled(in.flags, BORDER) {
-        return draw_uinode_border(gradient_color, in.point, in.size, in.radius, in.border);
+        return draw_uinode_border(gradient_color, in.point, in.size, in.radius, in.border, in.flags);
     } else {
         return draw_uinode_background(gradient_color, in.point, in.size, in.radius, in.border);
     }
