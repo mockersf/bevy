@@ -2,10 +2,8 @@
 
 use core::any::TypeId;
 
-use alloc::string::String;
-#[cfg(feature = "debug")]
-use alloc::string::ToString;
 use bevy_reflect::{Reflect, ReflectFromPtr};
+use bevy_utils::prelude::DebugName;
 use thiserror::Error;
 
 use crate::{prelude::*, world::ComponentId};
@@ -78,13 +76,7 @@ impl World {
         };
 
         let Some(comp_ptr) = self.get_by_id(entity, component_id) else {
-            #[cfg(feature = "debug")]
-            let component_name = self
-                .components()
-                .get_name(component_id)
-                .map(|name| name.to_string());
-            #[cfg(not(feature = "debug"))]
-            let component_name = None;
+            let component_name = self.components().get_name(component_id);
 
             return Err(GetComponentReflectError::EntityDoesNotHaveComponent {
                 entity,
@@ -170,16 +162,9 @@ impl World {
 
         // HACK: Only required for the `None`-case/`else`-branch, but it borrows `self`, which will
         // already be mutably borrowed by `self.get_mut_by_id()`, and I didn't find a way around it.
-        #[cfg(feature = "debug")]
-        let component_name = self
-            .components()
-            .get_name(component_id)
-            .map(|name| name.to_string());
+        let component_name = self.components().get_name(component_id).clone();
 
         let Some(comp_mut_untyped) = self.get_mut_by_id(entity, component_id) else {
-            #[cfg(not(feature = "debug"))]
-            let component_name = None;
-
             return Err(GetComponentReflectError::EntityDoesNotHaveComponent {
                 entity,
                 type_id,
@@ -231,7 +216,7 @@ pub enum GetComponentReflectError {
         component_id: ComponentId,
         /// The name corresponding to the [`Component`] with the given [`TypeId`], or `None`
         /// if not available.
-        component_name: Option<String>,
+        component_name: Option<DebugName<'static>>,
     },
 
     /// The [`World`] was missing the [`AppTypeRegistry`] resource.

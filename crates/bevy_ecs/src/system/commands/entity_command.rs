@@ -8,7 +8,6 @@
 use alloc::vec::Vec;
 use log::info;
 
-#[cfg(feature = "debug")]
 use crate::component::ComponentInfo;
 use crate::{
     bundle::{Bundle, InsertMode},
@@ -274,18 +273,12 @@ pub fn move_components<B: Bundle>(target: Entity) -> impl EntityCommand {
 /// An [`EntityCommand`] that logs the components of an entity.
 pub fn log_components() -> impl EntityCommand {
     move |entity: EntityWorldMut| {
-        #[cfg(feature = "debug")]
         let debug_infos: Vec<_> = entity
             .world()
             .inspect_entity(entity.id())
             .expect("Entity existence is verified before an EntityCommand is executed")
             .map(ComponentInfo::name)
             .collect();
-        #[cfg(not(feature = "debug"))]
-        let debug_infos = {
-            let mut disabled = Vec::new();
-            disabled.push("debug feature not enabled");
-        };
         info!("Entity {}: {debug_infos:?}", entity.id());
     }
 }

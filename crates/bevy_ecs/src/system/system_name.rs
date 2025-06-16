@@ -5,9 +5,9 @@ use crate::{
     system::{ExclusiveSystemParam, ReadOnlySystemParam, SystemMeta, SystemParam},
     world::unsafe_world_cell::UnsafeWorldCell,
 };
-use alloc::borrow::Cow;
+use bevy_utils::prelude::DebugName;
 use core::ops::Deref;
-use derive_more::derive::{AsRef, Display, Into};
+use derive_more::derive::{Display, Into};
 
 /// [`SystemParam`] that returns the name of the system which it is used in.
 ///
@@ -35,14 +35,14 @@ use derive_more::derive::{AsRef, Display, Into};
 ///     logger.log("Hello");
 /// }
 /// ```
-#[derive(Debug, Into, Display, AsRef)]
-#[as_ref(str)]
-pub struct SystemName(Cow<'static, str>);
+#[derive(Debug, Into, Display)]
+pub struct SystemName(DebugName<'static>);
 
 impl SystemName {
     /// Gets the name of the system.
     pub fn name(&self) -> &str {
-        &self.0
+        // &self.0
+        todo!()
     }
 }
 

@@ -3441,7 +3441,6 @@ impl World {
 
         let old = self.resource_mut::<Schedules>().insert(schedule);
         if old.is_some() {
-            #[cfg(feature = "debug")]
             warn!("Schedule `{label:?}` was inserted during a call to `World::schedule_scope`: its value has been overwritten");
         }
 
@@ -3627,6 +3626,7 @@ mod tests {
     };
     use bevy_ecs_macros::Component;
     use bevy_platform::collections::{HashMap, HashSet};
+    use bevy_utils::prelude::DebugName;
     use core::{
         any::TypeId,
         panic,
@@ -3809,15 +3809,13 @@ mod tests {
 
         let mut iter = world.iter_resources();
 
-        let (_info, ptr) = iter.next().unwrap();
-        #[cfg(feature = "debug")]
-        assert_eq!(_info.name(), core::any::type_name::<TestResource>());
+        let (info, ptr) = iter.next().unwrap();
+        assert_eq!(info.name(), DebugName::type_name::<TestResource>());
         // SAFETY: We know that the resource is of type `TestResource`
         assert_eq!(unsafe { ptr.deref::<TestResource>().0 }, 42);
 
-        let (_info, ptr) = iter.next().unwrap();
-        #[cfg(feature = "debug")]
-        assert_eq!(_info.name(), core::any::type_name::<TestResource2>());
+        let (info, ptr) = iter.next().unwrap();
+        assert_eq!(info.name(), DebugName::type_name::<TestResource2>());
         assert_eq!(
             // SAFETY: We know that the resource is of type `TestResource2`
             unsafe { &ptr.deref::<TestResource2>().0 },
@@ -3839,17 +3837,15 @@ mod tests {
 
         let mut iter = world.iter_resources_mut();
 
-        let (_info, mut mut_untyped) = iter.next().unwrap();
-        #[cfg(feature = "debug")]
-        assert_eq!(_info.name(), core::any::type_name::<TestResource>());
+        let (info, mut mut_untyped) = iter.next().unwrap();
+        assert_eq!(info.name(), DebugName::type_name::<TestResource>());
         // SAFETY: We know that the resource is of type `TestResource`
         unsafe {
             mut_untyped.as_mut().deref_mut::<TestResource>().0 = 43;
         };
 
-        let (_info, mut mut_untyped) = iter.next().unwrap();
-        #[cfg(feature = "debug")]
-        assert_eq!(_info.name(), core::any::type_name::<TestResource2>());
+        let (info, mut mut_untyped) = iter.next().unwrap();
+        assert_eq!(info.name(), DebugName::type_name::<TestResource2>());
         // SAFETY: We know that the resource is of type `TestResource2`
         unsafe {
             mut_untyped.as_mut().deref_mut::<TestResource2>().0 = "Hello, world?".to_string();

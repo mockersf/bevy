@@ -2,8 +2,6 @@
     clippy::module_inception,
     reason = "This instance of module inception is being discussed; see #17344."
 )]
-#[cfg(feature = "debug")]
-use alloc::borrow::Cow;
 use alloc::{
     boxed::Box,
     collections::{BTreeMap, BTreeSet},
@@ -13,25 +11,22 @@ use alloc::{
     vec::Vec,
 };
 use bevy_platform::collections::{HashMap, HashSet};
+use bevy_utils::prelude::DebugName;
 use bevy_utils::{default, TypeIdMap};
-#[cfg(feature = "debug")]
 use core::fmt::Write;
 use core::{
     any::{Any, TypeId},
     fmt::Debug,
 };
-#[cfg(feature = "debug")]
 use disqualified::ShortName;
 use fixedbitset::FixedBitSet;
 use log::error;
-#[cfg(feature = "debug")]
 use log::{info, warn};
 use pass::ScheduleBuildPassObj;
 use thiserror::Error;
-#[cfg(all(feature = "trace", feature = "debug"))]
+#[cfg(feature = "trace")]
 use tracing::info_span;
 
-#[cfg(feature = "debug")]
 use crate::component::Components;
 use crate::{
     component::{CheckChangeTicks, ComponentId},
@@ -167,7 +162,6 @@ impl Schedules {
     ///
     /// May panic or retrieve incorrect names if [`Components`] is not from the same
     /// world
-    #[cfg(feature = "debug")]
     pub fn print_ignored_ambiguities(&self, components: &Components) {
         let mut message =
             "System order ambiguities caused by conflicts on the following types are ignored:\n"
@@ -674,7 +668,6 @@ impl SystemSetNode {
         Self { inner: set }
     }
 
-    #[cfg(feature = "debug")]
     pub fn name(&self) -> String {
         format!("{:?}", &self.inner)
     }
@@ -683,7 +676,6 @@ impl SystemSetNode {
         self.inner.system_type().is_some()
     }
 
-    #[cfg(feature = "debug")]
     pub fn is_anonymous(&self) -> bool {
         self.inner.is_anonymous()
     }
@@ -1131,10 +1123,7 @@ impl ScheduleGraph {
         match self.system_set_ids.get(&set) {
             Some(set_id) => {
                 if id == set_id {
-                    #[cfg(feature = "debug")]
                     return Err(ScheduleBuildError::HierarchyLoop(self.get_node_name(id)));
-                    #[cfg(not(feature = "debug"))]
-                    return Err(ScheduleBuildError::Anonymous);
                 }
             }
             None => {
@@ -1176,10 +1165,7 @@ impl ScheduleGraph {
             match self.system_set_ids.get(set) {
                 Some(set_id) => {
                     if id == set_id {
-                        #[cfg(feature = "debug")]
                         return Err(ScheduleBuildError::DependencyLoop(self.get_node_name(id)));
-                        #[cfg(not(feature = "debug"))]
-                        return Err(ScheduleBuildError::Anonymous);
                     }
                 }
                 None => {
@@ -1351,7 +1337,6 @@ impl ScheduleGraph {
             &ambiguous_with_flattened,
             ignored_ambiguities,
         );
-        #[cfg(feature = "debug")]
         self.optionally_check_conflicts(&conflicting_systems, world.components(), schedule_label)?;
         self.conflicting_systems = conflicting_systems;
 
@@ -1705,13 +1690,11 @@ pub enum ReportCycles {
 
 // methods for reporting errors
 impl ScheduleGraph {
-    #[cfg(feature = "debug")]
     fn get_node_name(&self, id: &NodeId) -> String {
         self.get_node_name_inner(id, self.settings.report_sets)
     }
 
     #[inline]
-    #[cfg(feature = "debug")]
     fn get_node_name_inner(&self, id: &NodeId, report_sets: bool) -> String {
         let name = match id {
             NodeId::System(_) => {
@@ -1750,7 +1733,6 @@ impl ScheduleGraph {
         }
     }
 
-    #[cfg(feature = "debug")]
     fn anonymous_set_name(&self, id: &NodeId) -> String {
         format!(
             "({})",
@@ -1764,7 +1746,6 @@ impl ScheduleGraph {
         )
     }
 
-    #[cfg(feature = "debug")]
     fn get_node_kind(&self, id: &NodeId) -> &'static str {
         match id {
             NodeId::System(_) => "system",
@@ -1783,10 +1764,7 @@ impl ScheduleGraph {
             return Ok(());
         }
 
-        #[cfg(feature = "debug")]
         let message = self.get_hierarchy_conflicts_error_message(transitive_edges);
-        #[cfg(not(feature = "debug"))]
-        let message = "Enable debug feature for more information".to_string();
         match self.settings.hierarchy_detection {
             LogLevel::Ignore => unreachable!(),
             LogLevel::Warn => {
@@ -1797,7 +1775,6 @@ impl ScheduleGraph {
         }
     }
 
-    #[cfg(feature = "debug")]
     fn get_hierarchy_conflicts_error_message(
         &self,
         transitive_edges: &[(NodeId, NodeId)],
@@ -1826,7 +1803,6 @@ impl ScheduleGraph {
     /// # Errors
     ///
     /// If the graph contain cycles, then an error is returned.
-    #[cfg_attr(not(feature = "debug"), expect(unused_variables))]
     pub fn topsort_graph(
         &self,
         graph: &DiGraph,
@@ -1856,24 +1832,18 @@ impl ScheduleGraph {
                 cycles.append(&mut simple_cycles_in_component(graph, scc));
             }
 
-            #[cfg(feature = "debug")]
-            let error = match report {
+            Err(match report {
                 ReportCycles::Hierarchy => ScheduleBuildError::HierarchyCycle(
                     self.get_hierarchy_cycles_error_message(&cycles),
                 ),
                 ReportCycles::Dependency => ScheduleBuildError::DependencyCycle(
                     self.get_dependency_cycles_error_message(&cycles),
                 ),
-            };
-            #[cfg(not(feature = "debug"))]
-            let error = ScheduleBuildError::Anonymous;
-
-            Err(error)
+            })
         }
     }
 
     /// Logs details of cycles in the hierarchy graph.
-    #[cfg(feature = "debug")]
     fn get_hierarchy_cycles_error_message(&self, cycles: &[Vec<NodeId>]) -> String {
         let mut message = format!("schedule has {} in_set cycle(s):\n", cycles.len());
         for (i, cycle) in cycles.iter().enumerate() {
@@ -1896,7 +1866,6 @@ impl ScheduleGraph {
     }
 
     /// Logs details of cycles in the dependency graph.
-    #[cfg(feature = "debug")]
     fn get_dependency_cycles_error_message(&self, cycles: &[Vec<NodeId>]) -> String {
         let mut message = format!("schedule has {} before/after cycle(s):\n", cycles.len());
         for (i, cycle) in cycles.iter().enumerate() {
@@ -1928,14 +1897,9 @@ impl ScheduleGraph {
         for &(a, b) in &dep_results.connected {
             if hier_results_connected.contains(&(a, b)) || hier_results_connected.contains(&(b, a))
             {
-                #[cfg(feature = "debug")]
-                {
-                    let name_a = self.get_node_name(&a);
-                    let name_b = self.get_node_name(&b);
-                    return Err(ScheduleBuildError::CrossDependency(name_a, name_b));
-                }
-                #[cfg(not(feature = "debug"))]
-                return Err(ScheduleBuildError::Anonymous);
+                let name_a = self.get_node_name(&a);
+                let name_b = self.get_node_name(&b);
+                return Err(ScheduleBuildError::CrossDependency(name_a, name_b));
             }
         }
 
@@ -1957,13 +1921,10 @@ impl ScheduleGraph {
             let b_systems = set_system_bitsets.get(b).unwrap();
 
             if !a_systems.is_disjoint(b_systems) {
-                #[cfg(feature = "debug")]
                 return Err(ScheduleBuildError::SetsHaveOrderButIntersect(
                     self.get_node_name(a),
                     self.get_node_name(b),
                 ));
-                #[cfg(not(feature = "debug"))]
-                return Err(ScheduleBuildError::Anonymous);
             }
         }
 
@@ -1983,20 +1944,16 @@ impl ScheduleGraph {
                 let after = self.dependency.graph.edges_directed(id, Outgoing);
                 let relations = before.count() + after.count() + ambiguous_with.count();
                 if instances > 1 && relations > 0 {
-                    #[cfg(feature = "debug")]
                     return Err(ScheduleBuildError::SystemTypeSetAmbiguity(
                         self.get_node_name(&id),
                     ));
-                    #[cfg(not(feature = "debug"))]
-                    return Err(ScheduleBuildError::Anonymous);
                 }
             }
         }
         Ok(())
     }
 
-    /// if [`ScheduleBuildSettings::ambiguity_detection`] is [`LogLevel::Ignore`], this check is skipped
-    #[cfg(feature = "debug")]
+    /// if [`ScheduleBuildSet
     fn optionally_check_conflicts(
         &self,
         conflicts: &[(NodeId, NodeId, Vec<ComponentId>)],
@@ -2018,7 +1975,6 @@ impl ScheduleGraph {
         }
     }
 
-    #[cfg(feature = "debug")]
     fn get_conflicts_error_message(
         &self,
         ambiguities: &[(NodeId, NodeId, Vec<ComponentId>)],
@@ -2047,12 +2003,11 @@ impl ScheduleGraph {
     }
 
     /// convert conflicts to human readable format
-    #[cfg(feature = "debug")]
     pub fn conflicts_to_string<'a>(
         &'a self,
         ambiguities: &'a [(NodeId, NodeId, Vec<ComponentId>)],
         components: &'a Components,
-    ) -> impl Iterator<Item = (String, String, Vec<Cow<'a, str>>)> + 'a {
+    ) -> impl Iterator<Item = (String, String, Vec<DebugName<'a>>)> + 'a {
         ambiguities
             .iter()
             .map(move |(system_a, system_b, conflicts)| {
@@ -2071,7 +2026,6 @@ impl ScheduleGraph {
             })
     }
 
-    #[cfg(feature = "debug")]
     fn traverse_sets_containing_node(&self, id: NodeId, f: &mut impl FnMut(NodeId) -> bool) {
         for (set_id, _) in self.hierarchy.graph.edges_directed(id, Incoming) {
             if f(set_id) {
@@ -2080,7 +2034,6 @@ impl ScheduleGraph {
         }
     }
 
-    #[cfg(feature = "debug")]
     fn names_of_sets_containing_node(&self, id: &NodeId) -> Vec<String> {
         let mut sets = <HashSet<_>>::default();
         self.traverse_sets_containing_node(*id, &mut |set_id| {
@@ -2099,10 +2052,6 @@ impl ScheduleGraph {
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum ScheduleBuildError {
-    /// Anonymous error. Build with the debug feature to know more
-    #[error("Error building schedule.")]
-    #[cfg(not(feature = "debug"))]
-    Anonymous,
     /// A system set contains itself.
     #[error("System set `{0}` contains itself.")]
     HierarchyLoop(String),
