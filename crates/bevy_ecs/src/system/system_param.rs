@@ -1475,7 +1475,7 @@ unsafe impl<'a, T: 'static> SystemParam for NonSend<'a, T> {
                         "Non-send resource requested by {} does not exist: {}",
                         system_meta.name,
                         core::any::type_name::<T>()
-                    );
+                    )
                 });
 
         NonSend {

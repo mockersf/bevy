@@ -1832,14 +1832,16 @@ impl ScheduleGraph {
                 cycles.append(&mut simple_cycles_in_component(graph, scc));
             }
 
-            Err(match report {
+            let error = match report {
                 ReportCycles::Hierarchy => ScheduleBuildError::HierarchyCycle(
                     self.get_hierarchy_cycles_error_message(&cycles),
                 ),
                 ReportCycles::Dependency => ScheduleBuildError::DependencyCycle(
                     self.get_dependency_cycles_error_message(&cycles),
                 ),
-            })
+            };
+
+            Err(error)
         }
     }
 
@@ -1953,7 +1955,7 @@ impl ScheduleGraph {
         Ok(())
     }
 
-    /// if [`ScheduleBuildSet
+    /// if [`ScheduleBuildSettings::ambiguity_detection`] is [`LogLevel::Ignore`], this check is skipped
     fn optionally_check_conflicts(
         &self,
         conflicts: &[(NodeId, NodeId, Vec<ComponentId>)],

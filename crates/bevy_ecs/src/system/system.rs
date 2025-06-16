@@ -382,12 +382,12 @@ impl RunSystemOnce for &mut World {
     {
         let mut system: T::System = IntoSystem::into_system(system);
         system.initialize(self);
-        system.validate_param(self).map_err(|err| {
-            return RunSystemError::InvalidParams {
+        system
+            .validate_param(self)
+            .map_err(|err| RunSystemError::InvalidParams {
                 system: system.name(),
                 err,
-            };
-        })?;
+            })?;
         Ok(system.run(input, self))
     }
 }

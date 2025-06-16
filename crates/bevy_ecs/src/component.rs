@@ -660,7 +660,7 @@ pub enum StorageType {
 }
 
 /// Stores metadata for a type of component or resource stored in a specific [`World`].
-#[derive(Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct ComponentInfo {
     id: ComponentId,
     descriptor: ComponentDescriptor,
@@ -1730,7 +1730,7 @@ impl<'w> ComponentsRegistrator<'w> {
 }
 
 /// Stores metadata associated with each kind of [`Component`] in a given [`World`].
-#[derive(Default, Debug)]
+#[derive(Debug, Default)]
 pub struct Components {
     components: Vec<Option<ComponentInfo>>,
     indices: TypeIdMap<ComponentId>,
@@ -2810,13 +2810,13 @@ pub fn enforce_no_required_components_recursion(
                 "Recursive required components detected: {}\nhelp: {}",
                 recursion_check_stack
                     .iter()
-                    .map(|id| format!("{}", components.get_name(*id).unwrap()))
+                    .map(|id| format!("{}", components.get_name(*id).unwrap().as_shortname()))
                     .collect::<Vec<_>>()
                     .join(" → "),
                 if direct_recursion {
                     format!(
                         "Remove require({}).",
-                        components.get_name(requiree).unwrap()
+                        components.get_name(requiree).unwrap().as_shortname()
                     )
                 } else {
                     "If this is intentional, consider merging the components.".into()

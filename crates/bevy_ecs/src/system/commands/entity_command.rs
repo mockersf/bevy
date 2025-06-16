@@ -4,7 +4,6 @@
 //! It also contains functions that return closures for use with
 //! [`EntityCommands`](crate::system::EntityCommands).
 
-// #[cfg(feature = "debug")]
 use alloc::vec::Vec;
 use log::info;
 
