@@ -52,7 +52,7 @@ pub trait System: Send + Sync + 'static {
     type Out;
 
     /// Returns the system's name.
-    fn name(&self) -> DebugName<'static>;
+    fn name(&self) -> DebugName;
     /// Returns the [`TypeId`] of the underlying system type.
     #[inline]
     fn type_id(&self) -> TypeId {
@@ -229,7 +229,7 @@ pub type BoxedSystem<In = (), Out = ()> = Box<dyn System<In = In, Out = Out>>;
 pub(crate) fn check_system_change_tick(
     last_run: &mut Tick,
     check: CheckChangeTicks,
-    system_name: DebugName<'_>,
+    system_name: DebugName,
 ) {
     if last_run.check_tick(check) {
         let age = check.present_tick().relative_to(*last_run).get();
@@ -400,7 +400,7 @@ pub enum RunSystemError {
     #[error("System {system} did not run due to failed parameter validation: {err}")]
     InvalidParams {
         /// The identifier of the system that was run.
-        system: DebugName<'static>,
+        system: DebugName,
         /// The returned parameter validation error.
         err: SystemParamValidationError,
     },

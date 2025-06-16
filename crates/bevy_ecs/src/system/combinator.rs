@@ -114,14 +114,14 @@ pub struct CombinatorSystem<Func, A, B> {
     _marker: PhantomData<fn() -> Func>,
     a: A,
     b: B,
-    name: DebugName<'static>,
+    name: DebugName,
 }
 
 impl<Func, A, B> CombinatorSystem<Func, A, B> {
     /// Creates a new system that combines two inner systems.
     ///
     /// The returned system will only be usable if `Func` implements [`Combine<A, B>`].
-    pub fn new(a: A, b: B, name: DebugName<'static>) -> Self {
+    pub fn new(a: A, b: B, name: DebugName) -> Self {
         Self {
             _marker: PhantomData,
             a,
@@ -140,7 +140,7 @@ where
     type In = Func::In;
     type Out = Func::Out;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.name.clone()
     }
 
@@ -319,7 +319,7 @@ where
 pub struct PipeSystem<A, B> {
     a: A,
     b: B,
-    name: DebugName<'static>,
+    name: DebugName,
 }
 
 impl<A, B> PipeSystem<A, B>
@@ -329,7 +329,7 @@ where
     for<'a> B::In: SystemInput<Inner<'a> = A::Out>,
 {
     /// Creates a new system that pipes two inner systems.
-    pub fn new(a: A, b: B, name: DebugName<'static>) -> Self {
+    pub fn new(a: A, b: B, name: DebugName) -> Self {
         Self { a, b, name }
     }
 }
@@ -343,7 +343,7 @@ where
     type In = A::In;
     type Out = B::Out;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.name.clone()
     }
 

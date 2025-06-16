@@ -86,7 +86,7 @@ where
     type Out = F::Out;
 
     #[inline]
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.system_meta.name.clone()
     }
 

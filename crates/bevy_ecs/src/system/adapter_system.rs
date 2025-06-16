@@ -102,7 +102,7 @@ where
 pub struct AdapterSystem<Func, S> {
     func: Func,
     system: S,
-    name: DebugName<'static>,
+    name: DebugName,
 }
 
 impl<Func, S> AdapterSystem<Func, S>
@@ -111,7 +111,7 @@ where
     S: System,
 {
     /// Creates a new [`System`] that uses `func` to adapt `system`, via the [`Adapt`] trait.
-    pub const fn new(func: Func, system: S, name: DebugName<'static>) -> Self {
+    pub const fn new(func: Func, system: S, name: DebugName) -> Self {
         Self { func, system, name }
     }
 }
@@ -124,7 +124,7 @@ where
     type In = Func::In;
     type Out = Func::Out;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.name.clone()
     }
 

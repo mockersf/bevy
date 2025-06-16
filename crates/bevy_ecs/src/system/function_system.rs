@@ -24,7 +24,7 @@ use super::{
 /// The metadata of a [`System`].
 #[derive(Clone)]
 pub struct SystemMeta {
-    pub(crate) name: DebugName<'static>,
+    pub(crate) name: DebugName,
     // NOTE: this must be kept private. making a SystemMeta non-send is irreversible to prevent
     // SystemParams from overriding each other
     flags: SystemStateFlags,
@@ -599,7 +599,7 @@ where
     type Out = F::Out;
 
     #[inline]
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.system_meta.name.clone()
     }
 

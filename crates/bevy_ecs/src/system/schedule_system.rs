@@ -26,7 +26,7 @@ impl<S: System<In = ()>> System for InfallibleSystemWrapper<S> {
     type Out = Result;
 
     #[inline]
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.0.name()
     }
 
@@ -141,7 +141,7 @@ where
 
     type Out = S::Out;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.system.name()
     }
 
@@ -235,7 +235,7 @@ where
 
     type Out = S::Out;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.system.name()
     }
 

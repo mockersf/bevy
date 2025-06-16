@@ -159,7 +159,7 @@ impl System for ApplyDeferred {
     type In = ();
     type Out = Result<()>;
 
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         DebugName::borrowed("bevy_ecs::apply_deferred")
     }
 

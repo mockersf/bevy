@@ -216,7 +216,7 @@ pub enum GetComponentReflectError {
         component_id: ComponentId,
         /// The name corresponding to the [`Component`] with the given [`TypeId`], or `None`
         /// if not available.
-        component_name: Option<DebugName<'static>>,
+        component_name: Option<DebugName>,
     },
 
     /// The [`World`] was missing the [`AppTypeRegistry`] resource.

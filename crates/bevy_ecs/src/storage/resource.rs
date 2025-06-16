@@ -23,7 +23,7 @@ pub struct ResourceData<const SEND: bool> {
         not(feature = "std"),
         expect(dead_code, reason = "currently only used with the std feature")
     )]
-    type_name: DebugName<'static>,
+    type_name: DebugName,
     #[cfg(feature = "std")]
     origin_thread_id: Option<ThreadId>,
     changed_by: MaybeLocation<UnsafeCell<&'static Location<'static>>>,

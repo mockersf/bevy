@@ -2007,7 +2007,7 @@ impl ScheduleGraph {
         &'a self,
         ambiguities: &'a [(NodeId, NodeId, Vec<ComponentId>)],
         components: &'a Components,
-    ) -> impl Iterator<Item = (String, String, Vec<DebugName<'a>>)> + 'a {
+    ) -> impl Iterator<Item = (String, String, Vec<DebugName>)> + 'a {
         ambiguities
             .iter()
             .map(move |(system_a, system_b, conflicts)| {

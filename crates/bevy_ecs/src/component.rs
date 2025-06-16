@@ -678,7 +678,7 @@ impl ComponentInfo {
 
     /// Returns the name of the current component.
     #[inline]
-    pub fn name(&self) -> DebugName<'static> {
+    pub fn name(&self) -> DebugName {
         self.descriptor.name.clone()
     }
 
@@ -836,7 +836,7 @@ impl SparseSetIndex for ComponentId {
 /// A value describing a component or resource, which may or may not correspond to a Rust type.
 #[derive(Clone)]
 pub struct ComponentDescriptor {
-    name: DebugName<'static>,
+    name: DebugName,
     // SAFETY: This must remain private. It must match the statically known StorageType of the
     // associated rust component type if one exists.
     storage_type: StorageType,
@@ -964,7 +964,7 @@ impl ComponentDescriptor {
 
     /// Returns the name of the current component.
     #[inline]
-    pub fn name(&self) -> DebugName<'static> {
+    pub fn name(&self) -> DebugName {
         self.name.clone()
     }
 
@@ -1854,7 +1854,7 @@ impl Components {
     ///
     /// This will return an incorrect result if `id` did not come from the same world as `self`. It may return `None` or a garbage value.
     #[inline]
-    pub fn get_name<'a>(&'a self, id: ComponentId) -> Option<DebugName<'static>> {
+    pub fn get_name<'a>(&'a self, id: ComponentId) -> Option<DebugName> {
         self.components
             .get(id.0)
             .and_then(|info| info.as_ref().map(|info| info.descriptor.name()))

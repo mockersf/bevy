@@ -106,7 +106,7 @@ pub enum SceneSpawnError {
     )]
     UnregisteredType {
         /// The [type name](std::any::type_name) for the unregistered type.
-        std_type_name: DebugName<'static>,
+        std_type_name: DebugName,
     },
     /// Scene contains an unregistered type.
     #[error(

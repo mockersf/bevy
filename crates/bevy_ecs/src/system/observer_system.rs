@@ -113,7 +113,7 @@ where
     type Out = Result;
 
     #[inline]
-    fn name(&self) -> DebugName<'static> {
+    fn name(&self) -> DebugName {
         self.observer.name()
     }
 

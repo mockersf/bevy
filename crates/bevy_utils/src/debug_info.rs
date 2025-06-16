@@ -6,19 +6,19 @@ use std::fmt;
 
 /// Zut
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct DebugName<'a> {
-    name: Cow<'a, str>,
+pub struct DebugName {
+    name: Cow<'static, str>,
 }
 
-impl<'a> fmt::Display for DebugName<'a> {
+impl fmt::Display for DebugName {
     fn fmt(&self, _f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         todo!()
     }
 }
 
-impl<'a> DebugName<'a> {
+impl DebugName {
     /// Zut
-    pub fn borrowed(value: &'a str) -> Self {
+    pub fn borrowed(value: &'static str) -> Self {
         DebugName {
             name: Cow::Borrowed(value),
         }
@@ -39,9 +39,7 @@ impl<'a> DebugName<'a> {
     pub fn as_shortname(&self) -> ShortName {
         ShortName(self.name.as_ref())
     }
-}
 
-impl DebugName<'static> {
     /// Zut
     pub fn type_name<T>() -> Self {
         DebugName {
@@ -50,8 +48,8 @@ impl DebugName<'static> {
     }
 }
 
-impl<'a> From<Cow<'a, str>> for DebugName<'a> {
-    fn from(value: Cow<'a, str>) -> Self {
+impl From<Cow<'static, str>> for DebugName {
+    fn from(value: Cow<'static, str>) -> Self {
         Self { name: value }
     }
 }

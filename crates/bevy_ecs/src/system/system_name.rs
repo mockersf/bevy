@@ -36,7 +36,7 @@ use derive_more::derive::{Display, Into};
 /// }
 /// ```
 #[derive(Debug, Into, Display)]
-pub struct SystemName(DebugName<'static>);
+pub struct SystemName(DebugName);
 
 impl SystemName {
     /// Gets the name of the system.

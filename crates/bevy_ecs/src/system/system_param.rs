@@ -368,9 +368,9 @@ unsafe impl<D: QueryData + 'static, F: QueryFilter + 'static> SystemParam for Qu
 }
 
 fn assert_component_access_compatibility(
-    system_name: &DebugName<'_>,
-    query_type: DebugName<'static>,
-    filter_type: DebugName<'static>,
+    system_name: &DebugName,
+    query_type: DebugName,
+    filter_type: DebugName,
     system_access: &FilteredAccessSet<ComponentId>,
     current: &FilteredAccess<ComponentId>,
     world: &World,
@@ -2785,7 +2785,7 @@ pub struct SystemParamValidationError {
 
     /// A string identifying the invalid parameter.
     /// This is usually the type name of the parameter.
-    pub param: DebugName<'static>,
+    pub param: DebugName,
 
     /// A string identifying the field within a parameter using `#[derive(SystemParam)]`.
     /// This will be an empty string for other parameters.
