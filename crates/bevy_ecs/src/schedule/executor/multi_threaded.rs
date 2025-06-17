@@ -339,6 +339,7 @@ impl<'scope, 'env: 'scope, 'sys> Context<'scope, 'env, 'sys> {
             .push(SystemResult { system_index })
             .unwrap_or_else(|error| unreachable!("{}", error));
         if let Err(payload) = res {
+            #[cfg(feature = "std")]
             #[expect(clippy::print_stderr, reason = "Allowed behind `std` feature gate.")]
             {
                 eprintln!("Encountered a panic in system `{}`!", system.name());
@@ -793,6 +794,7 @@ fn apply_deferred(
             system.apply_deferred(world);
         }));
         if let Err(payload) = res {
+            #[cfg(feature = "std")]
             #[expect(clippy::print_stderr, reason = "Allowed behind `std` feature gate.")]
             {
                 eprintln!(

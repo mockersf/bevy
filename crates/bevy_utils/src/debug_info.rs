@@ -53,3 +53,9 @@ impl From<Cow<'static, str>> for DebugName {
         Self { name: value }
     }
 }
+
+impl From<String> for DebugName {
+    fn from(value: String) -> Self {
+        Self::owned(value)
+    }
+}

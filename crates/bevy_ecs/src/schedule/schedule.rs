@@ -11,25 +11,22 @@ use alloc::{
     vec::Vec,
 };
 use bevy_platform::collections::{HashMap, HashSet};
-use bevy_utils::prelude::DebugName;
-use bevy_utils::{default, TypeIdMap};
-use core::fmt::Write;
+use bevy_utils::{default, prelude::DebugName, TypeIdMap};
 use core::{
     any::{Any, TypeId},
-    fmt::Debug,
+    fmt::{Debug, Write},
 };
 use disqualified::ShortName;
 use fixedbitset::FixedBitSet;
-use log::error;
-use log::{info, warn};
+use log::{error, info, warn};
 use pass::ScheduleBuildPassObj;
 use thiserror::Error;
 #[cfg(feature = "trace")]
 use tracing::info_span;
 
-use crate::component::Components;
+use crate::component::CheckChangeTicks;
 use crate::{
-    component::{CheckChangeTicks, ComponentId},
+    component::{ComponentId, Components},
     prelude::Component,
     query::FilteredAccessSet,
     resource::Resource,

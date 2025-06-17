@@ -24,8 +24,7 @@ use bevy_platform::{
 use bevy_ptr::{OwningPtr, UnsafeCellDeref};
 #[cfg(feature = "bevy_reflect")]
 use bevy_reflect::Reflect;
-use bevy_utils::prelude::DebugName;
-use bevy_utils::TypeIdMap;
+use bevy_utils::{prelude::DebugName, TypeIdMap};
 use core::{
     alloc::Layout,
     any::{Any, TypeId},

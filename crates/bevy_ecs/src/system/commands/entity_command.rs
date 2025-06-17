@@ -7,11 +7,10 @@
 use alloc::vec::Vec;
 use log::info;
 
-use crate::component::ComponentInfo;
 use crate::{
     bundle::{Bundle, InsertMode},
     change_detection::MaybeLocation,
-    component::{Component, ComponentId},
+    component::{Component, ComponentId, ComponentInfo},
     entity::{Entity, EntityClonerBuilder},
     event::Event,
     relationship::RelationshipHookMode,

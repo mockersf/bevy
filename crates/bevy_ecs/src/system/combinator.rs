@@ -1,5 +1,4 @@
-use alloc::format;
-use alloc::vec::Vec;
+use alloc::{format, vec::Vec};
 use bevy_utils::prelude::DebugName;
 use core::marker::PhantomData;
 

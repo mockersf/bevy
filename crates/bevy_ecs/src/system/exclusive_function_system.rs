@@ -1,17 +1,15 @@
-use crate::system::check_system_change_tick;
 use crate::{
     component::{CheckChangeTicks, ComponentId, Tick},
     query::FilteredAccessSet,
     schedule::{InternedSystemSet, SystemSet},
     system::{
-        ExclusiveSystemParam, ExclusiveSystemParamItem, IntoSystem, System, SystemIn, SystemInput,
-        SystemMeta,
+        check_system_change_tick, ExclusiveSystemParam, ExclusiveSystemParamItem, IntoSystem,
+        System, SystemIn, SystemInput, SystemMeta,
     },
     world::{unsafe_world_cell::UnsafeWorldCell, World},
 };
 
-use alloc::borrow::Cow;
-use alloc::{vec, vec::Vec};
+use alloc::{borrow::Cow, vec, vec::Vec};
 use bevy_utils::prelude::DebugName;
 use core::marker::PhantomData;
 use variadics_please::all_tuples;

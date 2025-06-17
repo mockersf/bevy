@@ -2,9 +2,10 @@
 
 use core::any::TypeId;
 
+use thiserror::Error;
+
 use bevy_reflect::{Reflect, ReflectFromPtr};
 use bevy_utils::prelude::DebugName;
-use thiserror::Error;
 
 use crate::{prelude::*, world::ComponentId};
 

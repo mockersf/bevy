@@ -1,5 +1,4 @@
-use alloc::boxed::Box;
-use alloc::format;
+use alloc::{boxed::Box, format};
 use bevy_utils::prelude::DebugName;
 use core::ops::Not;
 
@@ -466,7 +465,6 @@ mod sealed {
 /// A collection of [run conditions](SystemCondition) that may be useful in any bevy app.
 pub mod common_conditions {
     use super::{NotSystem, SystemCondition};
-    use crate::system::System;
     use crate::{
         change_detection::DetectChanges,
         event::{Event, EventReader},
@@ -474,10 +472,9 @@ pub mod common_conditions {
         prelude::{Component, Query, With},
         query::QueryFilter,
         resource::Resource,
-        system::{In, IntoSystem, Local, Res, SystemInput},
+        system::{In, IntoSystem, Local, Res, System, SystemInput},
     };
     use alloc::format;
-    use bevy_utils::prelude::DebugName;
 
     /// A [`SystemCondition`]-satisfying system that returns `true`
     /// on the first time the condition is run and false every time after.
@@ -1047,7 +1044,7 @@ pub mod common_conditions {
     {
         let condition = IntoSystem::into_system(condition);
         let name = format!("!{}", condition.name());
-        NotSystem::new(super::NotMarker, condition, DebugName::owned(name))
+        NotSystem::new(super::NotMarker, condition, name.into())
     }
 
     /// Generates a [`SystemCondition`] that returns true when the passed one changes.

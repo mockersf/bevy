@@ -26,8 +26,7 @@ pub mod passes {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use alloc::string::ToString;
-    use alloc::{vec, vec::Vec};
+    use alloc::{string::ToString, vec, vec::Vec};
     use core::sync::atomic::{AtomicU32, Ordering};
 
     use crate::error::BevyError;
