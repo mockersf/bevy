@@ -384,7 +384,7 @@ fn assert_component_access_compatibility(
     if !accesses.is_empty() {
         accesses.push(' ');
     }
-    panic!("error[B0001]: Query<{}, {}> in system {system_name} accesses component(s) {accesses}in a way that conflicts with a previous system parameter. Consider using `Without<T>` to create disjoint Queries or merging conflicting Queries into a `ParamSet`. See: https://bevy.org/learn/errors/b0001", query_type.as_shortname(), filter_type.as_shortname());
+    panic!("error[B0001]: Query<{}, {}> in system {system_name} accesses component(s) {accesses}in a way that conflicts with a previous system parameter. Consider using `Without<T>` to create disjoint Queries or merging conflicting Queries into a `ParamSet`. See: https://bevy.org/learn/errors/b0001", query_type.shortname(), filter_type.shortname());
 }
 
 // SAFETY: Relevant query ComponentId access is applied to SystemMeta. If
@@ -2828,7 +2828,7 @@ impl Display for SystemParamValidationError {
         write!(
             fmt,
             "Parameter `{}{}` failed validation: {}",
-            self.param.as_shortname(),
+            self.param.shortname(),
             self.field,
             self.message
         )?;

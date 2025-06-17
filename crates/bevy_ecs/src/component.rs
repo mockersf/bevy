@@ -2809,13 +2809,13 @@ pub fn enforce_no_required_components_recursion(
                 "Recursive required components detected: {}\nhelp: {}",
                 recursion_check_stack
                     .iter()
-                    .map(|id| format!("{}", components.get_name(*id).unwrap().as_shortname()))
+                    .map(|id| format!("{}", components.get_name(*id).unwrap().shortname()))
                     .collect::<Vec<_>>()
                     .join(" → "),
                 if direct_recursion {
                     format!(
                         "Remove require({}).",
-                        components.get_name(requiree).unwrap().as_shortname()
+                        components.get_name(requiree).unwrap().shortname()
                     )
                 } else {
                     "If this is intentional, consider merging the components.".into()

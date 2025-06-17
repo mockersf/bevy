@@ -36,7 +36,7 @@ impl DebugName {
     // }
 
     /// Zut
-    pub fn as_shortname(&self) -> ShortName {
+    pub fn shortname(&self) -> ShortName {
         ShortName(self.name.as_ref())
     }
 

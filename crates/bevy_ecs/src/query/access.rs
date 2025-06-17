@@ -1002,7 +1002,7 @@ impl AccessConflicts {
                             .components
                             .get_name(ComponentId::get_sparse_set_index(index))
                             .unwrap()
-                            .as_shortname()
+                            .shortname()
                     )
                 })
                 .collect::<Vec<_>>()
