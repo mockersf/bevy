@@ -1434,7 +1434,7 @@ unsafe impl<'a, T: 'static> SystemParam for NonSend<'a, T> {
         assert!(
             !combined_access.has_resource_write(component_id),
             "error[B0002]: NonSend<{}> in system {} conflicts with a previous mutable resource access ({0}). Consider removing the duplicate access. See: https://bevy.org/learn/errors/b0002",
-            core::any::type_name::<T>(),
+            DebugName::type_name::<T>(),
             system_meta.name,
         );
         component_access_set.add_unfiltered_resource_read(component_id);
@@ -1474,7 +1474,7 @@ unsafe impl<'a, T: 'static> SystemParam for NonSend<'a, T> {
                     panic!(
                         "Non-send resource requested by {} does not exist: {}",
                         system_meta.name,
-                        core::any::type_name::<T>()
+                        DebugName::type_name::<T>()
                     )
                 });
 
