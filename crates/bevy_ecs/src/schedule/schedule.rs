@@ -16,7 +16,6 @@ use core::{
     any::{Any, TypeId},
     fmt::{Debug, Write},
 };
-use disqualified::ShortName;
 use fixedbitset::FixedBitSet;
 use log::{error, info, warn};
 use pass::ScheduleBuildPassObj;
@@ -1695,12 +1694,12 @@ impl ScheduleGraph {
     fn get_node_name_inner(&self, id: &NodeId, report_sets: bool) -> String {
         let name = match id {
             NodeId::System(_) => {
-                let name = self.systems[id.index()]
-                    .get()
-                    .unwrap()
-                    .system
-                    .name()
-                    .to_string();
+                let name = self.systems[id.index()].get().unwrap().system.name();
+                let name = if self.settings.use_shortnames {
+                    name.shortname().to_string()
+                } else {
+                    name.to_string()
+                };
                 if report_sets {
                     let sets = self.names_of_sets_containing_node(id);
                     if sets.is_empty() {
@@ -1723,11 +1722,7 @@ impl ScheduleGraph {
                 }
             }
         };
-        if self.settings.use_shortnames {
-            ShortName(&name).to_string()
-        } else {
-            name
-        }
+        name
     }
 
     fn anonymous_set_name(&self, id: &NodeId) -> String {
