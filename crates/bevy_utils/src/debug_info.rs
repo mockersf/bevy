@@ -71,6 +71,14 @@ impl DebugName {
         #[cfg(not(feature = "debug"))]
         return ShortName(FEATURE_DISABLED);
     }
+
+    /// Return the string hold by this `DebugName`
+    ///
+    /// This is intended for debugging purpose, and only available if the `debug` feature is enabled
+    #[cfg(feature = "debug")]
+    pub fn as_string(&self) -> String {
+        self.name.clone().into_owned()
+    }
 }
 
 impl From<Cow<'static, str>> for DebugName {
