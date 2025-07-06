@@ -110,8 +110,8 @@ impl Default for WgpuSettings {
                 let dxil = "dxil.dll";
 
                 if cfg!(target_os = "windows")
-                    && std::fs::metadata(dxc).is_ok()
-                    && std::fs::metadata(dxil).is_ok()
+                    && dbg!(std::fs::metadata(dxc).is_ok())
+                    && dbg!(std::fs::metadata(dxil).is_ok())
                 {
                     Dx12Compiler::DynamicDxc {
                         dxc_path: String::from(dxc),
@@ -126,6 +126,8 @@ impl Default for WgpuSettings {
         let gles3_minor_version = Gles3MinorVersion::from_env().unwrap_or_default();
 
         let instance_flags = InstanceFlags::default().with_env();
+
+        eprintln!("{:?}", dx12_shader_compiler);
 
         Self {
             device_label: Default::default(),
