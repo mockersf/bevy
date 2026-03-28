@@ -13,6 +13,7 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 bevy = { path = "../../" }
+android-activity = "=0.6.0"
 
 [lints]
 workspace = true
