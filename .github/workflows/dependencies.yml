@@ -7,11 +7,11 @@ on:
   pull_request:
     paths:
       - "**/Cargo.toml"
-      - "deny.toml"
+      - "tools/deny.toml"
   push:
     paths:
       - "**/Cargo.toml"
-      - "deny.toml"
+      - "tools/deny.toml"
     branches:
       - main
 
@@ -35,7 +35,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check for security advisories and unmaintained crates
-        run: cargo deny check advisories
+        run: cargo deny check --config tools/deny.toml advisories
 
   check-bans:
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check for banned and duplicated dependencies
-        run: cargo deny check bans
+        run: cargo deny check --config tools/deny.toml bans
 
   check-licenses:
     runs-on: ubuntu-latest
@@ -63,7 +63,7 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Check for unauthorized licenses
-        run: cargo deny check licenses
+        run: cargo deny check --config tools/deny.toml licenses
 
   check-sources:
     runs-on: ubuntu-latest
@@ -77,4 +77,4 @@ jobs:
       - name: Install cargo-deny
         run: cargo install cargo-deny
       - name: Checked for unauthorized crate sources
-        run: cargo deny check sources
+        run: cargo deny check --config tools/deny.toml sources
